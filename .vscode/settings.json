@@ -1,0 +1,12 @@
+{
+  "nixEnvSelector.nixFile": "${workspaceFolder}/shell.nix",
+  "terminal.integrated.profiles.linux": {
+    "Nix Shell": {
+      "path": "nix",
+      "args": ["develop"],
+      "icon": "terminal-linux"
+    }
+  },
+  "terminal.integrated.defaultProfile.linux": "Nix Shell",
+  "ansible.python.interpreterPath": "/bin/python"
+}

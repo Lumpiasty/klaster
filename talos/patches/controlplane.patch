@@ -1,0 +1,34 @@
+machine:
+  certSANs:
+    - kube-api.homelab.lumpiasty.xyz
+
+  network:
+    nameservers:
+      - 2001:470:61a3:100:ffff:ffff:ffff:ffff
+      - 192.168.1.1
+
+    searchDomains:
+      - homelab-infra.lumpiasty.xyz
+
+  features:
+    hostDNS:
+      forwardKubeDNSToHost: false
+
+cluster:
+  network:
+    # Likely redundant, we use Cilium as IPAM with their CRDs
+    podSubnets:
+      - 10.42.0.0/16
+      - 2001:470:61a3:200::/64
+    # Less likely redundant
+    serviceSubnets:
+      - 10.43.0.0/16
+      - 2001:470:61a3:300::/112
+    # We manually install Cilium
+    cni:
+      name: none
+  # We use Cilium's proxy replacement
+  proxy:
+    disabled: true
+  # Too poor
+  allowSchedulingOnControlPlanes: true

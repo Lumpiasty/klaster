@@ -1,0 +1,6 @@
+- name: Configure router
+  hosts: openwrt
+  remote_user: root
+  roles:
+    - ansible-openwrt
+    - router

@@ -1,0 +1,3 @@
+[submodule "openwrt/roles/ansible-openwrt"]
+	path = openwrt/roles/ansible-openwrt
+	url = https://github.com/gekmihesg/ansible-openwrt.git

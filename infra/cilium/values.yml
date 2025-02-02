@@ -1,0 +1,59 @@
+# Talos specific
+# https://www.talos.dev/v1.9/kubernetes-guides/network/deploying-cilium/
+kubeProxyReplacement: true
+
+securityContext:
+  capabilities:
+    ciliumAgent:
+      - CHOWN
+      - KILL
+      - NET_ADMIN
+      - NET_RAW
+      - IPC_LOCK
+      - SYS_ADMIN
+      - SYS_RESOURCE
+      - DAC_OVERRIDE
+      - FOWNER
+      - SETGID
+      - SETUID
+    cleanCiliumState:
+      - NET_ADMIN
+      - SYS_ADMIN
+      - SYS_RESOURCE
+
+cgroup:
+  autoMount:
+    enabled: false
+  hostRoot: /sys/fs/cgroup
+
+k8sServiceHost: localhost
+k8sServicePort: 7445
+
+# Homelab
+routingMode: native
+ipv6:
+  enabled: true
+
+# Enable managing of IP Pools via CRD
+ipam:
+  mode: multi-pool
+  operator:
+    autoCreateCiliumPodIPPools:
+      default:
+        # In line with controlplane.yml
+        ipv4:
+          cidrs:
+            - 10.42.0.0/16
+          maskSize: 24
+        ipv6:
+          cidrs:
+            - 2001:470:61a3:200::/104
+          maskSize: 120
+
+# Disable masquerading, ipv4 is done at router level
+enableIPv4Masquerade: false
+enableIPv6Masquerade: false
+
+# Enable peering announcing routes via BGP
+bgpControlPlane:
+  enabled: true

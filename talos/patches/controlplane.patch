@@ -27,6 +27,7 @@ cluster:
     # We manually install Cilium
     cni:
       name: none
+    dnsDomain: homelab.lumpiasty.xyz
   # We use Cilium's proxy replacement
   proxy:
     disabled: true

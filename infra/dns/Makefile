@@ -1,2 +1,2 @@
 install:
-	kubectl apply -f svc.yml
+	kubectl apply -f proxy.yml -f svc.yml

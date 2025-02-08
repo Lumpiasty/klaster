@@ -1,0 +1,18 @@
+controller:
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 100m
+      memory: 128Mi
+
+  ingressClass:
+    create: true
+    setAsDefaultIngress: true
+
+  service:
+    create: true
+    type: LoadBalancer
+    externalTrafficPolicy: Local
+    ipFamilyPolicy: RequireDualStack

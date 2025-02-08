@@ -5,6 +5,18 @@ metadata:
   namespace: kube-system
 data:
   Corefile: |-
+    lb.homelab.lumpiasty.xyz.:53 {
+        view externalv4 {
+            expr type() in ['A'] 
+            expr not hasSuffix(name(), '.in-addr.arpa.')
+        }
+        log . {
+            class all
+        }
+        template IN A {
+          answer "{{ .Name }} 60 IN A 139.28.40.212"
+        }
+    }
     .:53 {
         # Filter out anything IPv4 related
         view external {

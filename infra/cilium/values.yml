@@ -57,3 +57,18 @@ enableIPv6Masquerade: false
 # Enable peering announcing routes via BGP
 bgpControlPlane:
   enabled: true
+
+# Decrease requests
+resources:
+  requests:
+    cpu: 0
+
+operator:
+  resources:
+    requests:
+      cpu: 0
+
+envoy:
+  resources:
+    requests:
+      cpu: 0

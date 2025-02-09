@@ -7,6 +7,9 @@ postgresql:
     persistence:
       enabled: true
       storageClass: mayastor-single-hdd
+    resources:
+      requests:
+        cpu: 0
 
 redis-cluster:
   enabled: false
@@ -17,6 +20,9 @@ redis:
     persistence:
       enabled: true
       storageClass: mayastor-single-hdd
+    resources:
+      requests:
+        cpu: 0
 
 persistence:
   enabled: true
@@ -61,3 +67,12 @@ ingress:
     - hosts:
         - gitea.lumpiasty.xyz
       secretName: gitea-ingress
+
+resources:
+  requests:
+    cpu: 0
+
+initContainers:
+  resources:
+    requests:
+      cpu: 0

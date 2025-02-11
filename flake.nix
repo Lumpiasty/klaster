@@ -30,6 +30,7 @@
                         openebs
                     ]))
                     ansible
+                    fluxcd
                 ];
                 
                 shellHook = ''

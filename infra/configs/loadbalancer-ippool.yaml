@@ -1,0 +1,8 @@
+apiVersion: "cilium.io/v2alpha1"
+kind: CiliumLoadBalancerIPPool
+metadata:
+  name: "blue-pool"
+spec:
+  blocks:
+    - cidr: 10.44.0.0/16
+    - cidr: 2001:470:61a3:400::/112

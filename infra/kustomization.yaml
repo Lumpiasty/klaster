@@ -5,4 +5,6 @@ resources:
   - controllers/dns-public.yaml
   - controllers/cert-manager.yaml
   - controllers/openebs.yaml
+  - diskpools/zoma-dibaiyin-hdd.yaml
   - configs/cluster-issuer.yaml
+  - configs/single-hdd-sc.yaml

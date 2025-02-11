@@ -1,0 +1,11 @@
+apiVersion: "openebs.io/v1beta2"
+kind: DiskPool
+metadata:
+  name: zoma-dibaiyin-hdd
+  namespace: openebs
+spec:
+  node: zoma-dibaiyin
+  disks: ["aio:///dev/disk/by-id/wwn-0x5000c500ba15dcf7"]
+  topology:
+    labelled:
+      type: hdd

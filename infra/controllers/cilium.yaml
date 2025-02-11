@@ -11,7 +11,7 @@ metadata:
   namespace: kube-system
 spec:
   interval: 24h
-  url: https://helm.cilium.com/stable
+  url: https://helm.cilium.io/
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease

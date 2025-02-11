@@ -4,4 +4,5 @@ resources:
   - controllers/nginx.yaml
   - controllers/dns-public.yaml
   - controllers/cert-manager.yaml
+  - controllers/openebs.yaml
   - configs/cluster-issuer.yaml

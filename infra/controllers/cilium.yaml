@@ -96,6 +96,7 @@ spec:
         cpu: 0
 
     operator:
+      replicas: 1
       resources:
         requests:
           cpu: 0

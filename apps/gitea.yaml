@@ -60,6 +60,9 @@ spec:
       enabled: true
       storageClass: mayastor-single-hdd
 
+    image:
+      tag: 1.23.3
+
     gitea:
       config:
         database:

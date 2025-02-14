@@ -31,6 +31,7 @@
                     ]))
                     ansible
                     fluxcd
+                    velero
                 ];
                 
                 shellHook = ''

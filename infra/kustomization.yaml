@@ -11,3 +11,4 @@ resources:
   - configs/loadbalancer-ippool.yaml
   - configs/cluster-issuer.yaml
   - configs/single-hdd-sc.yaml
+  - configs/mayastor-snapshotclass.yaml

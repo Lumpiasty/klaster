@@ -38,3 +38,5 @@ spec:
         replicas: 1
       service:
         enabled: true
+      dataStorage:
+        storageClass: mayastor-single-hdd

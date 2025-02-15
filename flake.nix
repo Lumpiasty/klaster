@@ -31,7 +31,7 @@
                     ]))
                     ansible
                     fluxcd
-                    velero
+                    restic
                 ];
                 
                 shellHook = ''
@@ -40,6 +40,11 @@
 
                 export TALOSCONFIG=$(pwd)/talos/generated/talosconfig
                 export EDITOR=vim
+
+                export RESTIC_REPOSITORY=s3:https://s3.eu-central-003.backblazeb2.com/lumpiasty-backups
+                # export AWS_ACCESS_KEY_ID=?
+                # export AWS_SECRET_ACCESS_KEY=?
+                # export RESTIC_PASSWORD=?
                 '';
             };
     };

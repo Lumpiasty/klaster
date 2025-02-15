@@ -1,0 +1,18 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: openbao
+  namespace: openbao
+spec:
+  secretName: openbao-lumpiasty-xyz
+
+  dnsNames:
+    - openbao.lumpiasty.xyz
+
+  usages:
+    - digital signature
+    - key encipherment
+
+  issuerRef:
+    name: letsencrypt
+    kind: ClusterIssuer

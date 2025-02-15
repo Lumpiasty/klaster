@@ -51,6 +51,8 @@ spec:
           prefix: homelab-backups
           default: true
           validationFrequency: 1h
+          # Need to manually create it
+          # https://blachniet.com/posts/backup-your-kubernetes-cluster-with-velero-and-backblaze/#create-the-bucket-and-application-key
           credential:
             name: backblaze-key
             key: key

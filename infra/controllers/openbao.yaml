@@ -39,5 +39,6 @@ spec:
       service:
         enabled: true
         type: LoadBalancer
+        ipFamilyPolicy: RequireDualStack
       dataStorage:
         storageClass: mayastor-single-hdd

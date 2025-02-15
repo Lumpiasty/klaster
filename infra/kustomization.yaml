@@ -8,6 +8,7 @@ resources:
   - controllers/cert-manager.yaml
   - controllers/openebs.yaml
   - controllers/k8up.yaml
+  - controllers/openbao.yaml
   - diskpools/zoma-dibaiyin-hdd.yaml
   - configs/bgp-cluster-config.yaml
   - configs/loadbalancer-ippool.yaml

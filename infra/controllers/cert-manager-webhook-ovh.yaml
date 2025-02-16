@@ -30,3 +30,21 @@ spec:
     certManager:
       namespace: cert-manager
       serviceAccountName: cert-manager
+    issuers:
+      - name: letsencrypt
+        create: true
+        kind: ClusterIssuer
+        cnameStrategy: None
+        acmeServerUrl: https://acme-v02.api.letsencrypt.org/directory
+        email: arek.dzski@gmail.com
+        ovhEndpointName: ovh-eu
+        ovhAuthenticationRef:
+          applicationKeyRef:
+            name: ovh-credentials
+            key: applicationKey
+          applicationSecretRef:
+            name: ovh-credentials
+            key: applicationSecret
+          consumerKeyRef:
+            name: ovh-credentials
+            key: consumerKey

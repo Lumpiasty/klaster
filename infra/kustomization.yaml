@@ -13,7 +13,6 @@ resources:
   - diskpools/zoma-dibaiyin-hdd.yaml
   - configs/bgp-cluster-config.yaml
   - configs/loadbalancer-ippool.yaml
-  - configs/cluster-issuer.yaml
   - configs/single-hdd-sc.yaml
   - configs/mayastor-snapshotclass.yaml
   - configs/openbao-cert.yaml

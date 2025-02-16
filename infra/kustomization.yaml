@@ -15,4 +15,3 @@ resources:
   - configs/cluster-issuer.yaml
   - configs/single-hdd-sc.yaml
   - configs/mayastor-snapshotclass.yaml
-  - configs/openbao-cert.yaml

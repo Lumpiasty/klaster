@@ -30,6 +30,8 @@ spec:
         namespace: openbao
       interval: 12h
   values:
+    global:
+      tlsDisable: false
     server:
       ha:
         enabled: true

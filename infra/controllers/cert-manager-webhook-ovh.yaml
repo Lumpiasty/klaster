@@ -24,3 +24,9 @@ spec:
         name: cert-manager-webhook-ovh
         namespace: cert-manager
       interval: 12h
+  values:
+    configVersion: 0.0.1
+    groupName: lumpiasty-homelab
+    certManager:
+      namespace: cert-manager
+      serviceAccountName: cert-manager

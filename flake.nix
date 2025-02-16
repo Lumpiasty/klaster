@@ -32,6 +32,7 @@
                     ansible
                     fluxcd
                     restic
+                    openbao
                 ];
                 
                 shellHook = ''
@@ -45,6 +46,7 @@
                 # export AWS_ACCESS_KEY_ID=?
                 # export AWS_SECRET_ACCESS_KEY=?
                 # export RESTIC_PASSWORD=?
+                export VAULT_ADDR=https://openbao.lumpiasty.xyz:8200
                 '';
             };
     };

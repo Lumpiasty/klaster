@@ -7,8 +7,21 @@ spec:
     email: arek.dzski@gmail.com
     server: https://acme-v02.api.letsencrypt.org/directory
     solvers:
-      - http01:
-          ingress:
-            ingressClassName: nginx
+      - dns01:
+          cnameStrategy: None
+          webhook:
+            groupName: lumpiasty-homelab
+            solverName: ovh
+            config:
+              endpoint: ovh-eu
+              applicationKeyRef:
+                name: ovh-credentials
+                key: applicationKey
+              applicationSecretRef:
+                name: ovh-credentials
+                key: applicationSecret
+              consumerKeyRef:
+                name: ovh-credentials
+                key: consumerKey
     privateKeySecretRef:
       name: letsencrypt-key

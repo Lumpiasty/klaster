@@ -22,6 +22,9 @@
         in
             pkgs.mkShell {
                 packages = with pkgs; [
+                    (python313.withPackages (python-pkgs: with python-pkgs; [
+                        hvac
+                    ]))
                     vim gnumake
                     talosctl cilium-cli
                     kubectx k9s kubernetes-helm
@@ -47,6 +50,9 @@
                 # export AWS_SECRET_ACCESS_KEY=?
                 # export RESTIC_PASSWORD=?
                 export VAULT_ADDR=https://openbao.lumpiasty.xyz:8200
+
+                # Add scripts from utils subdir
+                export PATH="$PATH:$(pwd)/utils"
                 '';
             };
     };

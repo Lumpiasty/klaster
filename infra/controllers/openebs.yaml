@@ -64,6 +64,9 @@ spec:
         # https://github.com/openebs/mayastor/issues/1763#issuecomment-2481922234
         envcontext: "iova-mode=pa"
         coreList: [2, 3]
+        resources:
+          limits:
+            cpu: 4
       agents:
         core:
           resources:

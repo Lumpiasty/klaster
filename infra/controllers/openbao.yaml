@@ -35,7 +35,38 @@ spec:
         enabled: true
         raft:
           enabled: true
+          config: |
+            ui = true
+
+            listener "tcp" {
+              tls_disable = 0
+              address = "[::]:8200"
+              cluster_address = "[::]:8201"
+              # Enable unauthenticated metrics access (necessary for Prometheus Operator)
+              #telemetry {
+              #  unauthenticated_metrics_access = "true"
+              #}
+
+              # Enable TLS
+              tls_cert_file = "/tls/tls.crt"
+              tls_key_file = "/tls/tls.key"
+            }
+
+            storage "raft" {
+              path = "/openbao/data"
+            }
+
+            service_registration "kubernetes" {}
         replicas: 1
+      # Mount TLS cert to container
+      volumes:
+        - name: tls
+          secret:
+            secretName: openbao-lumpiasty-xyz
+      volumeMounts:
+        - name: tls
+          mountPath: /tls
+          readOnly: true
       service:
         enabled: true
         type: LoadBalancer

@@ -75,3 +75,5 @@ spec:
         ipFamilyPolicy: RequireDualStack
       dataStorage:
         storageClass: mayastor-single-hdd
+    csi:
+      enabled: true

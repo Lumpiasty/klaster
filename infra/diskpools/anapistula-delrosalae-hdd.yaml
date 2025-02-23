@@ -1,0 +1,11 @@
+apiVersion: "openebs.io/v1beta2"
+kind: DiskPool
+metadata:
+  name: anapistula-delrosalae-hdd
+  namespace: openebs
+spec:
+  node: anapistula-delrosalae
+  disks: ["aio:///dev/disk/by-id/wwn-0x50014ee65af6f278"]
+  topology:
+    labelled:
+      type: hdd

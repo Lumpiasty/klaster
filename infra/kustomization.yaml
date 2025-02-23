@@ -11,6 +11,7 @@ resources:
   - controllers/k8up.yaml
   - controllers/openbao.yaml
   - diskpools/zoma-dibaiyin-hdd.yaml
+  - diskpools/anapistula-delrosalae-hdd.yaml
   - configs/bgp-cluster-config.yaml
   - configs/loadbalancer-ippool.yaml
   - configs/single-hdd-sc.yaml

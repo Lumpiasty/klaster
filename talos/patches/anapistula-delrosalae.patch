@@ -1,0 +1,22 @@
+machine:
+  network:
+    interfaces:
+      - interface: enp4s0
+        addresses:
+          - 2001:470:61a3:100::3/64
+          - 192.168.1.35/24
+        routes:
+          - network: ::/0
+            gateway: 2001:470:61a3:100:ffff:ffff:ffff:ffff
+          - network: 0.0.0.0/0
+            gateway: 192.168.1.1
+        mtu: 1500
+
+  install:
+    diskSelector:
+      wwid: t10.ATA     SSDPR-CX400-256                         GUH039914
+    # Generated on https://factory.talos.dev/
+    # intel-ucode and amdgpu
+    image: factory.talos.dev/installer/06deebb947b815afa53f04c450d355d3c8bc28927a387c754db1622a0a06349e:v1.9.4
+    extraKernelArgs:
+      - cpufreq.default_governor=performance

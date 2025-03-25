@@ -1,10 +1,14 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "kubernetes": {
-    "fileMatch": ["\\.yaml$"]
+    "fileMatch": ["infra/.+\\.yaml$", "apps/.+\\.yaml$"]
   },
   "flux": {
-    "fileMatch": ["infra/.+\\.yaml$", "apps/.+\\.yaml$"]
+    "fileMatch": [
+      "infra/.+\\.yaml$",
+      "apps/.+\\.yaml$",
+      "gotk-components\\.ya?ml$"
+    ]
   },
   "prHourlyLimit": 9
 }

@@ -3,3 +3,4 @@ kind: Kustomization
 resources:
   - gitea.yaml
   - renovate.yaml
+  - ollama.yaml

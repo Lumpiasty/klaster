@@ -23,7 +23,7 @@ spec:
   chart:
     spec:
       chart: gitea
-      version: 10.6.0
+      version: 11.0.0
       sourceRef:
         kind: HelmRepository
         name: gitea-charts
@@ -59,9 +59,6 @@ spec:
     persistence:
       enabled: true
       storageClass: mayastor-single-hdd
-
-    image:
-      tag: 1.23.3
 
     gitea:
       config:

@@ -62,9 +62,10 @@ spec:
               name: proxy-config
           env:
             - name: API_KEY
-              secretKeyRef:
-                name: ollama-api-key
-                key: API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: ollama-api-key
+                  key: API_KEY
       volumes:
         - name: proxy-config
           configMap:

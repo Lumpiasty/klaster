@@ -77,7 +77,7 @@ metadata:
   name: ollama-proxy-config
 data:
   Caddyfile: |
-    ollama.lumpiasty.xyz {
+    http://ollama.lumpiasty.xyz {
 
       @requireAuth {
         not header Authorization "Bearer {env.API_KEY}"

@@ -37,6 +37,32 @@ spec:
       enabled: true
       storageClass: mayastor-single-hdd
       size: 200Gi
+    # GPU support
+    # Rewrite of options in
+    # https://hub.docker.com/r/grinco/ollama-amd-apu
+    image:
+      repository: grinco/ollama-amd-apu
+      tag: vulkan
+    securityContext:
+      # Not ideal
+      privileged: true
+      capabilities:
+        add:
+          - PERFMON
+    volumeMounts:
+      - name: kfd
+        mountPath: /dev/kfd
+      - name: dri
+        mountPath: /dev/dri
+    volumes:
+      - name: kfd
+        hostPath:
+          path: /dev/kfd
+          type: CharDevice
+      - name: dri
+        hostPath:
+          path: /dev/dri
+          type: Directory
 ---
 apiVersion: apps/v1
 kind: Deployment

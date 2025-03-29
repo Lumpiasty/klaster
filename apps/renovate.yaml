@@ -20,7 +20,7 @@ spec:
             - name: renovate
               # Update this to the latest available and then enable Renovate on
               # the manifest
-              image: renovate/renovate:39.218.1-full
+              image: renovate/renovate:39.220.4-full
               envFrom:
                 - secretRef:
                     name: renovate-env

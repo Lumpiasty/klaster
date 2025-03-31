@@ -60,13 +60,15 @@ spec:
       modes: ["SCRAM"]
   users:
     - name: librechat
-      db: admin
+      db: LibreChat
       passwordSecretRef: # a reference to the secret that will be used to generate the user's password
         name: librechat-mongodb-secret
       roles:
         - name: clusterAdmin
           db: admin
         - name: userAdminAnyDatabase
+          db: admin
+        - name: readWriteAnyDatabase
           db: admin
       scramCredentialsSecretName: my-scram
   additionalMongodConfig:
@@ -90,3 +92,50 @@ spec:
             resources:
               requests:
                 storage: 1Gi
+---
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata:
+  name: librechat
+  namespace: librechat
+spec:
+  interval: 1h
+  url: https://github.com/danny-avila/LibreChat.git
+  ref:
+    tag: v0.7.7
+  ignore: |
+    # exclude all
+    /*
+    # include charts
+    !/charts/
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: librechat
+  namespace: librechat
+spec:
+  interval: 10m
+  chart:
+    spec:
+      chart: ./charts/librechat
+      sourceRef:
+        kind: GitRepository
+        name: librechat
+        namespace: librechat
+      interval: 10m
+  values:
+    replicaCount: 1
+    # image:
+    #   tag: v0.7.7 # Not pinned in chart for some reason
+    config:
+      envSecrets:
+        secretRef: librechat
+        secretKeyRef:
+          - name: MONGO_URI
+            secretName: librechat-librechat-librechat
+            secretKey: connectionString.standardSrv
+      env:
+        TRUST_PROXY: 1
+        DOMAIN_CLIENT: https://librechat.lumpiasty.xyz
+        ALLOW_REGISTRATION: false

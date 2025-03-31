@@ -4,3 +4,4 @@ resources:
   - gitea.yaml
   - renovate.yaml
   - ollama.yaml
+  - librechat.yaml

@@ -37,6 +37,7 @@ spec:
         ALLOW_REGISTRATION: "false"
         TRUST_PROXY: "1"
         DOMAIN_CLIENT: https://librechat.lumpiasty.xyz
+        SEARCH: "true"
       existingSecretName: librechat
       configYamlContent: |
         version: 1.0.3

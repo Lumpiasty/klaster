@@ -1,0 +1,33 @@
+apiVersion: k8up.io/v1
+kind: Schedule
+metadata:
+  name: gitea-backup
+  namespace: gitea
+spec:
+  backend:
+    # Manually adding secrets for now
+    repoPasswordSecretRef:
+      name: restic-repo
+      key: password
+    s3:
+      endpoint: https://s3.eu-central-003.backblazeb2.com
+      bucket: lumpiasty-backups
+      accessKeyIDSecretRef:
+        name: backblaze
+        key: keyid
+      secretAccessKeySecretRef:
+        name: backblaze
+        key: secret
+  backup:
+    schedule: "@daily-random"
+    failedJobsHistoryLimit: 2
+    successfulJobsHistoryLimit: 2
+  check:
+    schedule: "@daily-random"
+  prune:
+    schedule: "@daily-random"
+    retention:
+      keepLast: 14
+      keepDaily: 14
+      keepWeekly: 50
+      keepYearly: 10

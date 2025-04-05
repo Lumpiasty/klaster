@@ -11,6 +11,7 @@ resources:
   - controllers/k8up.yaml
   - controllers/openbao.yaml
   - controllers/mongodb-operator.yaml
+  - controllers/cloudnative-pg.yaml
   - diskpools/anapistula-delrosalae-hdd.yaml
   - configs/bgp-cluster-config.yaml
   - configs/loadbalancer-ippool.yaml

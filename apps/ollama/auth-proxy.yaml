@@ -47,7 +47,9 @@ data:
 
       respond @requireAuth "Unauthorized" 401
 
-      reverse_proxy ollama:11434
+      reverse_proxy ollama:11434 {
+        flush_interval -1
+      }
     }
 ---
 apiVersion: v1

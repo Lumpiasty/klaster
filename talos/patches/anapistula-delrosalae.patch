@@ -1,7 +1,7 @@
 machine:
   network:
     interfaces:
-      - interface: enp4s0
+      - interface: enp5s0
         addresses:
           - 2001:470:61a3:100::3/64
           - 192.168.1.35/24

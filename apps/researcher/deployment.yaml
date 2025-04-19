@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gpt-resercher
+  namespace: gpt-researcher
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gpt-resercher
+  template:
+    metadata:
+      labels:
+        app: gpt-resercher
+    spec:
+      containers:
+        - name: gpt-resercher
+          image: gptresearcher/gpt-researcher:latest
+          ports:
+            - containerPort: 8000
+          resources:
+            requests:
+              cpu: "2"
+              memory: "4Gi"
+            limits:
+              cpu: "3"
+              memory: "5Gi"
+          env:
+            - name: OPENAI_API_BASE
+              value: "http://ollama.ollama.svc.cluster.local:11434/v1"
+            - name: OPENAI_API_KEY
+              value: "123"
+            - name: OLLAMA_BASE_URL
+              value: "http://ollama.ollama.svc.cluster.local:11434"
+            - name: FAST_LLM
+              value: "openai:granite3.3:2b"
+            - name: SMART_LLM
+              value: "openai:granite3.3:8b"
+            - name: STRATEGIC_LLM
+              value: "openai:deepseek-r1:14b"
+            - name: EMBEDDING
+              value: "ollama:nomic-embed-text"
+            - name: RETRIEVER
+              value: duckduckgo
+            - name: SCRAPER
+              value: bs
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gpt-resercher-service
+  namespace: gpt-researcher
+spec:
+  selector:
+    app: gpt-resercher
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8000

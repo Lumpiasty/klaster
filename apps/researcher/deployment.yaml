@@ -34,11 +34,11 @@ spec:
             - name: OLLAMA_BASE_URL
               value: "http://ollama.ollama.svc.cluster.local:11434"
             - name: FAST_LLM
-              value: "openai:granite3.3:2b"
+              value: "openai:qwen2.5:3b"
             - name: SMART_LLM
-              value: "openai:granite3.3:8b"
+              value: "openai:qwen2.5:7b"
             - name: STRATEGIC_LLM
-              value: "openai:deepseek-r1:14b"
+              value: "openai:qwq:latest"
             - name: EMBEDDING
               value: "ollama:nomic-embed-text"
             - name: RETRIEVER

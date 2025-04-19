@@ -13,9 +13,10 @@ spec:
       labels:
         app: gpt-resercher
     spec:
+      imagePullPolicy: Always
       containers:
         - name: gpt-resercher
-          image: gptresearcher/gpt-researcher:latest
+          image: registry.lumpiasty.xyz/gpt-researcher:latest
           ports:
             - containerPort: 8000
           resources:

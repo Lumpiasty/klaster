@@ -27,24 +27,37 @@ spec:
               cpu: "3"
               memory: "5Gi"
           env:
-            - name: OPENAI_API_BASE
-              value: "http://ollama.ollama.svc.cluster.local:11434/v1"
-            - name: OPENAI_API_KEY
-              value: "123"
+            - name: OPENAI_BASE_URL
+              value: https://openrouter.ai/api/v1
+            - name: OPENROUTER_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: openrouter
+                  key: OPENROUTER_API_KEY
+            - name: OPENROUTER_LIMIT_RPS
+              value: "1"
+
+            - name: FAST_LLM
+              value: openrouter:google/gemini-2.0-flash-lite-001
+            - name: SMART_LLM
+              value: openrouter:google/gemini-2.5-flash-preview
+            - name: STRATEGIC_LLM
+              value: openrouter:google/gemini-2.5-flash-preview
+
             - name: OLLAMA_BASE_URL
               value: "http://ollama.ollama.svc.cluster.local:11434"
-            - name: FAST_LLM
-              value: "openai:qwen2.5:3b"
-            - name: SMART_LLM
-              value: "openai:qwen2.5:7b"
-            - name: STRATEGIC_LLM
-              value: "openai:qwq:latest"
             - name: EMBEDDING
               value: "ollama:nomic-embed-text"
+
             - name: RETRIEVER
-              value: duckduckgo
+              value: tavily
             - name: SCRAPER
-              value: bs
+              value: tavily_extract
+            - name: TAVILY_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: tavily
+                  key: TAVILY_API_KEY
 ---
 apiVersion: v1
 kind: Service

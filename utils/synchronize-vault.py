@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 
+from hvac.api.auth_methods.kubernetes import Kubernetes
+
+
 import argparse
 import os
 from hvac.api.system_backend import mount
@@ -29,6 +32,13 @@ def synchronize_policies(client: hvac.Client):
     for policy_name, policy_content in policies.items():
         print(f'Updating policy: {policy_name}')
         client.sys.create_or_update_acl_policy(policy_name, policy_content)
+
+# Read vault/kubernetes-config.yaml and write it to kubernetes auth method config
+def synchronize_auth_kubernetes_config(client: hvac.Client):
+    config_file = os.path.join(os.path.dirname(__file__), '../vault/kubernetes-config.yaml')
+    with open(config_file, 'r') as f:
+        config = yaml.safe_load(f.read())
+        client.write_data('/auth/kubernetes/config', data=config)
 
 # Read vault/kubernetes-roles dir then write what is there and delete missing 
 def synchronize_kubernetes_roles(client: hvac.Client):
@@ -70,6 +80,9 @@ if __name__ == '__main__':
 
     print('Synchronizing policies')
     synchronize_policies(client)
+
+    print('Synchronizing kubernetes config')
+    synchronize_auth_kubernetes_config(client)
 
     print('Synchronizing kubernetes roles')
     synchronize_kubernetes_roles(client)

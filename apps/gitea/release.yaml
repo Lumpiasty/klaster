@@ -28,7 +28,7 @@ spec:
       enabled: false
 
     postgresql:
-      enabled: true
+      enabled: false
       primary:
         persistence:
           enabled: true
@@ -55,9 +55,18 @@ spec:
       storageClass: mayastor-single-hdd
 
     gitea:
+      additionalConfigFromEnvs:
+        - name: GITEA__DATABASE__PASSWD
+          valueFrom:
+            secretKeyRef:
+              name: gitea-postgresql-cluster-app
+              key: password
       config:
         database:
           DB_TYPE: postgres
+          HOST: gitea-postgresql-cluster-rw:5432
+          NAME: app
+          USER: app
         indexer:
           ISSUE_INDEXER_TYPE: bleve
           REPO_INDEXER_ENABLED: true

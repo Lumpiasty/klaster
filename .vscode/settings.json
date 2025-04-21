@@ -8,5 +8,6 @@
     }
   },
   "terminal.integrated.defaultProfile.linux": "Nix Shell",
-  "ansible.python.interpreterPath": "/bin/python"
+  "ansible.python.interpreterPath": "/bin/python",
+  "python.defaultInterpreterPath": "${env:PYTHON_BIN}"
 }

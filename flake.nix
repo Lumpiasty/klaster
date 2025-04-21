@@ -19,12 +19,13 @@
                 overlays = [ krew2nix.overlay ];
                 inherit system;
             };
+            python = (pkgs.python313.withPackages (python-pkgs: with python-pkgs; [
+                hvac
+            ]));
         in
             pkgs.mkShell {
                 packages = with pkgs; [
-                    (python313.withPackages (python-pkgs: with python-pkgs; [
-                        hvac
-                    ]))
+                    python
                     vim gnumake
                     talosctl cilium-cli
                     kubectx k9s kubernetes-helm
@@ -53,6 +54,8 @@
 
                 # Add scripts from utils subdir
                 export PATH="$PATH:$(pwd)/utils"
+
+                export PYTHON_BIN=${python}/bin/python
                 '';
             };
     };

@@ -16,7 +16,7 @@ machine:
           - rw
   install:
     extraKernelArgs:
-      - isolcpus=2,3
+      - isolcpus=1,7
 
 cluster:
   apiServer:

@@ -1,7 +1,7 @@
 machine:
   network:
     interfaces:
-      - interface: enp5s0
+      - interface: eno1
         addresses:
           - 2001:470:61a3:100::3/64
           - 192.168.1.35/24
@@ -20,3 +20,11 @@ machine:
     image: factory.talos.dev/installer/06deebb947b815afa53f04c450d355d3c8bc28927a387c754db1622a0a06349e:v1.9.5
     extraKernelArgs:
       - cpufreq.default_governor=performance
+  sysfs:
+    devices.system.cpu.cpu0.cpufreq.scaling_max_freq: "550000"
+    devices.system.cpu.cpu1.cpufreq.scaling_max_freq: "550000"
+    devices.system.cpu.cpu2.cpufreq.scaling_max_freq: "550000"
+    devices.system.cpu.cpu6.cpufreq.scaling_max_freq: "550000"
+    devices.system.cpu.cpu7.cpufreq.scaling_max_freq: "550000"
+    devices.system.cpu.cpu8.cpufreq.scaling_max_freq: "550000"
+    

@@ -63,7 +63,7 @@ spec:
         # Workaround for crashing io-engine
         # https://github.com/openebs/mayastor/issues/1763#issuecomment-2481922234
         envcontext: "iova-mode=pa"
-        coreList: [2, 3]
+        coreList: [1, 7]
         resources:
           limits:
             cpu: 4

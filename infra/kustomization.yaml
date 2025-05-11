@@ -11,6 +11,7 @@ resources:
   - controllers/k8up.yaml
   - controllers/openbao.yaml
   - controllers/external-secrets.yaml
+  - controllers/vault-secrets-operator.yaml
   - controllers/mongodb-operator.yaml
   - controllers/cloudnative-pg.yaml
   - diskpools/anapistula-delrosalae-hdd.yaml

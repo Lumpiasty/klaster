@@ -4,4 +4,5 @@ resources:
   - namespace.yaml
   - postgres-cluster.yaml
   - release.yaml
+  - secret.yaml
   - backups.yaml

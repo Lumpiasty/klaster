@@ -7,17 +7,17 @@ spec:
   backend:
     # Manually adding secrets for now
     repoPasswordSecretRef:
-      name: restic-repo
+      name: gitea-backup-restic
       key: password
     s3:
       endpoint: https://s3.eu-central-003.backblazeb2.com
       bucket: lumpiasty-backups
       accessKeyIDSecretRef:
-        name: backblaze
-        key: keyid
+        name: gitea-backup-backblaze
+        key: aws_access_key_id
       secretAccessKeySecretRef:
-        name: backblaze
-        key: secret
+        name: gitea-backup-backblaze
+        key: aws_secret_access_key
   backup:
     schedule: "@daily-random"
     failedJobsHistoryLimit: 2

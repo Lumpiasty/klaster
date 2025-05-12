@@ -1,0 +1,6 @@
+bound_service_account_names:
+  - backup
+bound_service_account_namespaces:
+  - gitea
+token_policies:
+  - backup

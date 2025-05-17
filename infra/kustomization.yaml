@@ -20,3 +20,4 @@ resources:
   - configs/single-hdd-sc.yaml
   - configs/mayastor-snapshotclass.yaml
   - configs/openbao-cert.yaml
+  - configs/ovh-cert-manager-secret.yaml

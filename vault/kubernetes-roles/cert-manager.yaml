@@ -1,0 +1,6 @@
+bound_service_account_names:
+  - ovh-credentials
+bound_service_account_namespaces:
+  - cert-manager
+token_policies:
+  - ovh-credentials

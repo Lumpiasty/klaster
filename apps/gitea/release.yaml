@@ -42,7 +42,7 @@ spec:
 
     valkey:
       enabled: true
-      master:
+      primary:
         persistence:
           enabled: true
           storageClass: mayastor-single-hdd

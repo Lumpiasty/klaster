@@ -1,0 +1,6 @@
+bound_service_account_names:
+  - ollama-proxy
+bound_service_account_namespaces:
+  - ollama
+token_policies:
+  - ollama

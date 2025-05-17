@@ -37,10 +37,10 @@ spec:
           requests:
             cpu: 0
 
-    redis-cluster:
+    valkey-cluster:
       enabled: false
 
-    redis:
+    valkey:
       enabled: true
       master:
         persistence:

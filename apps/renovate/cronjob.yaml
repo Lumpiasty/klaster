@@ -18,7 +18,7 @@ spec:
               image: renovate/renovate:40.11.6-full
               envFrom:
                 - secretRef:
-                    name: renovate-env
+                    name: renovate-gitea-token
                 - configMapRef:
                     name: renovate-config
           restartPolicy: Never

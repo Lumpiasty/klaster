@@ -1,0 +1,6 @@
+bound_service_account_names:
+  - renovate
+bound_service_account_namespaces:
+  - renovate
+token_policies:
+  - renovate

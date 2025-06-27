@@ -102,6 +102,25 @@ spec:
             requests:
               cpu: 0
 
+      # Remove antiaffinity, breaks when I set it to 1 replica
+      nats:
+        cluster:
+          enable: true
+          replicas: 3
+        affinity:
+          podAntiAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution: []
+
+    loki:
+      loki:
+        commonConfig:
+          replication_factor: 1
+      singleBinary:
+        replicas: 1
+      minio:
+        replicas: 1
+        mode: standalone
+
     engines:
       local:
         lvm:

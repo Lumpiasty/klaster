@@ -77,3 +77,5 @@ spec:
         storageClass: mayastor-single-hdd
     csi:
       enabled: true
+    injector:
+      affinity: ""

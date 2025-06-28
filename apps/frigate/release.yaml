@@ -28,6 +28,13 @@ spec:
       mqtt:
         enabled: False
 
+      tls:
+        enabled: False
+
+      auth:
+        enabled: True
+        cookie_secure: True
+
       record:
         enabled: True
         retain:
@@ -66,3 +73,17 @@ spec:
         skipuninstall: true
     envFromSecrets:
       - frigate-camera-rtsp
+
+    ingress:
+      enabled: true
+      annotations:
+        cert-manager.io/cluster-issuer: letsencrypt
+      hosts:
+        - host: frigate.lumpiasty.xyz
+          paths:
+            - path: /
+              portName: http-auth
+      tls:
+        - hosts:
+            - frigate.lumpiasty.xyz
+          secretName: frigate-ingress

@@ -1,0 +1,6 @@
+bound_service_account_names:
+  - camera
+bound_service_account_namespaces:
+  - frigate
+token_policies:
+  - frigate

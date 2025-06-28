@@ -27,14 +27,32 @@ spec:
     config: |
       mqtt:
         enabled: False
+
+      record:
+        enabled: True
+        retain:
+          days: 90
+          mode: motion
+
       cameras:
-        dummy_camera:
-          enabled: False
+        dom:
+          enabled: True
           ffmpeg:
             inputs:
-              - path: rtsp://127.0.0.1:554/rtsp
+              - path: rtsp://{FRIGATE_RTSP_DOM_USER}:{FRIGATE_RTSP_DOM_PASSWORD}@192.168.3.10:554/Streaming/Channels/101
                 roles:
+                  - audio
                   - detect
+                  - record
+        garaz:
+          enabled: True
+          ffmpeg:
+            inputs:
+              - path: rtsp://{FRIGATE_RTSP_GARAZ_USER}:{FRIGATE_RTSP_GARAZ_PASSWORD}@192.168.3.11:554/Streaming/Channels/101
+                roles:
+                  - audio
+                  - detect
+                  - record
     persistence:
       media:
         enabled: true
@@ -46,3 +64,5 @@ spec:
         size: 100Mi
         storageClass: mayastor-single-hdd
         skipuninstall: true
+    envFromSecrets:
+      - frigate-camera-rtsp

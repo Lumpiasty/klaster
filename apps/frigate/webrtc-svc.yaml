@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: go2rtc
+  namespace: frigate
+spec:
+  type: LoadBalancer
+  selector:
+    app.kubernetes.io/instance: frigate
+    app.kubernetes.io/name: frigate
+  ipFamilyPolicy: RequireDualStack
+  ports:
+    - name: webrtc-tcp
+      protocol: TCP
+      port: 8555
+      targetPort: webrtc-tcp
+    - name: webrtc-udp
+      protocol: UDP
+      port: 8555
+      targetPort: webrtc-udp

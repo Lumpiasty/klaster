@@ -4,3 +4,4 @@ resources:
   - namespace.yaml
   - secret.yaml
   - release.yaml
+  - webrtc-svc.yaml

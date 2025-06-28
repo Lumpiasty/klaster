@@ -60,6 +60,16 @@ spec:
                   - audio
                   - detect
                   - record
+
+      go2rtc:
+        streams:
+          dom:
+            - rtsp://{FRIGATE_RTSP_DOM_USER}:{FRIGATE_RTSP_DOM_PASSWORD_URLENCODED}@192.168.3.10:554/Streaming/Channels/101
+          garaz:
+            - rtsp://{FRIGATE_RTSP_GARAZ_USER}:{FRIGATE_RTSP_GARAZ_PASSWORD_URLENCODED}@192.168.3.11:554/Streaming/Channels/101
+        webrtc:
+          candidates:
+            - frigate-rtc.lumpiasty.xyz:8555
     persistence:
       media:
         enabled: true
@@ -78,6 +88,7 @@ spec:
       enabled: true
       annotations:
         cert-manager.io/cluster-issuer: letsencrypt
+        nginx.org/websocket-services: frigate
       hosts:
         - host: frigate.lumpiasty.xyz
           paths:

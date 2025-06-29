@@ -60,6 +60,8 @@ spec:
                   - audio
                   - detect
                   - record
+      ffmpeg:
+        hwaccel_args: preset-vaapi
 
       go2rtc:
         streams:
@@ -98,3 +100,21 @@ spec:
         - hosts:
             - frigate.lumpiasty.xyz
           secretName: frigate-ingress
+
+    nodeSelector:
+      kubernetes.io/hostname: anapistula-delrosalae
+
+    # GPU access
+    extraVolumes:
+      - name: dri
+        hostPath:
+          path: /dev/dri/renderD128
+          type: CharDevice
+
+    extraVolumeMounts:
+      - name: dri
+        mountPath: /dev/dri/renderD128
+
+    securityContext:
+      # Not ideal
+      privileged: true

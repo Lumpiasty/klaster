@@ -46,7 +46,7 @@ spec:
           enabled: True
           ffmpeg:
             inputs:
-              - path: rtsp://{FRIGATE_RTSP_DOM_USER}:{FRIGATE_RTSP_DOM_PASSWORD}@192.168.3.10:554/Streaming/Channels/101
+              - path: rtsp://127.0.0.1:8554/dom
                 roles:
                   - audio
                   - detect
@@ -55,7 +55,7 @@ spec:
           enabled: True
           ffmpeg:
             inputs:
-              - path: rtsp://{FRIGATE_RTSP_GARAZ_USER}:{FRIGATE_RTSP_GARAZ_PASSWORD}@192.168.3.11:554/Streaming/Channels/101
+              - path: rtsp://127.0.0.1:8554/garaz
                 roles:
                   - audio
                   - detect

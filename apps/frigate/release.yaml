@@ -92,12 +92,12 @@ spec:
     persistence:
       media:
         enabled: true
-        size: 100Gi
+        size: 500Gi
         storageClass: mayastor-single-hdd
         skipuninstall: true
       config:
         enabled: true
-        size: 100Mi
+        size: 1Gi
         storageClass: mayastor-single-hdd
         skipuninstall: true
     envFromSecrets:

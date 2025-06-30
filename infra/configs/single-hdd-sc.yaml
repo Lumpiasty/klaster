@@ -16,3 +16,5 @@ parameters:
   poolAffinityTopologyLabel: |
     type: hdd
 provisioner: io.openebs.csi-mayastor
+# Allow expansion of volumes
+allowVolumeExpansion: true

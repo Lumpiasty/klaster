@@ -40,14 +40,6 @@ spec:
         retain:
           days: 90
           mode: motion
-        alerts:
-          retain:
-            days: 90
-            mode: motion
-        detections:
-          retain:
-            days: 90
-            mode: motion
 
       objects:
         track:

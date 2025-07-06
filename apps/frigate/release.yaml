@@ -40,6 +40,41 @@ spec:
         retain:
           days: 90
           mode: motion
+        alerts:
+          retain:
+            days: 90
+            mode: motion
+        detections:
+          retain:
+            days: 90
+            mode: motion
+
+      objects:
+        track:
+          - person
+          - bicycle
+          - car
+          - motorcycle
+          - cat
+          - dog
+          - horse
+          - sheep
+          - cow
+          - bear
+
+      review:
+        alerts:
+          labels:
+            - person
+            - bicycle
+            - car
+            - motorcycle
+            - cat
+            - dog
+            - horse
+            - sheep
+            - cow
+            - bear
 
       cameras:
         dom:

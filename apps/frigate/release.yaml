@@ -53,6 +53,10 @@ spec:
                   - record
             output_args:
               record: preset-record-generic-audio-copy
+          motion:
+            mask:
+              # Sasiad
+              - 0.436,0,0.417,0.079,0.302,0.201,0.288,0.153,0.017,0.454,0.023,0.524,0.027,0.609,0,0.664,0,0
         garaz:
           enabled: True
           ffmpeg:
@@ -64,6 +68,12 @@ spec:
                   - record
             output_args:
               record: preset-record-generic-audio-copy
+          motion:
+            mask:
+              # Sasiad
+              - 0.662,0.21,0.569,0.2,0.566,0.149,0.549,0.119,0.532,0.169,0.495,0.14,0.491,0,0.881,0,0.986,0.138,0.983,0.255,0.948,0.248,0.948,0.174,0.664,0.126
+              # Drzewo
+              - 0.087,0.032,0,0.174,0,0.508,0.139,0.226,0.12,0.108
 
       ffmpeg:
         hwaccel_args: preset-vaapi

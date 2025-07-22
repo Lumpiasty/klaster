@@ -1,0 +1,68 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: llama-swap
+  namespace: llama
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: llama-swap
+  template:
+    metadata:
+      labels:
+        app: llama-swap
+    spec:
+      containers:
+        - name: llama-swap
+          image: ghcr.io/mostlygeek/llama-swap:v139-vulkan-b5957
+          imagePullPolicy: IfNotPresent
+          args:
+            - --config=/config/config.yaml
+            - --watch-config
+          ports:
+            - containerPort: 8080
+              name: http
+              protocol: TCP
+          volumeMounts:
+            - name: models
+              mountPath: /root/.cache
+            - mountPath: /dev/kfd
+              name: kfd
+            - mountPath: /dev/dri
+              name: dri
+            - mountPath: /config
+              name: config
+          securityContext:
+            privileged: true
+      volumes:
+        - name: models
+          persistentVolumeClaim:
+            claimName: models
+        - name: kfd
+          hostPath:
+            path: /dev/kfd
+            type: CharDevice
+        - name: dri
+          hostPath:
+            path: /dev/dri
+            type: Directory
+        - name: config
+          configMap:
+            name: llama-swap
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: llama
+  namespace: llama
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 11434
+      targetPort: 8080
+      protocol: TCP
+  selector:
+    app: llama-swap

@@ -1,0 +1,28 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  namespace: llama
+  name: llama
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
+    acme.cert-manager.io/http01-edit-in-place: "true"
+    nginx.ingress.kubernetes.io/proxy-buffering: "false"
+    nginx.org/proxy-read-timeout: 30m
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: llama.lumpiasty.xyz
+      http:
+        paths:
+          - backend:
+              service:
+                name: llama-proxy
+                port:
+                  number: 80
+            path: /
+            pathType: Prefix
+  tls:
+    - hosts:
+        - llama.lumpiasty.xyz
+      secretName: llama-ingress

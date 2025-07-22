@@ -1,0 +1,6 @@
+bound_service_account_names:
+  - llama-proxy
+bound_service_account_namespaces:
+  - llama
+token_policies:
+  - ollama

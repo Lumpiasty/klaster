@@ -7,3 +7,4 @@ resources:
   - ollama
   - librechat
   - frigate
+  - llama

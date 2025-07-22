@@ -1,0 +1,68 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: llama-proxy
+  namespace: llama
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: llama-proxy
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: llama-proxy
+    spec:
+      containers:
+        - name: caddy
+          image: caddy:2.10.0-alpine
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - mountPath: /etc/caddy
+              name: proxy-config
+          env:
+            - name: API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: llama-api-key
+                  key: API_KEY
+      volumes:
+        - name: proxy-config
+          configMap:
+            name: llama-proxy-config
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: llama
+  name: llama-proxy-config
+data:
+  Caddyfile: |
+    http://llama.lumpiasty.xyz {
+
+      @requireAuth {
+        not header Authorization "Bearer {env.API_KEY}"
+      }
+
+      respond @requireAuth "Unauthorized" 401
+
+      reverse_proxy llama:11434 {
+        flush_interval -1
+      }
+    }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: llama
+  name: llama-proxy
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: llama-proxy
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80
+      protocol: TCP

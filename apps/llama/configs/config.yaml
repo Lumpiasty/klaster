@@ -1,0 +1,20 @@
+models:
+  "DeepSeek-R1-0528-Qwen3-8B-GGUF":
+    cmd: |
+      /app/llama-server
+      -hf unsloth/DeepSeek-R1-0528-Qwen3-8B-GGUF:Q4_K_M
+      -ngl 37 -c 16384
+      --port ${PORT}
+  "Qwen3-8B-GGUF":
+    cmd: |
+      /app/llama-server
+      -hf unsloth/Qwen3-8B-GGUF:Q4_K_M
+      -ngl 37 -c 16384
+      --port ${PORT}
+  "Qwen3-8B-GGUF-no-thinking":
+    cmd: |
+      /app/llama-server
+      -hf unsloth/Qwen3-8B-GGUF:Q4_K_M
+      -ngl 37 -c 16384
+      --jinja --chat-template-file /config/qwen_nothink_chat_template.jinja
+      --port ${PORT}

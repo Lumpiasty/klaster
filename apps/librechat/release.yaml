@@ -66,7 +66,7 @@ spec:
                 default: [
                   "DeepSeek-R1-0528-Qwen3-8B-GGUF",
                   "Qwen3-8B-GGUF",
-                  "Qwen3-8B-GGUF-Q6_K"
+                  "Qwen3-8B-GGUF-no-thinking"
                 ]
               titleConvo: true
               titleModel: "current_model"

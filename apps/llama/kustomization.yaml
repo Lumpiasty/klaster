@@ -7,4 +7,9 @@ resources:
   - ingress.yaml
   - pvc.yaml
   - deployment.yaml
-  - configmap.yaml
+configMapGenerator:
+  - name: llama-swap
+    namespace: llama
+    files:
+      - config.yaml=configs/config.yaml
+      - qwen_nothink_chat_template.jinja=configs/qwen_nothink_chat_template.jinja

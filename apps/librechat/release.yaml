@@ -64,7 +64,9 @@ spec:
               baseURL: "http://llama.llama.svc.cluster.local:11434/v1/chat/completions"
               models:
                 default: [
-                  "DeepSeek-R1-0528-Qwen3-8B-GGUF"
+                  "DeepSeek-R1-0528-Qwen3-8B-GGUF",
+                  "Qwen3-8B-GGUF",
+                  "Qwen3-8B-GGUF-Q6_K"
                 ]
               titleConvo: true
               titleModel: "current_model"

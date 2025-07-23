@@ -10,17 +10,17 @@ data:
         cmd: |
           /app/llama-server
           -hf unsloth/DeepSeek-R1-0528-Qwen3-8B-GGUF:Q4_K_M
-          -ngl 37
+          -ngl 37 -c 16384
           --port ${PORT}
       "Qwen3-8B-GGUF":
         cmd: |
           /app/llama-server
           -hf unsloth/Qwen3-8B-GGUF:Q4_K_M
-          -ngl 37
+          -ngl 37 -c 16384
           --port ${PORT}
       "Qwen3-8B-GGUF-Q6_K":
         cmd: |
           /app/llama-server
           -hf unsloth/Qwen3-8B-GGUF:Q6_K
-          -ngl 37
+          -ngl 37 -c 16384
           --port ${PORT}

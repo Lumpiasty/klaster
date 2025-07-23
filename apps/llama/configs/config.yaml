@@ -18,3 +18,17 @@ models:
       -ngl 37 -c 16384
       --jinja --chat-template-file /config/qwen_nothink_chat_template.jinja
       --port ${PORT}
+  "gemma3n":
+    cmd: |
+      /app/llama-server
+      -hf unsloth/gemma-3n-E4B-it-GGUF:UD-Q4_K_XL
+      --ctx-size 16384
+      --n-gpu-layers 99
+      --seed 3407
+      --prio 2
+      --temp 1.0
+      --repeat-penalty 1.0
+      --min-p 0.00
+      --top-k 64
+      --top-p 0.95
+      --port ${PORT}

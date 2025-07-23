@@ -59,6 +59,19 @@ spec:
               summaryModel: "current_model"
               forcePrompt: false
               modelDisplayLabel: "Ollama"
+            - name: "Llama.cpp"
+              apiKey: "llama"
+              baseURL: "http://llama.llama.svc.cluster.local:11434/v1/chat/completions"
+              models:
+                default: [
+                  "DeepSeek-R1-0528-Qwen3-8B-GGUF"
+                ]
+              titleConvo: true
+              titleModel: "current_model"
+              summarize: false
+              summaryModel: "current_model"
+              forcePrompt: false
+              modelDisplayLabel: "Llama.cpp"
       imageVolume:
         enabled: true
         size: 10G

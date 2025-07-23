@@ -10,4 +10,5 @@ data:
         cmd: |
           /app/llama-server
           -hf unsloth/DeepSeek-R1-0528-Qwen3-8B-GGUF:Q4_K_M
+          -ngl 37
           --port ${PORT}

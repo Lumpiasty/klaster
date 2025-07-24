@@ -1,0 +1,28 @@
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: ImageCatalog
+metadata:
+  name: immich
+  namespace: immich
+spec:
+  images:
+    - major: 17
+      image: docker.io/tensorchord/pgvecto-rs:pg17-v0.4.0-rootless
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: immich
+  namespace: immich
+spec:
+  imageCatalogRef:
+    apiGroup: postgresql.cnpg.io
+    kind: ImageCatalog
+    name: immich
+    major: 17
+
+  instances: 1
+
+  storage:
+    size: 10Gi
+    storageClass: mayastor-single-hdd

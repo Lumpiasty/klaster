@@ -3,5 +3,6 @@ kind: Kustomization
 resources:
   - namespace.yaml
   - volume.yaml
+  - redis.yaml
   - postgres-cluster.yaml
-  - release.yaml
+  # - release.yaml

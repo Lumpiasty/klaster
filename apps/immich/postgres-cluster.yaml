@@ -1,25 +1,11 @@
 ---
 apiVersion: postgresql.cnpg.io/v1
-kind: ImageCatalog
-metadata:
-  name: immich
-  namespace: immich
-spec:
-  images:
-    - major: 17
-      image: docker.io/tensorchord/pgvecto-rs:pg17-v0.4.0-rootless
----
-apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
 metadata:
-  name: immich
+  name: immich-postgres
   namespace: immich
 spec:
-  imageCatalogRef:
-    apiGroup: postgresql.cnpg.io
-    kind: ImageCatalog
-    name: immich
-    major: 17
+  imageName: ghcr.io/tensorchord/cloudnative-vectorchord:14-0.4.3
 
   instances: 1
 

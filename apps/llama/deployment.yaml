@@ -41,7 +41,7 @@ spec:
       volumes:
         - name: models
           persistentVolumeClaim:
-            claimName: models
+            claimName: llama-models
         - name: kfd
           hostPath:
             path: /dev/kfd

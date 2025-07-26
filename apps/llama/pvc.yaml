@@ -3,11 +3,11 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   namespace: llama
-  name: models
+  name: llama-models
 spec:
   accessModes:
     - ReadWriteOnce
   resources:
     requests:
       storage: 200Gi
-  storageClassName: mayastor-single-hdd
+  storageClassName: mayastor-single-ssd

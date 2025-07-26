@@ -15,9 +15,11 @@ resources:
   - controllers/mongodb-operator.yaml
   - controllers/cloudnative-pg.yaml
   - diskpools/anapistula-delrosalae-hdd.yaml
+  - diskpools/anapistula-delrosalae-ssd.yaml
   - configs/bgp-cluster-config.yaml
   - configs/loadbalancer-ippool.yaml
   - configs/single-hdd-sc.yaml
+  - configs/single-ssd-sc.yaml
   - configs/mayastor-snapshotclass.yaml
   - configs/openbao-cert.yaml
   - configs/ovh-cert-manager-secret.yaml

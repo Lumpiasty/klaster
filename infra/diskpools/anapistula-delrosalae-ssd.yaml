@@ -1,0 +1,11 @@
+apiVersion: "openebs.io/v1beta3"
+kind: DiskPool
+metadata:
+  name: anapistula-delrosalae-ssd
+  namespace: openebs
+spec:
+  node: anapistula-delrosalae
+  disks: ["aio:///dev/disk/by-id/nvme-eui.000000000000000000a07501ead1ebdb"]
+  topology:
+    labelled:
+      type: ssd

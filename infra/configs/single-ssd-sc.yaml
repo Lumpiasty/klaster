@@ -1,0 +1,18 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: mayastor-single-ssd
+parameters:
+  protocol: nvmf
+  # Single replica
+  repl: "1"
+  # Thin provision volumes
+  thin: "true"
+  # Generate new filesystem's uuid when cloning
+  cloneFsIdAsVolumeId: "true"
+  # Schedule this sconly on ssd
+  poolAffinityTopologyLabel: |
+    type: ssd
+provisioner: io.openebs.csi-mayastor
+# Allow expansion of volumes
+allowVolumeExpansion: true

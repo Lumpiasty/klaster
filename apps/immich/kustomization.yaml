@@ -4,5 +4,7 @@ resources:
   - namespace.yaml
   - volume.yaml
   - redis.yaml
+  - postgres-password.yaml
   - postgres-cluster.yaml
-  # - release.yaml
+  - release.yaml
+  - ingress.yaml

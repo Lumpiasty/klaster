@@ -1,0 +1,6 @@
+bound_service_account_names:
+  - immich-password
+bound_service_account_namespaces:
+  - immich
+token_policies:
+  - immich

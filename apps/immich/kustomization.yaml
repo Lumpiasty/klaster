@@ -7,4 +7,3 @@ resources:
   - postgres-password.yaml
   - postgres-cluster.yaml
   - release.yaml
-  - ingress.yaml

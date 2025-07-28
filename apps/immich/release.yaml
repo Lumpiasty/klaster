@@ -53,12 +53,11 @@ spec:
       enabled: true
 
     ingress:
-      # Ingress definition is broken in chart (reference to wrong port value)
-      # Supplying our own separate ingress.yaml
-      enabled: false
+      enabled: true
       className: nginx
       annotations:
         cert-manager.io/cluster-issuer: letsencrypt
+        nginx.org/client-max-body-size: "0"
       hosts:
         - host: immich.lumpiasty.xyz
           paths:

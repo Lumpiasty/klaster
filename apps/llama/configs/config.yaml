@@ -18,7 +18,7 @@ models:
       -ngl 37 -c 16384
       --jinja --chat-template-file /config/qwen_nothink_chat_template.jinja
       --port ${PORT}
-  "gemma3n":
+  "gemma3n-e3b":
     cmd: |
       /app/llama-server
       -hf unsloth/gemma-3n-E4B-it-GGUF:UD-Q4_K_XL
@@ -31,4 +31,71 @@ models:
       --min-p 0.00
       --top-k 64
       --top-p 0.95
+      --port ${PORT}
+  "gemma3-12b":
+    cmd: |
+      /app/llama-server
+      -hf unsloth/gemma-3-12b-it-GGUF:Q4_K_M
+      --ctx-size 16384
+      --n-gpu-layers 99
+      --prio 2
+      --temp 1.0
+      --repeat-penalty 1.0
+      --min-p 0.00
+      --top-k 64
+      --top-p 0.95
+      --port ${PORT}
+  "gemma3-12b-novision":
+    cmd: |
+      /app/llama-server
+      -hf unsloth/gemma-3-12b-it-GGUF:Q4_K_M
+      --ctx-size 16384
+      --n-gpu-layers 99
+      --prio 2
+      --temp 1.0
+      --repeat-penalty 1.0
+      --min-p 0.00
+      --top-k 64
+      --top-p 0.95
+      --no-mmproj
+      --port ${PORT}
+  "gemma3-12b-q2":
+    cmd: |
+      /app/llama-server
+      -hf unsloth/gemma-3-12b-it-GGUF:Q2_K_L
+      --ctx-size 16384
+      --n-gpu-layers 99
+      --prio 2
+      --temp 1.0
+      --repeat-penalty 1.0
+      --min-p 0.00
+      --top-k 64
+      --top-p 0.95
+      --port ${PORT}
+  "gemma3-4b":
+    cmd: |
+      /app/llama-server
+      -hf unsloth/gemma-3-4b-it-GGUF:Q4_K_M
+      --ctx-size 16384
+      --n-gpu-layers 99
+      --prio 2
+      --temp 1.0
+      --repeat-penalty 1.0
+      --min-p 0.00
+      --top-k 64
+      --top-p 0.95
+      --port ${PORT}
+  "gemma3-4b-novision":
+    cmd: |
+      /app/llama-server
+      -hf unsloth/gemma-3-4b-it-GGUF:Q4_K_M
+      --ctx-size 16384
+      --n-gpu-layers 99
+      --prio 2
+      --temp 1.0
+      --repeat-penalty 1.0
+      --min-p 0.00
+      --top-k 64
+      --top-p 0.95
+      --no-mmproj
       --port ${PORT}

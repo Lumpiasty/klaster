@@ -67,7 +67,12 @@ spec:
                   "DeepSeek-R1-0528-Qwen3-8B-GGUF",
                   "Qwen3-8B-GGUF",
                   "Qwen3-8B-GGUF-no-thinking",
-                  "gemma3n"
+                  "gemma3n-e4b",
+                  "gemma3-12b",
+                  "gemma3-12b-q2",
+                  "gemma3-12b-novision",
+                  "gemma3-4b",
+                  "gemma3-4b-novision"
                 ]
               titleConvo: true
               titleModel: "current_model"

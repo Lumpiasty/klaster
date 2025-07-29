@@ -91,6 +91,8 @@ spec:
       annotations:
         cert-manager.io/cluster-issuer: letsencrypt
         nginx.org/client-max-body-size: "0"
+        nginx.ingress.kubernetes.io/proxy-buffering: "false"
+        nginx.org/proxy-read-timeout: 30m
       hosts:
         - host: librechat.lumpiasty.xyz
           paths:

@@ -90,6 +90,7 @@ spec:
       className: nginx
       annotations:
         cert-manager.io/cluster-issuer: letsencrypt
+        nginx.org/client-max-body-size: "0"
       hosts:
         - host: librechat.lumpiasty.xyz
           paths:

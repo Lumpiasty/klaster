@@ -4,12 +4,14 @@ models:
       /app/llama-server
       -hf unsloth/DeepSeek-R1-0528-Qwen3-8B-GGUF:Q4_K_M
       -ngl 37 -c 16384
+      --no-warmup
       --port ${PORT}
   "Qwen3-8B-GGUF":
     cmd: |
       /app/llama-server
       -hf unsloth/Qwen3-8B-GGUF:Q4_K_M
       -ngl 37 -c 16384
+      --no-warmup
       --port ${PORT}
   "Qwen3-8B-GGUF-no-thinking":
     cmd: |
@@ -17,6 +19,7 @@ models:
       -hf unsloth/Qwen3-8B-GGUF:Q4_K_M
       -ngl 37 -c 16384
       --jinja --chat-template-file /config/qwen_nothink_chat_template.jinja
+      --no-warmup
       --port ${PORT}
   "gemma3n-e3b":
     cmd: |
@@ -31,6 +34,7 @@ models:
       --min-p 0.00
       --top-k 64
       --top-p 0.95
+      --no-warmup
       --port ${PORT}
   "gemma3-12b":
     cmd: |
@@ -44,6 +48,7 @@ models:
       --min-p 0.00
       --top-k 64
       --top-p 0.95
+      --no-warmup
       --port ${PORT}
   "gemma3-12b-novision":
     cmd: |
@@ -58,6 +63,7 @@ models:
       --top-k 64
       --top-p 0.95
       --no-mmproj
+      --no-warmup
       --port ${PORT}
   "gemma3-12b-q2":
     cmd: |
@@ -71,6 +77,7 @@ models:
       --min-p 0.00
       --top-k 64
       --top-p 0.95
+      --no-warmup
       --port ${PORT}
   "gemma3-4b":
     cmd: |
@@ -84,6 +91,7 @@ models:
       --min-p 0.00
       --top-k 64
       --top-p 0.95
+      --no-warmup
       --port ${PORT}
   "gemma3-4b-novision":
     cmd: |
@@ -98,4 +106,5 @@ models:
       --top-k 64
       --top-p 0.95
       --no-mmproj
+      --no-warmup
       --port ${PORT}

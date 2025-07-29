@@ -58,6 +58,7 @@ spec:
       annotations:
         cert-manager.io/cluster-issuer: letsencrypt
         nginx.org/client-max-body-size: "0"
+        nginx.org/websocket-services: immich-server
       hosts:
         - host: immich.lumpiasty.xyz
           paths:

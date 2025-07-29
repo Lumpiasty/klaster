@@ -1,5 +1,8 @@
+healthCheckTimeout: 600
+
 models:
   "DeepSeek-R1-0528-Qwen3-8B-GGUF":
+    ttl: 600
     cmd: |
       /app/llama-server
       -hf unsloth/DeepSeek-R1-0528-Qwen3-8B-GGUF:Q4_K_M
@@ -7,6 +10,7 @@ models:
       --no-warmup
       --port ${PORT}
   "Qwen3-8B-GGUF":
+    ttl: 600
     cmd: |
       /app/llama-server
       -hf unsloth/Qwen3-8B-GGUF:Q4_K_M
@@ -14,6 +18,7 @@ models:
       --no-warmup
       --port ${PORT}
   "Qwen3-8B-GGUF-no-thinking":
+    ttl: 600
     cmd: |
       /app/llama-server
       -hf unsloth/Qwen3-8B-GGUF:Q4_K_M
@@ -22,6 +27,7 @@ models:
       --no-warmup
       --port ${PORT}
   "gemma3n-e3b":
+    ttl: 600
     cmd: |
       /app/llama-server
       -hf unsloth/gemma-3n-E4B-it-GGUF:UD-Q4_K_XL
@@ -37,6 +43,7 @@ models:
       --no-warmup
       --port ${PORT}
   "gemma3-12b":
+    ttl: 600
     cmd: |
       /app/llama-server
       -hf unsloth/gemma-3-12b-it-GGUF:Q4_K_M
@@ -51,6 +58,7 @@ models:
       --no-warmup
       --port ${PORT}
   "gemma3-12b-novision":
+    ttl: 600
     cmd: |
       /app/llama-server
       -hf unsloth/gemma-3-12b-it-GGUF:Q4_K_M
@@ -66,6 +74,7 @@ models:
       --no-warmup
       --port ${PORT}
   "gemma3-12b-q2":
+    ttl: 600
     cmd: |
       /app/llama-server
       -hf unsloth/gemma-3-12b-it-GGUF:Q2_K_L
@@ -80,6 +89,7 @@ models:
       --no-warmup
       --port ${PORT}
   "gemma3-4b":
+    ttl: 600
     cmd: |
       /app/llama-server
       -hf unsloth/gemma-3-4b-it-GGUF:Q4_K_M
@@ -94,6 +104,7 @@ models:
       --no-warmup
       --port ${PORT}
   "gemma3-4b-novision":
+    ttl: 600
     cmd: |
       /app/llama-server
       -hf unsloth/gemma-3-4b-it-GGUF:Q4_K_M

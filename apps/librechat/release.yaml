@@ -2,11 +2,11 @@
 apiVersion: source.toolkit.fluxcd.io/v1
 kind: HelmRepository
 metadata:
-  name: bat-librechat
+  name: dynomite567-charts
   namespace: librechat
 spec:
   interval: 24h
-  url: https://charts.blue-atlas.de
+  url: https://dynomite567.github.io/helm-charts/
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
@@ -18,10 +18,10 @@ spec:
   chart:
     spec:
       chart: librechat
-      version: 1.8.10
+      version: 1.8.9
       sourceRef:
         kind: HelmRepository
-        name: bat-librechat
+        name: dynomite567-charts
   values:
     global:
       librechat:

@@ -61,7 +61,7 @@ spec:
               modelDisplayLabel: "Ollama"
             - name: "Llama.cpp"
               apiKey: "llama"
-              baseURL: "http://llama.llama.svc.cluster.local:11434/v1/chat/completions"
+              baseURL: "http://llama.llama.svc.cluster.local:11434/v1"
               models:
                 default: [
                   "DeepSeek-R1-0528-Qwen3-8B-GGUF",

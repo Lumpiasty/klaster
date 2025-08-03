@@ -79,8 +79,8 @@ spec:
       ssh:
         annotations:
           lbipam.cilium.io/sharing-key: gitea
-          lbipam.cilium.io/sharing-cross-namespace: nginx-ingress-controller
-          lbipam.cilium.io/ips: 10.44.0.0,2001:470:61a3:400::1
+          lbipam.cilium.io/sharing-cross-namespace: nginx-ingress
+          lbipam.cilium.io/ips: 10.44.0.6,2001:470:61a3:400::6
         type: LoadBalancer
         port: 22
         # Requirement for sharing ip with other service
@@ -89,7 +89,7 @@ spec:
 
     ingress:
       enabled: true
-      className: nginx
+      className: nginx-ingress
       annotations:
         cert-manager.io/cluster-issuer: letsencrypt
         acme.cert-manager.io/http01-edit-in-place: "true"

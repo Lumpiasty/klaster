@@ -20,8 +20,8 @@ machine:
     diskSelector:
       wwid: t10.ATA     SSDPR-CX400-256                         GUH039914
     # Generated on https://factory.talos.dev/
-    # intel-ucode and amdgpu
-    image: factory.talos.dev/installer/06deebb947b815afa53f04c450d355d3c8bc28927a387c754db1622a0a06349e:v1.9.5
+    # amd-ucode and amdgpu
+    image: factory.talos.dev/metal-installer/9c1d1b442d73f96dcd04e81463eb20000ab014062d22e1b083e1773336bc1dd5:v1.10.6
     extraKernelArgs:
       - cpufreq.default_governor=performance
   sysfs:
@@ -31,4 +31,3 @@ machine:
     devices.system.cpu.cpu6.cpufreq.scaling_max_freq: "550000"
     devices.system.cpu.cpu7.cpufreq.scaling_max_freq: "550000"
     devices.system.cpu.cpu8.cpufreq.scaling_max_freq: "550000"
-    

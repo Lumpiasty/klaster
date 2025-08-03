@@ -1,0 +1,61 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: nginx-ingress
+---
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
+metadata:
+  name: ingress-nginx
+  namespace: nginx-ingress
+spec:
+  interval: 24h
+  url: https://kubernetes.github.io/ingress-nginx
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: nginx-ingress
+  namespace: nginx-ingress
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: ingress-nginx
+      version: 4.13.0
+      sourceRef:
+        kind: HelmRepository
+        name: ingress-nginx
+        namespace: nginx-ingress
+      interval: 12h
+  values:
+    controller:
+      resources:
+        requests:
+          cpu: 0
+          memory: 128Mi
+        limits:
+          cpu: 100m
+          memory: 128Mi
+
+      ingressClass: "nginx-ingress"
+      ingressClassResource:
+        name: "nginx-ingress"
+        enabled: true
+        default: false
+
+      service:
+        create: true
+        type: LoadBalancer
+        # Requirement for sharing ip with other service
+        externalTrafficPolicy: Cluster
+        ipFamilyPolicy: RequireDualStack
+        # annotations:
+        #   # Share IP with gitea ssh so we can have the same domain for both port
+        #   lbipam.cilium.io/sharing-key: gitea
+        #   lbipam.cilium.io/sharing-cross-namespace: gitea
+        #   lbipam.cilium.io/ips: 10.44.0.0,2001:470:61a3:400::1
+      # config:
+      #   entries:
+      #     proxy-buffering: "false"

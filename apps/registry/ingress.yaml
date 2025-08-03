@@ -6,9 +6,9 @@ metadata:
   name: registry
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt
-    nginx.org/client-max-body-size: "0"
+    nginx.ingress.kubernetes.io/proxy-body-size: "0"
 spec:
-  ingressClassName: nginx
+  ingressClassName: nginx-ingress
   rules:
     - host: registry.lumpiasty.xyz
       http:

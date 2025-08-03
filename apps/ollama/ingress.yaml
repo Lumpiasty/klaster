@@ -8,9 +8,9 @@ metadata:
     cert-manager.io/cluster-issuer: letsencrypt
     acme.cert-manager.io/http01-edit-in-place: "true"
     nginx.ingress.kubernetes.io/proxy-buffering: "false"
-    nginx.org/proxy-read-timeout: 30m
+    nginx.ingress.kubernetes.io/proxy-read-timeout: 30m
 spec:
-  ingressClassName: nginx
+  ingressClassName: nginx-ingress
   rules:
     - host: ollama.lumpiasty.xyz
       http:

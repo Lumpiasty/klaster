@@ -87,12 +87,12 @@ spec:
         storageClassName: mayastor-single-hdd
     ingress:
       enabled: true
-      className: nginx
+      className: nginx-ingress
       annotations:
         cert-manager.io/cluster-issuer: letsencrypt
-        nginx.org/client-max-body-size: "0"
+        nginx.ingress.kubernetes.io/proxy-body-size: "0"
         nginx.ingress.kubernetes.io/proxy-buffering: "false"
-        nginx.org/proxy-read-timeout: 30m
+        nginx.ingress.kubernetes.io/proxy-read-timeout: 30m
       hosts:
         - host: librechat.lumpiasty.xyz
           paths:

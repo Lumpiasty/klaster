@@ -147,9 +147,9 @@ spec:
 
     ingress:
       enabled: true
+      ingressClassName: nginx-ingress
       annotations:
         cert-manager.io/cluster-issuer: letsencrypt
-        nginx.org/websocket-services: frigate
       hosts:
         - host: frigate.lumpiasty.xyz
           paths:

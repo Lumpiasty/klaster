@@ -10,6 +10,10 @@ machine:
             gateway: 2001:470:61a3:100:ffff:ffff:ffff:ffff
           - network: 0.0.0.0/0
             gateway: 192.168.1.1
+        vlans:
+          - vlanId: 3
+            addresses:
+              - 192.168.3.2/24
         mtu: 1500
 
   install:

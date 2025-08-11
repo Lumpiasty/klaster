@@ -107,8 +107,8 @@ spec:
                 # Uparty false positive
                 mask: 0.739,0.725,0.856,0.76,0.862,0.659,0.746,0.614
 
-      ffmpeg:
-        hwaccel_args: preset-vaapi
+      # ffmpeg:
+      #   hwaccel_args: preset-vaapi
 
       detectors:
         ov_0:
@@ -164,16 +164,16 @@ spec:
       kubernetes.io/hostname: anapistula-delrosalae
 
     # GPU access
-    extraVolumes:
-      - name: dri
-        hostPath:
-          path: /dev/dri/renderD128
-          type: CharDevice
+    # extraVolumes:
+    #   - name: dri
+    #     hostPath:
+    #       path: /dev/dri/renderD128
+    #       type: CharDevice
 
-    extraVolumeMounts:
-      - name: dri
-        mountPath: /dev/dri/renderD128
+    # extraVolumeMounts:
+    #   - name: dri
+    #     mountPath: /dev/dri/renderD128
 
-    securityContext:
-      # Not ideal
-      privileged: true
+    # securityContext:
+    #   # Not ideal
+    #   privileged: true

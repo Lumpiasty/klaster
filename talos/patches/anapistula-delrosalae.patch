@@ -10,7 +10,7 @@ machine:
             gateway: 2001:470:61a3:100:ffff:ffff:ffff:ffff
           - network: 0.0.0.0/0
             gateway: 192.168.1.1
-        mtu: 1500
+        mtu: 1280
 
   install:
     diskSelector:

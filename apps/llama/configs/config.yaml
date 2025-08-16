@@ -26,7 +26,7 @@ models:
       --jinja --chat-template-file /config/qwen_nothink_chat_template.jinja
       --no-warmup
       --port ${PORT}
-  "gemma3n-e3b":
+  "gemma3n-e4b":
     ttl: 600
     cmd: |
       /app/llama-server
@@ -118,4 +118,60 @@ models:
       --top-p 0.95
       --no-mmproj
       --no-warmup
+      --port ${PORT}
+  "Qwen3-4B-Thinking-2507":
+    ttl: 600
+    cmd: |
+      /app/llama-server
+      -hf unsloth/Qwen3-4B-Thinking-2507-GGUF:Q4_K_M
+      -ngl 99 -c 16384 --predict 8192
+      --temp 0.6
+      --min-p 0.00
+      --top-p 0.95
+      --top-k 20
+      --repeat-penalty 1.0
+      --no-warmup
+      --port ${PORT}
+  "Qwen3-4B-Thinking-2507-long-ctx":
+    ttl: 600
+    cmd: |
+      /app/llama-server
+      -hf unsloth/Qwen3-4B-Thinking-2507-GGUF:Q4_K_M
+      -ngl 99 -c 262144 --predict 81920
+      --temp 0.6
+      --min-p 0.00
+      --top-p 0.95
+      --top-k 20
+      --repeat-penalty 1.0
+      --no-warmup
+      --flash-attn
+      --cache-type-k q8_0 --cache-type-v q8_0
+      --port ${PORT}
+  "Qwen3-4B-Instruct-2507":
+    ttl: 600
+    cmd: |
+      /app/llama-server
+      -hf unsloth/Qwen3-4B-Instruct-2507-GGUF:Q4_K_M
+      -ngl 99 -c 16384 --predict 8192
+      --temp 0.7
+      --min-p 0.00
+      --top-p 0.8
+      --top-k 20
+      --repeat-penalty 1.0
+      --no-warmup
+      --port ${PORT}
+  "Qwen3-4B-Instruct-2507-long-ctx":
+    ttl: 600
+    cmd: |
+      /app/llama-server
+      -hf unsloth/Qwen3-4B-Instruct-2507-GGUF:Q4_K_M
+      -ngl 99 -c 262144 --predict 81920
+      --temp 0.7
+      --min-p 0.00
+      --top-p 0.8
+      --top-k 20
+      --repeat-penalty 1.0
+      --no-warmup
+      --flash-attn
+      --cache-type-k q8_0 --cache-type-v q8_0
       --port ${PORT}

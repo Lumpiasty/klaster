@@ -72,12 +72,14 @@ spec:
                   "gemma3-12b-q2",
                   "gemma3-12b-novision",
                   "gemma3-4b",
-                  "gemma3-4b-novision"
+                  "gemma3-4b-novision",
+                  "Qwen3-4B-Thinking-2507",
+                  "Qwen3-4B-Thinking-2507-long-ctx"
                 ]
               titleConvo: true
-              titleModel: "current_model"
+              titleModel: "gemma3-4b-novision"
               summarize: false
-              summaryModel: "current_model"
+              summaryModel: "gemma3-4b-novision"
               forcePrompt: false
               modelDisplayLabel: "Llama.cpp"
       imageVolume:

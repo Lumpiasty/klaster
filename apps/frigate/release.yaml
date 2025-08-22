@@ -139,7 +139,7 @@ spec:
         skipuninstall: true
       config:
         enabled: true
-        size: 1Gi
+        size: 5Gi
         storageClass: mayastor-single-hdd
         skipuninstall: true
     envFromSecrets:

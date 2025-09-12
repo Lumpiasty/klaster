@@ -54,7 +54,10 @@ spec:
                   "gemma3-4b",
                   "gemma3-4b-novision",
                   "Qwen3-4B-Thinking-2507",
-                  "Qwen3-4B-Thinking-2507-long-ctx"
+                  "Qwen3-4B-Thinking-2507-long-ctx",
+                  "Qwen2.5-VL-7B-Instruct-GGUF",
+                  "Qwen2.5-VL-32B-Instruct-GGUF-IQ1_S",
+                  "Qwen2.5-VL-32B-Instruct-GGUF-Q2_K_L"
                 ]
               titleConvo: true
               titleModel: "gemma3-4b-novision"

@@ -38,6 +38,7 @@ spec:
         acmeServerUrl: https://acme-v02.api.letsencrypt.org/directory
         email: arek.dzski@gmail.com
         ovhEndpointName: ovh-eu
+        ovhAuthenticationMethod: application
         ovhAuthenticationRef:
           applicationKeyRef:
             name: ovh-credentials

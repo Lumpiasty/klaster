@@ -25,7 +25,7 @@ spec:
         namespace: cert-manager
       interval: 12h
   values:
-    configVersion: 0.0.1
+    configVersion: 0.0.2
     groupName: lumpiasty-homelab
     certManager:
       namespace: cert-manager
@@ -45,6 +45,6 @@ spec:
           applicationSecretRef:
             name: ovh-credentials
             key: applicationSecret
-          consumerKeyRef:
+          applicationConsumerKeyRef:
             name: ovh-credentials
             key: consumerKey

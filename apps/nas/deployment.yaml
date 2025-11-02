@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nas-sftp
+  namespace: nas
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nas-sftp
+  template:
+    metadata:
+      labels:
+        app: nas-sftp
+    spec:
+      initContainers:
+        - name: prepare-home
+          image: alpine:3.20.3
+          imagePullPolicy: IfNotPresent
+          command:
+            - /bin/sh
+            - -c
+            - |
+              set -euo pipefail
+              mkdir -p /volume/sftp-root
+              chown root:root /volume/sftp-root
+              chmod 755 /volume/sftp-root
+              mkdir -p /volume/sftp-root/data
+              chown 1000:1000 /volume/sftp-root/data
+              chmod 750 /volume/sftp-root/data
+              mkdir -p /volume/host-keys
+              chown root:root /volume/host-keys
+              chmod 700 /volume/host-keys
+          volumeMounts:
+            - name: home
+              mountPath: /volume
+      containers:
+        - name: sftp
+          image: docker.io/emberstack/sftp:build-5.1.72
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 22
+              name: sftp
+              protocol: TCP
+          volumeMounts:
+            - name: config
+              mountPath: /app/config/sftp.json
+              subPath: sftp.json
+              readOnly: true
+            - name: home
+              mountPath: /home/nas
+              subPath: sftp-root
+            - name: home
+              mountPath: /etc/ssh/keys
+              subPath: host-keys
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              memory: 512Mi
+      volumes:
+        - name: home
+          persistentVolumeClaim:
+            claimName: nas-data
+        - name: config
+          configMap:
+            name: nas-sftp-config

@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nas-sftp-config
+  namespace: nas
+data:
+  sftp.json: |
+    {
+      "Global": {
+        "Chroot": {
+          "Directory": "%h",
+          "StartPath": "data"
+        },
+        "Directories": [
+          "data"
+        ]
+      },
+      "Users": [
+        {
+          "Username": "nas",
+          "UID": 1000,
+          "GID": 1000,
+          "PublicKeys": [
+            "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCresbDFZijI+rZMgd3LdciPjpb4x4S5B7y0U+EoYPaz6hILT72fyz3QdcgKJJv8JUJI6g0811/yFRuOzCXgWaA922c/S/t6HMUrorh7mPVQMTN2dc/SVBvMa7S2M9NYBj6z1X2LRHs+g1JTMCtL202PIjes/E9qu0as0Vx6n/6HHNmtmA9LrpiAmurbeKXDmrYe2yWg/FA6cX5d86SJb21Dj8WqdCd3Hz0Pi6FzMKXhpWvs5Hfei1htsjsRzCxkpSTjlgFEFVfmHIXPfB06Sa6aCnkxAFnE7N+xNa9RIWeZmOXdA74LsfSKQ9eAXSrsC/IRxo2ce8cBzXJy+Itxw24fUqGYXBiCgx8i3ZA9IdwI1u71xYo9lyNjav5VykzKnAHRAYnDm9UsCf8k04reBevcLdtxL11vPCtind3xn76Nhy2b45dcp/MdYFANGsCcXJOMb6Aisb03HPGhs/aU3tCAQbTVe195mL9FWhGqIK2wBmF1SKW+4ssX2bIU6YaCYc= cardno:23_671_999"
+          ]
+        }
+      ]
+    }

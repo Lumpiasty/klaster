@@ -8,4 +8,5 @@ resources:
   - frigate
   - llama
   - immich
+  - nas
   - searxng

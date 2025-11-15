@@ -29,7 +29,7 @@ spec:
               protocol: TCP
           volumeMounts:
             - name: models
-              mountPath: /root/.cache
+              mountPath: /app/.cache
             - mountPath: /dev/kfd
               name: kfd
             - mountPath: /dev/dri

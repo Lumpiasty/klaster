@@ -5,212 +5,284 @@ models:
     ttl: 600
     cmd: |
       /app/llama-server
-      -hf unsloth/DeepSeek-R1-0528-Qwen3-8B-GGUF:Q4_K_M
-      -ngl 37 -c 16384
-      --no-warmup
-      --port ${PORT}
+        -hf unsloth/DeepSeek-R1-0528-Qwen3-8B-GGUF:Q4_K_M
+        --n-gpu-layers 37
+        --ctx-size 16384
+        --no-warmup
+        --port ${PORT}
+
   "Qwen3-8B-GGUF":
     ttl: 600
     cmd: |
       /app/llama-server
-      -hf unsloth/Qwen3-8B-GGUF:Q4_K_M
-      -ngl 37 -c 16384
-      --no-warmup
-      --port ${PORT}
+        -hf unsloth/Qwen3-8B-GGUF:Q4_K_M
+        --n-gpu-layers 37
+        --ctx-size 16384
+        --no-warmup
+        --port ${PORT}
+
   "Qwen3-8B-GGUF-no-thinking":
     ttl: 600
     cmd: |
       /app/llama-server
-      -hf unsloth/Qwen3-8B-GGUF:Q4_K_M
-      -ngl 37 -c 16384
-      --jinja --chat-template-file /config/qwen_nothink_chat_template.jinja
-      --no-warmup
-      --port ${PORT}
+        -hf unsloth/Qwen3-8B-GGUF:Q4_K_M
+        --n-gpu-layers 37
+        --ctx-size 16384
+        --jinja
+        --chat-template-file /config/qwen_nothink_chat_template.jinja
+        --no-warmup
+        --port ${PORT}
+
   "gemma3n-e4b":
     ttl: 600
     cmd: |
       /app/llama-server
-      -hf unsloth/gemma-3n-E4B-it-GGUF:UD-Q4_K_XL
-      --ctx-size 16384
-      --n-gpu-layers 99
-      --seed 3407
-      --prio 2
-      --temp 1.0
-      --repeat-penalty 1.0
-      --min-p 0.00
-      --top-k 64
-      --top-p 0.95
-      --no-warmup
-      --port ${PORT}
+        -hf unsloth/gemma-3n-E4B-it-GGUF:UD-Q4_K_XL
+        --ctx-size 16384
+        --n-gpu-layers 99
+        --seed 3407
+        --prio 2
+        --temp 1.0
+        --repeat-penalty 1.0
+        --min-p 0.00
+        --top-k 64
+        --top-p 0.95
+        --no-warmup
+        --port ${PORT}
+
   "gemma3-12b":
     ttl: 600
     cmd: |
       /app/llama-server
-      -hf unsloth/gemma-3-12b-it-GGUF:Q4_K_M
-      --ctx-size 16384
-      --n-gpu-layers 99
-      --prio 2
-      --temp 1.0
-      --repeat-penalty 1.0
-      --min-p 0.00
-      --top-k 64
-      --top-p 0.95
-      --no-warmup
-      --port ${PORT}
+        -hf unsloth/gemma-3-12b-it-GGUF:Q4_K_M
+        --ctx-size 16384
+        --n-gpu-layers 99
+        --prio 2
+        --temp 1.0
+        --repeat-penalty 1.0
+        --min-p 0.00
+        --top-k 64
+        --top-p 0.95
+        --no-warmup
+        --port ${PORT}
+
   "gemma3-12b-novision":
     ttl: 600
     cmd: |
       /app/llama-server
-      -hf unsloth/gemma-3-12b-it-GGUF:Q4_K_M
-      --ctx-size 16384
-      --n-gpu-layers 99
-      --prio 2
-      --temp 1.0
-      --repeat-penalty 1.0
-      --min-p 0.00
-      --top-k 64
-      --top-p 0.95
-      --no-mmproj
-      --no-warmup
-      --port ${PORT}
+        -hf unsloth/gemma-3-12b-it-GGUF:Q4_K_M
+        --ctx-size 16384
+        --n-gpu-layers 99
+        --prio 2
+        --temp 1.0
+        --repeat-penalty 1.0
+        --min-p 0.00
+        --top-k 64
+        --top-p 0.95
+        --no-mmproj
+        --no-warmup
+        --port ${PORT}
+
   "gemma3-12b-q2":
     ttl: 600
     cmd: |
       /app/llama-server
-      -hf unsloth/gemma-3-12b-it-GGUF:Q2_K_L
-      --ctx-size 16384
-      --n-gpu-layers 99
-      --prio 2
-      --temp 1.0
-      --repeat-penalty 1.0
-      --min-p 0.00
-      --top-k 64
-      --top-p 0.95
-      --no-warmup
-      --port ${PORT}
+        -hf unsloth/gemma-3-12b-it-GGUF:Q2_K_L
+        --ctx-size 16384
+        --n-gpu-layers 99
+        --prio 2
+        --temp 1.0
+        --repeat-penalty 1.0
+        --min-p 0.00
+        --top-k 64
+        --top-p 0.95
+        --no-warmup
+        --port ${PORT}
+
   "gemma3-4b":
     ttl: 600
     cmd: |
       /app/llama-server
-      -hf unsloth/gemma-3-4b-it-GGUF:Q4_K_M
-      --ctx-size 16384
-      --n-gpu-layers 99
-      --prio 2
-      --temp 1.0
-      --repeat-penalty 1.0
-      --min-p 0.00
-      --top-k 64
-      --top-p 0.95
-      --no-warmup
-      --port ${PORT}
+        -hf unsloth/gemma-3-4b-it-GGUF:Q4_K_M
+        --ctx-size 16384
+        --n-gpu-layers 99
+        --prio 2
+        --temp 1.0
+        --repeat-penalty 1.0
+        --min-p 0.00
+        --top-k 64
+        --top-p 0.95
+        --no-warmup
+        --port ${PORT}
+
   "gemma3-4b-novision":
     ttl: 600
     cmd: |
       /app/llama-server
-      -hf unsloth/gemma-3-4b-it-GGUF:Q4_K_M
-      --ctx-size 16384
-      --n-gpu-layers 99
-      --prio 2
-      --temp 1.0
-      --repeat-penalty 1.0
-      --min-p 0.00
-      --top-k 64
-      --top-p 0.95
-      --no-mmproj
-      --no-warmup
-      --port ${PORT}
+        -hf unsloth/gemma-3-4b-it-GGUF:Q4_K_M
+        --ctx-size 16384
+        --n-gpu-layers 99
+        --prio 2
+        --temp 1.0
+        --repeat-penalty 1.0
+        --min-p 0.00
+        --top-k 64
+        --top-p 0.95
+        --no-mmproj
+        --no-warmup
+        --port ${PORT}
+
   "Qwen3-4B-Thinking-2507":
     ttl: 600
     cmd: |
       /app/llama-server
-      -hf unsloth/Qwen3-4B-Thinking-2507-GGUF:Q4_K_M
-      -ngl 99 -c 16384 --predict 8192
-      --temp 0.6
-      --min-p 0.00
-      --top-p 0.95
-      --top-k 20
-      --repeat-penalty 1.0
-      --no-warmup
-      --port ${PORT}
+        -hf unsloth/Qwen3-4B-Thinking-2507-GGUF:Q4_K_M
+        --n-gpu-layers 99
+        --ctx-size 16384
+        --predict 8192
+        --temp 0.6
+        --min-p 0.00
+        --top-p 0.95
+        --top-k 20
+        --repeat-penalty 1.0
+        --no-warmup
+        --port ${PORT}
+
   "Qwen3-4B-Thinking-2507-long-ctx":
     ttl: 600
     cmd: |
       /app/llama-server
-      -hf unsloth/Qwen3-4B-Thinking-2507-GGUF:Q4_K_M
-      -ngl 99 -c 262144 --predict 81920
-      --temp 0.6
-      --min-p 0.00
-      --top-p 0.95
-      --top-k 20
-      --repeat-penalty 1.0
-      --no-warmup
-      --flash-attn
-      --cache-type-k q8_0 --cache-type-v q8_0
-      --port ${PORT}
+        -hf unsloth/Qwen3-4B-Thinking-2507-GGUF:Q4_K_M
+        --n-gpu-layers 99
+        --ctx-size 262144
+        --predict 81920
+        --temp 0.6
+        --min-p 0.00
+        --top-p 0.95
+        --top-k 20
+        --repeat-penalty 1.0
+        --no-warmup
+        --flash-attn auto
+        --cache-type-k q8_0
+        --cache-type-v q8_0
+        --port ${PORT}
+
   "Qwen3-4B-Instruct-2507":
     ttl: 600
     cmd: |
       /app/llama-server
-      -hf unsloth/Qwen3-4B-Instruct-2507-GGUF:Q4_K_M
-      -ngl 99 -c 16384 --predict 8192
-      --temp 0.7
-      --min-p 0.00
-      --top-p 0.8
-      --top-k 20
-      --repeat-penalty 1.0
-      --no-warmup
-      --port ${PORT}
+        -hf unsloth/Qwen3-4B-Instruct-2507-GGUF:Q4_K_M
+        --n-gpu-layers 99
+        --ctx-size 16384
+        --predict 8192
+        --temp 0.7
+        --min-p 0.00
+        --top-p 0.8
+        --top-k 20
+        --repeat-penalty 1.0
+        --no-warmup
+        --port ${PORT}
+
   "Qwen3-4B-Instruct-2507-long-ctx":
     ttl: 600
     cmd: |
       /app/llama-server
-      -hf unsloth/Qwen3-4B-Instruct-2507-GGUF:Q4_K_M
-      -ngl 99 -c 262144 --predict 81920
-      --temp 0.7
-      --min-p 0.00
-      --top-p 0.8
-      --top-k 20
-      --repeat-penalty 1.0
-      --no-warmup
-      --flash-attn
-      --cache-type-k q8_0 --cache-type-v q8_0
-      --port ${PORT}
+        -hf unsloth/Qwen3-4B-Instruct-2507-GGUF:Q4_K_M
+        --n-gpu-layers 99
+        --ctx-size 262144
+        --predict 81920
+        --temp 0.7
+        --min-p 0.00
+        --top-p 0.8
+        --top-k 20
+        --repeat-penalty 1.0
+        --no-warmup
+        --flash-attn auto
+        --cache-type-k q8_0
+        --cache-type-v q8_0
+        --port ${PORT}
+
   "Qwen2.5-VL-32B-Instruct-GGUF-IQ1_S":
     ttl: 600
     cmd: |
       /app/llama-server
-      -hf unsloth/Qwen2.5-VL-32B-Instruct-GGUF:IQ1_S
-      -ngl 99 -c 16384 --predict 8192
-      --temp 0.7
-      --min-p 0.00
-      --top-p 0.8
-      --top-k 20
-      --repeat-penalty 1.0
-      --no-warmup
-      --port ${PORT}
+        -hf unsloth/Qwen2.5-VL-32B-Instruct-GGUF:IQ1_S
+        --n-gpu-layers 99
+        --ctx-size 16384
+        --predict 8192
+        --temp 0.7
+        --min-p 0.00
+        --top-p 0.8
+        --top-k 20
+        --repeat-penalty 1.0
+        --no-warmup
+        --port ${PORT}
+
   "Qwen2.5-VL-32B-Instruct-GGUF-Q2_K_L":
     ttl: 600
     cmd: |
       /app/llama-server
-      -hf unsloth/Qwen2.5-VL-32B-Instruct-GGUF:Q2_K_L
-      -ngl 99 -c 16384 --predict 8192
-      --temp 0.7
-      --min-p 0.00
-      --top-p 0.8
-      --top-k 20
-      --repeat-penalty 1.0
-      --no-warmup
-      --port ${PORT}
+        -hf unsloth/Qwen2.5-VL-32B-Instruct-GGUF:Q2_K_L
+        --n-gpu-layers 99
+        --ctx-size 16384
+        --predict 8192
+        --temp 0.7
+        --min-p 0.00
+        --top-p 0.8
+        --top-k 20
+        --repeat-penalty 1.0
+        --no-warmup
+        --port ${PORT}
+
   "Qwen2.5-VL-7B-Instruct-GGUF":
     ttl: 600
     cmd: |
       /app/llama-server
-      -hf unsloth/Qwen2.5-VL-7B-Instruct-GGUF:Q4_K_M
-      -ngl 37 -c 16384 --predict 8192
-      --temp 0.7
-      --min-p 0.00
-      --top-p 0.8
-      --top-k 20
-      --repeat-penalty 1.0
-      --no-warmup
-      --port ${PORT}
+        -hf unsloth/Qwen2.5-VL-7B-Instruct-GGUF:Q4_K_M
+        --n-gpu-layers 37
+        --ctx-size 16384
+        --predict 8192
+        --temp 0.7
+        --min-p 0.00
+        --top-p 0.8
+        --top-k 20
+        --repeat-penalty 1.0
+        --no-warmup
+        --port ${PORT}
+
+  "Qwen3-VL-4B-Instruct-GGUF":
+    ttl: 600
+    cmd: |
+      /app/llama-server
+        -hf unsloth/Qwen3-VL-4B-Instruct-GGUF:Q4_K_M
+        --n-gpu-layers 99
+        --ctx-size 12288
+        --predict 4096
+        --flash-attn auto
+        --jinja
+        --top-p 0.95
+        --top-k 20
+        --temp 1.0
+        --min-p 0.05
+        --repeat-penalty 1.0
+        --presence-penalty 0.0
+        --no-warmup
+        --port ${PORT}
+
+  "Qwen3-VL-4B-Instruct-GGUF-unslothish":
+    ttl: 600
+    cmd: |
+      /app/llama-server
+        -hf unsloth/Qwen3-VL-4B-Instruct-GGUF:Q4_K_M
+        --n-gpu-layers 99
+        --ctx-size 12288
+        --predict 4096
+        --flash-attn auto
+        --jinja
+        --top-p 0.8
+        --top-k 20
+        --temp 0.7
+        --min-p 0.0
+        --presence-penalty 0.7
+        --no-warmup
+        --port ${PORT}

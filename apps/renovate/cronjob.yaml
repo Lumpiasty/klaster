@@ -15,7 +15,7 @@ spec:
             - name: renovate
               # Update this to the latest available and then enable Renovate on
               # the manifest
-              image: renovate/renovate:41.152.7-full
+              image: renovate/renovate:42.11.0-full
               envFrom:
                 - secretRef:
                     name: renovate-gitea-token

@@ -58,9 +58,15 @@ spec:
                   "Qwen2.5-VL-7B-Instruct-GGUF",
                   "Qwen2.5-VL-32B-Instruct-GGUF-IQ1_S",
                   "Qwen2.5-VL-32B-Instruct-GGUF-Q2_K_L",
+                  "Qwen3-VL-2B-Instruct-GGUF",
+                  "Qwen3-VL-2B-Instruct-GGUF-unslothish",
+                  "Qwen3-VL-2B-Thinking-GGUF",
                   "Qwen3-VL-4B-Instruct-GGUF",
                   "Qwen3-VL-4B-Instruct-GGUF-unslothish",
-                  "Qwen3-VL-4B-Thinking-GGUF"
+                  "Qwen3-VL-4B-Thinking-GGUF",
+                  "Qwen3-VL-8B-Instruct-GGUF",
+                  "Qwen3-VL-8B-Instruct-GGUF-unslothish",
+                  "Qwen3-VL-8B-Thinking-GGUF"
                 ]
               titleConvo: true
               titleModel: "gemma3-4b-novision"

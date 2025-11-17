@@ -36,6 +36,8 @@ spec:
         cookie_secure: True
 
       record:
+        expire_interval: 1440 # 24h
+        sync_recordings: True
         enabled: True
         retain:
           days: 90

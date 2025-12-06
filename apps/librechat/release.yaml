@@ -66,7 +66,9 @@ spec:
                   "Qwen3-VL-4B-Thinking-GGUF",
                   "Qwen3-VL-8B-Instruct-GGUF",
                   "Qwen3-VL-8B-Instruct-GGUF-unslothish",
-                  "Qwen3-VL-8B-Thinking-GGUF"
+                  "Qwen3-VL-8B-Thinking-GGUF",
+                  "Huihui-Qwen3-VL-8B-Instruct-abliterated-GGUF",
+                  "Huihui-Qwen3-VL-8B-Thinking-abliterated-GGUF"
                 ]
               titleConvo: true
               titleModel: "gemma3-4b-novision"

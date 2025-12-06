@@ -426,3 +426,43 @@ models:
         --presence-penalty 0.0
         --no-warmup
         --port ${PORT}
+
+  "Huihui-Qwen3-VL-8B-Instruct-abliterated-GGUF":
+    ttl: 600
+    cmd: |
+      /app/llama-server
+        -hf noctrex/Huihui-Qwen3-VL-8B-Instruct-abliterated-GGUF:Q6_K
+        --n-gpu-layers 99
+        --ctx-size 12288
+        --predict 4096
+        --flash-attn auto
+        --jinja
+        --temp 0.7
+        --top-p 0.85
+        --top-k 20
+        --min-p 0.05
+        --repeat-penalty 1.15
+        --frequency-penalty 0.5
+        --presence-penalty 0.4
+        --no-warmup
+        --port ${PORT}
+
+  "Huihui-Qwen3-VL-8B-Thinking-abliterated-GGUF":
+    ttl: 600
+    cmd: |
+      /app/llama-server
+        -hf noctrex/Huihui-Qwen3-VL-8B-Thinking-abliterated-GGUF:Q6_K
+        --n-gpu-layers 99
+        --ctx-size 12288
+        --predict 4096
+        --flash-attn auto
+        --jinja
+        --temp 0.7
+        --top-p 0.85
+        --top-k 20
+        --min-p 0.05
+        --repeat-penalty 1.15
+        --frequency-penalty 0.5
+        --presence-penalty 0.4
+        --no-warmup
+        --port ${PORT}

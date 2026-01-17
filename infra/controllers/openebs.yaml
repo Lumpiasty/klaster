@@ -38,7 +38,7 @@ spec:
     lvm-localpv:
       crds:
         lmvLocalPv:
-          enabled: false
+          enabled: true
 
     mayastor:
       csi:
@@ -124,7 +124,7 @@ spec:
     engines:
       local:
         lvm:
-          enabled: false
+          enabled: true
         zfs:
           enabled: false
       replicated:

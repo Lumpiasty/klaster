@@ -62,7 +62,7 @@ spec:
       volumes:
         - name: home
           persistentVolumeClaim:
-            claimName: nas-data
+            claimName: nas-data-lvm-hdd
         - name: config
           configMap:
             name: nas-sftp-config

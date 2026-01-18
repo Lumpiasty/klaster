@@ -10,3 +10,53 @@ spec:
     requests:
       storage: 500Gi
   storageClassName: mayastor-single-hdd
+---
+apiVersion: local.openebs.io/v1alpha1
+kind: LVMVolume
+metadata:
+  labels:
+    kubernetes.io/nodename: anapistula-delrosalae
+  name: nas-data-lvm-hdd
+  namespace: openebs
+spec:
+  capacity: 4Gi
+  ownerNodeID: anapistula-delrosalae
+  shared: "yes"
+  thinProvision: "no"
+  vgPattern: ^openebs-hdd$
+  volGroup: openebs-hdd
+---
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: nas-data-lvm-hdd
+spec:
+  capacity:
+    storage: 4Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Delete
+  storageClassName: openebs-lvmpv
+  volumeMode: Filesystem
+  csi:
+    driver: local.csi.openebs.io
+    volumeHandle: nas-data-lvm-hdd
+  claimRef:
+    apiVersion: v1
+    kind: PersistentVolumeClaim
+    namespace: nas
+    name: nas-data-lvm-hdd
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: nas-data-lvm-hdd
+  namespace: nas
+spec:
+  storageClassName: openebs-lvmpv
+  accessModes:
+    - ReadWriteOnce
+  resources:
+   requests:
+     storage: 4Gi
+  volumeName: nas-data-lvm-hdd

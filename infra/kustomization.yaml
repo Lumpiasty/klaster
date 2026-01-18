@@ -20,6 +20,7 @@ resources:
   - configs/loadbalancer-ippool.yaml
   - configs/single-hdd-sc.yaml
   - configs/single-ssd-sc.yaml
+  - configs/lvmpv-hdd-sc.yaml
   - configs/mayastor-snapshotclass.yaml
   - configs/openbao-cert.yaml
   - configs/ovh-cert-manager-secret.yaml

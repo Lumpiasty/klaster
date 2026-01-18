@@ -1,0 +1,12 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: hdd-lvmpv
+parameters:
+  storage: "lvm"
+  volgroup: "openebs-hdd"
+  fsType: "btrfs"
+  shared: "yes"
+provisioner: local.csi.openebs.io
+allowVolumeExpansion: true
+volumeBindingMode: Immediate

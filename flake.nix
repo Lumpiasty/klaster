@@ -37,6 +37,7 @@
                     fluxcd
                     restic
                     openbao
+                    pv-migrate
                 ];
                 
                 shellHook = ''

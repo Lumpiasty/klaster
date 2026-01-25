@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: teamspeak3
+  namespace: ispeak3
+spec:
+  selector:
+    app: teamspeak3
+  ports:
+  - name: voice
+    protocol: UDP
+    port: 9987
+    targetPort: 9987
+  - name: filetransfer
+    protocol: TCP
+    port: 30033
+    targetPort: 30033
+  type: LoadBalancer
+  externalTrafficPolicy: Local
+  ipFamilyPolicy: PreferDualStack

@@ -1,0 +1,49 @@
+apiVersion: local.openebs.io/v1alpha1
+kind: LVMVolume
+metadata:
+  labels:
+    kubernetes.io/nodename: anapistula-delrosalae
+  name: ispeak3-ts3-data
+  namespace: openebs
+spec:
+  capacity: 1Gi
+  ownerNodeID: anapistula-delrosalae
+  shared: "yes"
+  thinProvision: "no"
+  vgPattern: ^openebs-hdd$
+  volGroup: openebs-hdd
+---
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: ispeak3-ts3-data
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Delete
+  storageClassName: openebs-lvmpv
+  volumeMode: Filesystem
+  csi:
+    driver: local.csi.openebs.io
+    volumeHandle: ispeak3-ts3-data
+  claimRef:
+    apiVersion: v1
+    kind: PersistentVolumeClaim
+    namespace: ispeak3
+    name: ispeak3-ts3-data
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: ispeak3-ts3-data
+  namespace: ispeak3
+spec:
+  storageClassName: openebs-lvmpv
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  volumeName: ispeak3-ts3-data

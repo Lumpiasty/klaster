@@ -32,12 +32,12 @@ spec:
     apiVersion: v1
     kind: PersistentVolumeClaim
     namespace: frigate
-    name: frigate-media-tmp
+    name: frigate-media
 ---
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  name: frigate-media-tmp
+  name: frigate-media
   namespace: frigate
 spec:
   storageClassName: openebs-lvmpv

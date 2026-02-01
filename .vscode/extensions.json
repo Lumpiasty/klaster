@@ -1,7 +1,7 @@
 {
   "recommendations": [
-    "arrterian.nix-env-selector",
     "jnoortheen.nix-ide",
-    "detachhead.basedpyright"
+    "detachhead.basedpyright",
+    "mkhl.direnv"
   ]
 }

@@ -1,0 +1,49 @@
+apiVersion: local.openebs.io/v1alpha1
+kind: LVMVolume
+metadata:
+  labels:
+    kubernetes.io/nodename: anapistula-delrosalae
+  name: frigate-config
+  namespace: openebs
+spec:
+  capacity: 5Gi
+  ownerNodeID: anapistula-delrosalae
+  shared: "yes"
+  thinProvision: "no"
+  vgPattern: ^openebs-hdd$
+  volGroup: openebs-hdd
+---
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: frigate-config
+spec:
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: openebs-lvmpv
+  volumeMode: Filesystem
+  csi:
+    driver: local.csi.openebs.io
+    volumeHandle: frigate-config
+  claimRef:
+    apiVersion: v1
+    kind: PersistentVolumeClaim
+    namespace: frigate
+    name: frigate-config-tmp
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: frigate-config-tmp
+  namespace: frigate
+spec:
+  storageClassName: openebs-lvmpv
+  accessModes:
+    - ReadWriteOnce
+  resources:
+   requests:
+     storage: 5Gi
+  volumeName: frigate-config

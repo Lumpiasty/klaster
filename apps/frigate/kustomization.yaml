@@ -3,5 +3,7 @@ kind: Kustomization
 resources:
   - namespace.yaml
   - secret.yaml
+  - config-pvc.yaml
+  - media-pvc.yaml
   - release.yaml
   - webrtc-svc.yaml

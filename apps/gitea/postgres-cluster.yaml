@@ -10,3 +10,7 @@ spec:
   storage:
     size: 10Gi
     storageClass: mayastor-single-hdd
+
+  backup:
+    volumeSnapshot:
+      className: csi-mayastor-snapshotclass

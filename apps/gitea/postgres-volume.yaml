@@ -1,0 +1,32 @@
+apiVersion: local.openebs.io/v1alpha1
+kind: LVMVolume
+metadata:
+  labels:
+    kubernetes.io/nodename: anapistula-delrosalae
+  name: gitea-postgresql-cluster-lvmhdd-1
+  namespace: openebs
+spec:
+  capacity: 20Gi
+  ownerNodeID: anapistula-delrosalae
+  shared: "yes"
+  thinProvision: "no"
+  vgPattern: ^openebs-hdd$
+  volGroup: openebs-hdd
+---
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: gitea-postgresql-cluster-lvmhdd-1
+spec:
+  capacity:
+    storage: 20Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: openebs-lvmpv
+  volumeMode: Filesystem
+  csi:
+    driver: local.csi.openebs.io
+    volumeHandle: gitea-postgresql-cluster-lvmhdd-1
+---
+# PVCs are dynamically created by the Postgres operator

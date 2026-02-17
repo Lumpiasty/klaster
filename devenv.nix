@@ -33,6 +33,7 @@ in
     (kubectl.withKrewPlugins (plugins: with plugins; [
       mayastor
       openebs
+      browse-pvc
     ]))
     ansible
     fluxcd

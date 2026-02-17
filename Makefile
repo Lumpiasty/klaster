@@ -20,3 +20,6 @@ gen-talos-config:
 
 apply-talos-config:
 	talosctl -n anapistula-delrosalae apply-config -f talos/generated/anapistula-delrosalae.yaml
+
+get-kubeconfig:
+	talosctl -n anapistula-delrosalae kubeconfig talos/generated/kubeconfig

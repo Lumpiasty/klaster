@@ -21,6 +21,7 @@ in
     VAULT_ADDR = "https://openbao.lumpiasty.xyz:8200";
     PATH = "${config.devenv.root}/utils:${pkgs.coreutils}/bin";
     PYTHON_BIN = "${python}/bin/python";
+    KUBECONFIG = "${config.devenv.root}/talos/generated/kubeconfig";
   };
 
   # Packages

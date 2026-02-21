@@ -27,7 +27,7 @@ spec:
       config:
         vecotrExtension: vectorchord
       postgres:
-        host: immich-db-rw
+        host: immich-db-lvmhdd-rw
         existingSecret:
           enabled: true
           secretName: immich-db-immich

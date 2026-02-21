@@ -60,21 +60,27 @@ spec:
 
             service_registration "kubernetes" {}
         replicas: 1
-      # Mount TLS cert to container
+      # Disable chart's data storage setting and add data volume manually
+      dataStorage:
+        enabled: false
       volumes:
+        # Mount TLS cert to container
         - name: tls
           secret:
             secretName: openbao-lumpiasty-xyz
+        - name: data
+          persistentVolumeClaim:
+            claimName: openbao-volume-lvmhdd
       volumeMounts:
         - name: tls
           mountPath: /tls
           readOnly: true
+        - name: data
+          mountPath: /openbao/data
       service:
         enabled: true
         type: LoadBalancer
         ipFamilyPolicy: RequireDualStack
-      dataStorage:
-        storageClass: mayastor-single-hdd
     csi:
       enabled: true
     injector:

@@ -52,7 +52,9 @@ spec:
 
     persistence:
       enabled: true
-      storageClass: mayastor-single-hdd
+      # We'll create PV and PVC manually
+      create: false
+      claimName: gitea-shared-storage-lvmhdd
 
     gitea:
       additionalConfigFromEnvs:

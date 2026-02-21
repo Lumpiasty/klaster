@@ -1,0 +1,33 @@
+apiVersion: local.openebs.io/v1alpha1
+kind: LVMVolume
+metadata:
+  labels:
+    kubernetes.io/nodename: anapistula-delrosalae
+  name: immich-db-lvmhdd-1
+  namespace: openebs
+spec:
+  capacity: 10Gi
+  ownerNodeID: anapistula-delrosalae
+  shared: "yes"
+  thinProvision: "no"
+  vgPattern: ^openebs-hdd$
+  volGroup: openebs-hdd
+---
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: immich-db-lvmhdd-1
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: hdd-lvmpv
+  volumeMode: Filesystem
+  csi:
+    driver: local.csi.openebs.io
+    fsType: btrfs
+    volumeHandle: immich-db-lvmhdd-1
+---
+# PVCs are dynamically created by the Postgres operator

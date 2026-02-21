@@ -5,6 +5,7 @@ resources:
   - volume.yaml
   - redis.yaml
   - postgres-password.yaml
+  - postgres-volume.yaml
   - postgres-cluster.yaml
   - immich-library.yaml
   - release.yaml

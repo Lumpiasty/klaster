@@ -30,3 +30,59 @@ spec:
         # https://github.com/cloudnative-pg/cloudnative-pg/issues/3788
         passwordSecret:
           name: immich-db-immich
+
+  backup:
+    volumeSnapshot:
+      className: csi-mayastor-snapshotclass
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Backup
+metadata:
+  name: backup-migration
+  namespace: immich
+spec:
+  method: volumeSnapshot
+  cluster:
+    name: immich-db
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: immich-db-lvmhdd
+  namespace: immich
+spec:
+  # TODO: Configure renovate to handle imageName
+  imageName: ghcr.io/tensorchord/cloudnative-vectorchord:14-0.4.3
+
+  instances: 1
+
+  storage:
+    pvcTemplate:
+      storageClassName: hdd-lvmpv
+      resources:
+        requests:
+          storage: 10Gi
+      volumeName: immich-db-lvmhdd-1
+
+  # Just to avoid bootstrapping the instance again
+  # I migrated data manually using pv_migrate because this feature is broken
+  # when source and target volumes are in different storage classes
+  # CNPG just sets dataSource to the PVC and expects the underlying storage
+  # to handle the migration, but it doesn't work here
+  bootstrap:
+    recovery:
+      backup:
+        name: backup-migration
+
+  # We need to create custom role because default one does not allow to set up
+  # vectorchord extension
+  managed:
+    roles:
+      - name: immich
+        createdb: true
+        login: true
+        superuser: true
+        # We need to manually create secret
+        # https://github.com/cloudnative-pg/cloudnative-pg/issues/3788
+        passwordSecret:
+          name: immich-db-immich

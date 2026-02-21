@@ -2,22 +2,6 @@
 apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
 metadata:
-  name: gitea-postgresql-cluster
-  namespace: gitea
-spec:
-  instances: 1
-
-  storage:
-    size: 10Gi
-    storageClass: mayastor-single-hdd
-
-  backup:
-    volumeSnapshot:
-      className: csi-mayastor-snapshotclass
----
-apiVersion: postgresql.cnpg.io/v1
-kind: Cluster
-metadata:
   name: gitea-postgresql-cluster-lvmhdd
   namespace: gitea
 spec:

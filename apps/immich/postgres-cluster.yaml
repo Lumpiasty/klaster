@@ -2,52 +2,6 @@
 apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
 metadata:
-  name: immich-db
-  namespace: immich
-spec:
-  imageName: ghcr.io/tensorchord/cloudnative-vectorchord:14-0.4.3
-
-  instances: 1
-
-  storage:
-    size: 10Gi
-    storageClass: mayastor-single-hdd
-  bootstrap:
-    initdb:
-      # Defaults of immich chart
-      database: immich
-      owner: immich
-
-  # We need to create custom role because default one does not allow to set up
-  # vectorchord extension
-  managed:
-    roles:
-      - name: immich
-        createdb: true
-        login: true
-        superuser: true
-        # We need to manually create secret
-        # https://github.com/cloudnative-pg/cloudnative-pg/issues/3788
-        passwordSecret:
-          name: immich-db-immich
-
-  backup:
-    volumeSnapshot:
-      className: csi-mayastor-snapshotclass
----
-apiVersion: postgresql.cnpg.io/v1
-kind: Backup
-metadata:
-  name: backup-migration
-  namespace: immich
-spec:
-  method: volumeSnapshot
-  cluster:
-    name: immich-db
----
-apiVersion: postgresql.cnpg.io/v1
-kind: Cluster
-metadata:
   name: immich-db-lvmhdd
   namespace: immich
 spec:

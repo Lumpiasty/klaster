@@ -9,7 +9,6 @@ resources:
   - controllers/cert-manager-webhook-ovh.yaml
   - controllers/openebs.yaml
   - controllers/k8up.yaml
-  - controllers/openbao.yaml
   - controllers/external-secrets.yaml
   - controllers/vault-secrets-operator.yaml
   - controllers/mongodb-operator.yaml
@@ -24,3 +23,6 @@ resources:
   - configs/mayastor-snapshotclass.yaml
   - configs/openbao-cert.yaml
   - configs/ovh-cert-manager-secret.yaml
+
+  - configs/openbao-volume.yaml
+  - controllers/openbao.yaml

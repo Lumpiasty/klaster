@@ -1,17 +1,4 @@
 ---
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  namespace: llama
-  name: llama-models
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 200Gi
-  storageClassName: mayastor-single-ssd
----
 apiVersion: local.openebs.io/v1alpha1
 kind: LVMVolume
 metadata:

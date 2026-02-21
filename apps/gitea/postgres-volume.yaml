@@ -27,6 +27,7 @@ spec:
   volumeMode: Filesystem
   csi:
     driver: local.csi.openebs.io
+    fsType: btrfs
     volumeHandle: gitea-postgresql-cluster-lvmhdd-1
 ---
 # PVCs are dynamically created by the Postgres operator

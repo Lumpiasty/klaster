@@ -55,3 +55,11 @@ spec:
     dataStorage:
       enabled: true
       persistentVolumeClaimName: immich-valkey
+
+    auth:
+      enabled: true
+      usersExistingSecret: redis
+      aclUsers:
+        default:
+          passwordKey: redis-password
+          permissions: "~* &* +@all"

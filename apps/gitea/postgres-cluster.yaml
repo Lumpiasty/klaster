@@ -14,3 +14,31 @@ spec:
   backup:
     volumeSnapshot:
       className: csi-mayastor-snapshotclass
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: gitea-postgresql-cluster-lvmhdd
+  namespace: gitea
+spec:
+  instances: 1
+
+  imageName: ghcr.io/cloudnative-pg/postgresql:17.4
+
+  storage:
+    pvcTemplate:
+      storageClassName: hdd-lvmpv
+      resources:
+        requests:
+          storage: 20Gi
+      volumeName: gitea-postgresql-cluster-lvmhdd-1
+
+  # Just to avoid bootstrapping the instance agian
+  # I migrated data manually using pv_migrate because this feature is broken
+  # when source and target volumes are in different storage classes
+  # CNPG just sets dataSource to the PVC and expects the underlying storage
+  # to handle the migration, but it doesn't work here
+  bootstrap:
+    recovery:
+      backup:
+        name: backup-migration

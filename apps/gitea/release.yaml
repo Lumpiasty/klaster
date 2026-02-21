@@ -59,12 +59,12 @@ spec:
         - name: GITEA__DATABASE__PASSWD
           valueFrom:
             secretKeyRef:
-              name: gitea-postgresql-cluster-app
+              name: gitea-postgresql-cluster-lvmhdd-app
               key: password
       config:
         database:
           DB_TYPE: postgres
-          HOST: gitea-postgresql-cluster-rw:5432
+          HOST: gitea-postgresql-cluster-lvmhdd-rw:5432
           NAME: app
           USER: app
         indexer:

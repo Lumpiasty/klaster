@@ -47,7 +47,7 @@ spec:
       volumes:
         - name: uploads
           persistentVolumeClaim:
-            claimName: library
+            claimName: library-lvmhdd
 
     machineLearning:
       enabled: true

@@ -45,7 +45,7 @@ spec:
       primary:
         persistence:
           enabled: true
-          storageClass: mayastor-single-hdd
+          existingClaim: gitea-valkey-primary-lvmhdd-0
         resources:
           requests:
             cpu: 0

@@ -5,6 +5,7 @@ resources:
   - postgres-volume.yaml
   - postgres-cluster.yaml
   - gitea-shared-volume.yaml
+  - valkey-volume.yaml
   - release.yaml
   - secret.yaml
   - backups.yaml

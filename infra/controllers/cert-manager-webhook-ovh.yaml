@@ -48,3 +48,11 @@ spec:
           applicationConsumerKeyRef:
             name: ovh-credentials
             key: consumerKey
+        # Workaround for chart's bug
+        # nil pointer evaluating interface {}.enabled
+        externalAccountBinding:
+          enabled: false
+          keyID: ""
+          keySecretRef: 
+            name: ""
+            key: ""

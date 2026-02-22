@@ -4,7 +4,7 @@ machine:
 
   network:
     nameservers:
-      - 2001:470:61a3:100:ffff:ffff:ffff:ffff
+      - 2001:470:61a3:100::1
       - 192.168.1.1
 
     searchDomains:

@@ -9,7 +9,7 @@ spec:
       peers:
         - name: barracuda
           peerASN: 65000
-          peerAddress: 2001:470:61a3:100:ffff:ffff:ffff:ffff
+          peerAddress: 2001:470:61a3:100::1
           peerConfigRef:
             name: cilium-peer
 ---

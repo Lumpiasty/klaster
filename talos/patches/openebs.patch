@@ -1,22 +1,5 @@
-# Mayastor requirements
+# OpenEBS requirements
 # https://www.talos.dev/v1.9/kubernetes-guides/configuration/storage/#openebs-mayastor-replicated-storage
-machine:
-  sysctls:
-    vm.nr_hugepages: "2048"
-  nodeLabels:
-    openebs.io/engine: "mayastor"
-  kubelet:
-    extraMounts:
-      - destination: /var/local
-        type: bind
-        source: /var/local
-        options:
-          - bind
-          - rshared
-          - rw
-  install:
-    extraKernelArgs:
-      - isolcpus=1,7
 
 cluster:
   apiServer:

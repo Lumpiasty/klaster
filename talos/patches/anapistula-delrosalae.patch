@@ -18,12 +18,3 @@ machine:
     # Generated on https://factory.talos.dev/
     # amd-ucode, amdgpu and btrfs
     image: factory.talos.dev/metal-installer/80c3a00af9a5930d1788532c6cc9e8a9b23f8e553d1bb2933b2221f92703d655:v1.12.1
-    extraKernelArgs:
-      - cpufreq.default_governor=performance
-  sysfs:
-    devices.system.cpu.cpu0.cpufreq.scaling_max_freq: "550000"
-    devices.system.cpu.cpu1.cpufreq.scaling_max_freq: "550000"
-    devices.system.cpu.cpu2.cpufreq.scaling_max_freq: "550000"
-    devices.system.cpu.cpu6.cpufreq.scaling_max_freq: "550000"
-    devices.system.cpu.cpu7.cpufreq.scaling_max_freq: "550000"
-    devices.system.cpu.cpu8.cpufreq.scaling_max_freq: "550000"

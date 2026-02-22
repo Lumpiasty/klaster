@@ -112,14 +112,10 @@ spec:
             requiredDuringSchedulingIgnoredDuringExecution: []
 
     loki:
-      loki:
-        commonConfig:
-          replication_factor: 1
-      singleBinary:
-        replicas: 1
-      minio:
-        replicas: 1
-        mode: standalone
+      enabled: false
+
+    alloy:
+      enabled: false
 
     engines:
       local:

@@ -17,4 +17,4 @@ machine:
       wwid: t10.ATA     SSDPR-CX400-256                         GUH039914
     # Generated on https://factory.talos.dev/
     # amd-ucode, amdgpu and btrfs
-    image: factory.talos.dev/metal-installer/80c3a00af9a5930d1788532c6cc9e8a9b23f8e553d1bb2933b2221f92703d655:v1.12.1
+    image: factory.talos.dev/metal-installer/80c3a00af9a5930d1788532c6cc9e8a9b23f8e553d1bb2933b2221f92703d655:v1.12.4

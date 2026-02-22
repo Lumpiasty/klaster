@@ -1,13 +1,46 @@
 ---
-apiVersion: v1
-kind: PersistentVolumeClaim
+apiVersion: local.openebs.io/v1alpha1
+kind: LVMVolume
 metadata:
+  labels:
+    kubernetes.io/nodename: anapistula-delrosalae
+  name: searxng-persistent-data-lvmhdd
+  namespace: openebs
+spec:
+  capacity: 1Gi
+  ownerNodeID: anapistula-delrosalae
+  shared: "yes"
+  thinProvision: "no"
+  vgPattern: ^openebs-hdd$
+  volGroup: openebs-hdd
+---
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: searxng-persistent-data-lvmhdd
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: hdd-lvmpv
+  volumeMode: Filesystem
+  csi:
+    driver: local.csi.openebs.io
+    fsType: btrfs
+    volumeHandle: searxng-persistent-data-lvmhdd
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: searxng-persistent-data-lvmhdd
   namespace: searxng
-  name: searxng-persistent-data
 spec:
   accessModes:
     - ReadWriteOnce
   resources:
     requests:
       storage: 1Gi
-  storageClassName: mayastor-single-ssd
+  storageClassName: hdd-lvmpv
+  volumeName: searxng-persistent-data-lvmhdd

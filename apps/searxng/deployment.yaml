@@ -39,4 +39,4 @@ spec:
             name: searxng-config
         - name: searxng-persistent-data
           persistentVolumeClaim:
-            claimName: searxng-persistent-data
+            claimName: searxng-persistent-data-lvmhdd

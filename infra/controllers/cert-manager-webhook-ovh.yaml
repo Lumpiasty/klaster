@@ -25,7 +25,6 @@ spec:
         namespace: cert-manager
       interval: 12h
   values:
-    configVersion: 0.0.2
     groupName: lumpiasty-homelab
     certManager:
       namespace: cert-manager

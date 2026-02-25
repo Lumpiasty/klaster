@@ -41,7 +41,7 @@ spec:
       volumes:
         - name: models
           persistentVolumeClaim:
-            claimName: llama-models-lvmhdd
+            claimName: llama-models-lvmssd
         - name: kfd
           hostPath:
             path: /dev/kfd

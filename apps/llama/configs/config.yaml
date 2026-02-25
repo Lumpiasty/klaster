@@ -466,3 +466,18 @@ models:
         --presence-penalty 0.4
         --no-warmup
         --port ${PORT}
+
+  "Qwen3-Coder-Next-GGUF:Q4_K_M":
+    ttl: 600
+    cmd: |
+      /app/llama-server
+        -hf unsloth/Qwen3-Coder-Next-GGUF:Q4_K_M
+        --ctx-size 32768
+        --predict 8192
+        --temp 1.0
+        --min-p 0.01
+        --top-p 0.95
+        --top-k 40
+        --repeat-penalty 1.0
+        --no-warmup
+        --port ${PORT}

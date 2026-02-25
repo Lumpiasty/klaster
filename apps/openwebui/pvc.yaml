@@ -1,0 +1,46 @@
+---
+apiVersion: local.openebs.io/v1alpha1
+kind: LVMVolume
+metadata:
+  labels:
+    kubernetes.io/nodename: anapistula-delrosalae
+  name: openwebui-lvmhdd
+  namespace: openebs
+spec:
+  capacity: 1Gi
+  ownerNodeID: anapistula-delrosalae
+  shared: "yes"
+  thinProvision: "no"
+  vgPattern: ^openebs-hdd$
+  volGroup: openebs-hdd
+---
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: openwebui-lvmhdd
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: hdd-lvmpv
+  volumeMode: Filesystem
+  csi:
+    driver: local.csi.openebs.io
+    fsType: btrfs
+    volumeHandle: openwebui-lvmhdd
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: openwebui-lvmhdd
+  namespace: openwebui
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: hdd-lvmpv
+  volumeName: openwebui-lvmhdd

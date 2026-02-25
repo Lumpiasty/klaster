@@ -1,0 +1,46 @@
+---
+apiVersion: local.openebs.io/v1alpha1
+kind: LVMVolume
+metadata:
+  labels:
+    kubernetes.io/nodename: anapistula-delrosalae
+  name: llama-models-lvmssd
+  namespace: openebs
+spec:
+  capacity: 200Gi
+  ownerNodeID: anapistula-delrosalae
+  shared: "yes"
+  thinProvision: "no"
+  vgPattern: ^openebs-ssd$
+  volGroup: openebs-ssd
+---
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: llama-models-lvmssd
+spec:
+  capacity:
+    storage: 200Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ssd-lvmpv
+  volumeMode: Filesystem
+  csi:
+    driver: local.csi.openebs.io
+    fsType: btrfs
+    volumeHandle: llama-models-lvmssd
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: llama-models-lvmssd
+  namespace: llama
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 200Gi
+  storageClassName: ssd-lvmpv
+  volumeName: llama-models-lvmssd

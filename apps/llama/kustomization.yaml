@@ -6,6 +6,7 @@ resources:
   - auth-proxy.yaml
   - ingress.yaml
   - pvc.yaml
+  - pvc-ssd.yaml
   - deployment.yaml
 configMapGenerator:
   - name: llama-swap

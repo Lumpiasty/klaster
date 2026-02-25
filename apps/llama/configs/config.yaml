@@ -1,4 +1,5 @@
 healthCheckTimeout: 600
+logToStdout: "both" # proxy and upstream
 
 models:
   "DeepSeek-R1-0528-Qwen3-8B-GGUF":

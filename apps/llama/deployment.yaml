@@ -16,7 +16,8 @@ spec:
     spec:
       containers:
         - name: llama-swap
-          image: ghcr.io/mostlygeek/llama-swap:v172-vulkan-b7062
+          # TODO: make renovate update the image tag
+          image: ghcr.io/mostlygeek/llama-swap:v195-vulkan-b8148
           imagePullPolicy: IfNotPresent
           command:
             - /app/llama-swap

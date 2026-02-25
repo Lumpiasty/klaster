@@ -18,6 +18,7 @@ resources:
   - configs/bgp-cluster-config.yaml
   - configs/loadbalancer-ippool.yaml
   - configs/lvmpv-hdd-sc.yaml
+  - configs/lvmpv-ssd-sc.yaml
   - configs/openbao-cert.yaml
   - configs/ovh-cert-manager-secret.yaml
 

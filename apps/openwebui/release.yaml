@@ -23,17 +23,11 @@ spec:
         kind: HelmRepository
         name: open-webui
   values:
+    # Disable built in ingress, service is broken in chart
+    # They have hard coded wrong target port
+    # Reimplementing that in ingress.yaml
     ingress:
-      enabled: true
-      class: nginx-ingress
-      host: openwebui.lumpiasty.xyz
-      tls: true
-      existingSecret: openwebui-ingress
-      annotations:
-        cert-manager.io/cluster-issuer: letsencrypt
-        nginx.ingress.kubernetes.io/proxy-body-size: "0"
-        nginx.ingress.kubernetes.io/proxy-buffering: "false"
-        nginx.ingress.kubernetes.io/proxy-read-timeout: 30m
+      enabled: false
 
     persistence:
       enabled: true

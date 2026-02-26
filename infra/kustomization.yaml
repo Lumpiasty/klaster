@@ -4,6 +4,7 @@ resources:
   - controllers/k8up-crd-4.8.3.yaml
   - controllers/cilium.yaml
   - controllers/nginx-ingress.yaml
+  - controllers/coredns.yaml
   - controllers/dns-public.yaml
   - controllers/cert-manager.yaml
   - controllers/cert-manager-webhook-ovh.yaml

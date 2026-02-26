@@ -14,7 +14,15 @@ machine:
     hostDNS:
       forwardKubeDNSToHost: false
 
+  kubelet:
+    clusterDNS:
+      - 10.43.0.10
+      - 2001:470:61a3:300::a
+
 cluster:
+  # We're configuring CoreDNS ourselves, so disable the default one
+  coreDNS:
+    disabled: true
   network:
     # Likely redundant, we use Cilium as IPAM with their CRDs
     podSubnets:

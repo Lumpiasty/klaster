@@ -54,13 +54,13 @@ data:
         }
         ready
         log . {
-            class error
+            class all
         }
         prometheus :9153
 
         # Return NODATA for AAAA on selected domains to force IPv4.
         template IN AAAA {
-            match "(^|\\.)huggingface\\.co\\.$"
+            match "(^|\.)huggingface\.co\.$"
             rcode NOERROR
             fallthrough
         }

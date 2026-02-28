@@ -538,3 +538,18 @@ models:
         --presence-penalty 1.5
         --no-warmup
         --port ${PORT}
+
+  "gemma-3-270m-it-qat-GGUF:Q4_K_M":
+    ttl: 600
+    cmd: |
+      /app/llama-server
+        -hf unsloth/gemma-3-270m-it-qat-GGUF:Q4_K_M
+        --ctx-size 16384
+        --predict 4096
+        --temp 1.0
+        --min-p 0.01
+        --top-p 0.95
+        --top-k 64
+        --repeat-penalty 1.0
+        --no-warmup
+        --port ${PORT}

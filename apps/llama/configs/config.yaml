@@ -2,6 +2,19 @@
 healthCheckTimeout: 600
 logToStdout: "both" # proxy and upstream
 
+hooks:
+  on_startup:
+    preload:
+      - "Qwen3-VL-2B-Instruct-GGUF:Q4_K_M"
+
+groups:
+  qwen-vl-always:
+    persistent: true
+    exclusive: false
+    swap: false
+    members:
+      - "Qwen3-VL-2B-Instruct-GGUF:Q4_K_M"
+
 models:
   "DeepSeek-R1-0528-Qwen3-8B-GGUF":
     ttl: 600
@@ -483,3 +496,18 @@ models:
         --no-warmup
         --port ${PORT}
         --chat-template-kwargs "{\"enable_thinking\": false}"
+
+  "Qwen3-VL-2B-Instruct-GGUF:Q4_K_M":
+    ttl: 0
+    cmd: |
+      /app/llama-server
+        -hf unsloth/Qwen3-VL-2B-Instruct-GGUF:Q4_K_M
+        --ctx-size 16384
+        --predict 4096
+        --temp 0.7
+        --top-p 0.8
+        --top-k 20
+        --min-p 0.0
+        --presence-penalty 1.5
+        --no-warmup
+        --port ${PORT}

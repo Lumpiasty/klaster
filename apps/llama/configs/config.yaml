@@ -497,6 +497,33 @@ models:
         --port ${PORT}
         --chat-template-kwargs "{\"enable_thinking\": false}"
 
+  "Qwen3.5-35B-A3B-heretic-GGUF:Q4_K_M":
+    ttl: 600
+    cmd: |
+      /app/llama-server
+        -hf mradermacher/Qwen3.5-35B-A3B-heretic-GGUF:Q4_K_M
+        --ctx-size 16384
+        --temp 1.0
+        --min-p 0.00
+        --top-p 0.95
+        --top-k 20
+        --no-warmup
+        --port ${PORT}
+
+  "Qwen3.5-35B-A3B-heretic-GGUF-nothink:Q4_K_M":
+    ttl: 600
+    cmd: |
+      /app/llama-server
+        -hf mradermacher/Qwen3.5-35B-A3B-heretic-GGUF:Q4_K_M
+        --ctx-size 16384
+        --temp 1.0
+        --min-p 0.00
+        --top-p 0.95
+        --top-k 20
+        --no-warmup
+        --port ${PORT}
+        --chat-template-kwargs "{\"enable_thinking\": false}"
+
   "Qwen3-VL-2B-Instruct-GGUF:Q4_K_M":
     ttl: 0
     cmd: |

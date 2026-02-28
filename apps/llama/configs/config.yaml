@@ -456,3 +456,30 @@ models:
         --repeat-penalty 1.0
         --no-warmup
         --port ${PORT}
+
+  "Qwen3.5-35B-A3B-GGUF:Q4_K_M":
+    ttl: 600
+    cmd: |
+      /app/llama-server
+        -hf unsloth/Qwen3.5-35B-A3B-GGUF:Q4_K_M
+        --ctx-size 16384
+        --temp 1.0
+        --min-p 0.00
+        --top-p 0.95
+        --top-k 20
+        --no-warmup
+        --port ${PORT}
+
+  "Qwen3.5-35B-A3B-GGUF-nothink:Q4_K_M":
+    ttl: 600
+    cmd: |
+      /app/llama-server
+        -hf unsloth/Qwen3.5-35B-A3B-GGUF:Q4_K_M
+        --ctx-size 16384
+        --temp 1.0
+        --min-p 0.00
+        --top-p 0.95
+        --top-k 20
+        --no-warmup
+        --port ${PORT}
+        --chat-template-kwargs "{\"enable_thinking\": false}"

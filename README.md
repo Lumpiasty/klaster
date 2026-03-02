@@ -143,6 +143,8 @@ Currently the k8s cluster consists of single node (hostname anapistula-delrosala
 
 The cluster itself is based on [Talos Linux](https://www.talos.dev/) (which is also a Kubernetes distribution) and uses [Cilium](https://cilium.io/) as CNI, IPAM, kube-proxy replacement, Load Balancer, and BGP control plane. Persistent volumes are managed by [OpenEBS LVM LocalPV](https://openebs.io/docs/user-guides/local-storage-user-guide/local-pv-lvm/lvm-overview). Applications are deployed using GitOps (this repo) and reconciled on cluster using [Flux](https://fluxcd.io/). Git repository is hosted on [Gitea](https://gitea.io/) running on a cluster itself. Secets are kept in [OpenBao](https://openbao.org/) (HashiCorp Vault fork) running on a cluster and synced to cluster objects using [Vault Secrets Operator](https://github.com/hashicorp/vault-secrets-operator). Deployments are kept up to date using self hosted [Renovate](https://www.mend.io/renovate/) bot updating manifests in the Git repository. Incoming HTTP traffic is routed to cluster using [Nginx Ingress Controller](https://kubernetes.github.io/ingress-nginx/) and certificates are issued by [cert-manager](https://cert-manager.io/) with [Let's Encrypt](https://letsencrypt.org/) ACME issuer with [cert-manager-webhook-ovh](https://github.com/aureq/cert-manager-webhook-ovh) resolving DNS-01 challanges. Cluster also runs [CloudNativePG](https://cloudnative-pg.io/) operator for managing PostgreSQL databases. High level core cluster software architecture is shown on the diagram below.
 
+> Talos Linux is an immutable Linux distribution purpose-built for running Kubernetes. The OS is distributed as an OCI (Docker) image and does not contain any package manager, shell, SSH, or any other tools for managing the system. Instead, all operations are performed using API, which can be accessed using `talosctl` CLI tool.
+
 ```mermaid
 flowchart TD
       router[MikroTik Router]
@@ -189,6 +191,9 @@ flowchart TD
 
 | Logo | Name | Address | Description |
 |------|------|---------|-------------|
+| <img src="docs/assets/flux.svg" alt="Flux CD" height="50" width="50"> | Flux CD | | GitOps operator for reconciling cluster state with Git repository |
+| <img src="docs/assets/cilium.svg" alt="Cilium" height="50" width="50"> | Cilium | | CNI, BGP control plane, kube-proxy replacement and Load Balancer for cluster networking |
+| <img src="docs/assets/openebs.svg" alt="OpenEBS" height="50" width="50"> | OpenEBS LVM LocalPV | | Container Storage Interface for managing persistent volumes on local LVM pools |
 | <img src="docs/assets/gitea.svg" alt="Gitea" height="50" width="50"> | Gitea | https://gitea.lumpiasty.xyz/ | Private Git repository hosting and artifact storage (Docker, Helm charts) |
 | <img src="docs/assets/openbao.svg" alt="OpenBao" height="50" width="50"> | OpenBao | https://openbao.lumpiasty.xyz:8200/ | Secret storage (HashiCorp Vault compatible) |
 | <img src="docs/assets/renovate.svg" alt="Renovate" height="50" width="50"> | Renovate | | Bot for keeping dependencies up to date |
@@ -201,3 +206,31 @@ flowchart TD
 | <img src="docs/assets/open-webui.png" alt="Open WebUI" height="50" width="50"> | Open WebUI | https://openwebui.lumpiasty.xyz/ | Web UI for chatting with LLMs running on the cluster |
 | <img src="docs/assets/frigate.svg" alt="Frigate" height="50" width="50"> | Frigate | https://frigate.lumpiasty.xyz/ | NVR for camera system with AI object detection and classification |
 
+
+## Development
+
+This repo leverages [devenv](https://devenv.sh/) for easy setup of a development environment. Install devenv, clone this repo and run `devenv shell` to make the tools and enviornment variables available in your shell. Alternatively, you can use direnv to automate enabling enviornment after entering directory in your shell. You can also install [direnv extension](https://marketplace.visualstudio.com/items?itemName=mkhl.direnv) in VSCode to automatically set up environment after opening workspace so all the fancy intellisense and extensions detect stuff correctly.
+
+### App deployment
+
+This repo is being watched by Flux running on cluster. To change config/add new app, simply commit to this repo and wait a while for cluster to reconcile changes. You can speed up this process by "notifying" Flux using `flux reconcile source git flux-system`.
+
+Flux watches 3 kustomizations in this repo:
+
+- flux-system - [cluster/flux-system](cluster/flux-system) directory, contains flux manifests
+- infra - [infra](infra) directory, contains cluster infrastructure manifests like storage classes, network policies, monitoring etc.
+- apps - [apps](apps) directory, contains manifests for applications deployed on cluster
+
+### Talos config changes
+
+Talos config in this repo is stored as yaml patches under [talos/patches](talos/patches) directory. Those patches can then be compiled into full Talos config files using `make gen-talos-config` command. Full config can then be applied to cluster using `make apply-talos-config` command, which applies config to all nodes in cluster.
+
+To compile config, you need to have secrets file, which contains certificates and keys for cluster. Those secrets are then incorporated into final config files. That is also why we can not store full config in repo.
+
+### Kube API access
+
+To generate kubeconfig for accessing cluster API, run `make get-kubeconfig` command, which will generate kubeconfig under `talos/generated/kubeconfig` path. Devenv automatically sets `KUBECONFIG` enviornment variable to point to this file, so you can start using `kubectl` right away.
+
+Like above, you need secrets file to generate kubeconfig.
+
+<!-- TODO: Add instructions for setting up Router -->

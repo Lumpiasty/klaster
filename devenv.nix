@@ -40,6 +40,7 @@ in
     restic
     openbao
     pv-migrate
+    mermaid-cli
   ];
 
   # Scripts

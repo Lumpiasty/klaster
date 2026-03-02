@@ -497,11 +497,14 @@ models:
         --port ${PORT}
         --chat-template-kwargs "{\"enable_thinking\": false}"
 
+  # The "heretic" version does not provide the mmproj
+  # so providing url to the one from the non-heretic version.
   "Qwen3.5-35B-A3B-heretic-GGUF:Q4_K_M":
     ttl: 600
     cmd: |
       /app/llama-server
         -hf mradermacher/Qwen3.5-35B-A3B-heretic-GGUF:Q4_K_M
+        --mmproj-url https://huggingface.co/unsloth/Qwen3.5-35B-A3B-GGUF/resolve/main/mmproj-F16.gguf
         --ctx-size 16384
         --temp 1.0
         --min-p 0.00
@@ -515,6 +518,7 @@ models:
     cmd: |
       /app/llama-server
         -hf mradermacher/Qwen3.5-35B-A3B-heretic-GGUF:Q4_K_M
+        --mmproj-url https://huggingface.co/unsloth/Qwen3.5-35B-A3B-GGUF/resolve/main/mmproj-F16.gguf
         --ctx-size 16384
         --temp 1.0
         --min-p 0.00

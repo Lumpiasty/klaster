@@ -5,15 +5,15 @@ logToStdout: "both" # proxy and upstream
 hooks:
   on_startup:
     preload:
-      - "Qwen3-VL-2B-Instruct-GGUF:Q4_K_M"
+      - "Qwen3.5-0.8B-GGUF-nothink:Q4_K_XL"
 
 groups:
-  qwen-vl-always:
+  always:
     persistent: true
     exclusive: false
     swap: false
     members:
-      - "Qwen3-VL-2B-Instruct-GGUF:Q4_K_M"
+      - "Qwen3.5-0.8B-GGUF-nothink:Q4_K_XL"
 
 models:
   "DeepSeek-R1-0528-Qwen3-8B-GGUF":
@@ -531,7 +531,7 @@ models:
         --chat-template-kwargs "{\"enable_thinking\": false}"
 
   "Qwen3-VL-2B-Instruct-GGUF:Q4_K_M":
-    ttl: 0
+    ttl: 600
     cmd: |
       /app/llama-server
         -hf unsloth/Qwen3-VL-2B-Instruct-GGUF:Q4_K_M
@@ -560,3 +560,17 @@ models:
         --repeat-penalty 1.0
         --no-warmup
         --port ${PORT}
+
+  "Qwen3.5-0.8B-GGUF-nothink:Q4_K_XL":
+    ttl: 0
+    cmd: |
+      /app/llama-server
+        -hf unsloth/Qwen3.5-0.8B-GGUF:Q4_K_XL
+        --ctx-size 16384
+        --temp 0.6
+        --top-p 0.95
+        --top-k 20
+        --min-p 0.00
+        --no-warmup
+        --port ${PORT}
+        --chat-template-kwargs "{\"enable_thinking\": false}"

@@ -535,8 +535,9 @@ models:
     cmd: |
       /app/llama-server
         -hf unsloth/Qwen3-VL-2B-Instruct-GGUF:Q4_K_M
-        --ctx-size 16384
-        --predict 4096
+        --ctx-size 6144
+        --cache-type-k q8_0
+        --cache-type-v q8_0
         --temp 0.7
         --top-p 0.8
         --top-k 20

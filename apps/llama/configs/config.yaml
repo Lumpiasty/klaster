@@ -461,6 +461,7 @@ models:
       /app/llama-server
         -hf unsloth/Qwen3-Coder-Next-GGUF:Q4_K_M
         --ctx-size 32768
+        --fit-target 2048
         --predict 8192
         --temp 1.0
         --min-p 0.01
@@ -475,6 +476,7 @@ models:
     cmd: |
       /app/llama-server
         -hf unsloth/Qwen3.5-35B-A3B-GGUF:Q4_K_M
+        --fit-target 2048
         --ctx-size 16384
         --temp 1.0
         --min-p 0.00
@@ -488,6 +490,7 @@ models:
     cmd: |
       /app/llama-server
         -hf unsloth/Qwen3.5-35B-A3B-GGUF:Q4_K_M
+        --fit-target 2048
         --ctx-size 16384
         --temp 1.0
         --min-p 0.00
@@ -506,6 +509,7 @@ models:
         -hf mradermacher/Qwen3.5-35B-A3B-heretic-GGUF:Q4_K_M
         --mmproj-url https://huggingface.co/unsloth/Qwen3.5-35B-A3B-GGUF/resolve/main/mmproj-F16.gguf
         --mmproj /root/.cache/llama.cpp/unsloth_Qwen3.5-35B-A3B-GGUF_mmproj-F16.gguf
+        --fit-target 2048
         --ctx-size 16384
         --temp 1.0
         --min-p 0.00
@@ -521,6 +525,7 @@ models:
         -hf mradermacher/Qwen3.5-35B-A3B-heretic-GGUF:Q4_K_M
         --mmproj-url https://huggingface.co/unsloth/Qwen3.5-35B-A3B-GGUF/resolve/main/mmproj-F16.gguf
         --mmproj /root/.cache/llama.cpp/unsloth_Qwen3.5-35B-A3B-GGUF_mmproj-F16.gguf
+        --fit-target 2048
         --ctx-size 16384
         --temp 1.0
         --min-p 0.00

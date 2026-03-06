@@ -566,6 +566,20 @@ models:
         --no-warmup
         --port ${PORT}
 
+  "Qwen3.5-0.8B-GGUF:Q4_K_XL":
+    ttl: 0
+    cmd: |
+      /app/llama-server
+        -hf unsloth/Qwen3.5-0.8B-GGUF:Q4_K_XL
+        --ctx-size 16384
+        --temp 0.6
+        --top-p 0.95
+        --top-k 20
+        --min-p 0.00
+        --no-warmup
+        --port ${PORT}
+        --chat-template-kwargs "{\"enable_thinking\": true}"
+
   "Qwen3.5-0.8B-GGUF-nothink:Q4_K_XL":
     ttl: 0
     cmd: |
@@ -580,19 +594,6 @@ models:
         --port ${PORT}
         --chat-template-kwargs "{\"enable_thinking\": false}"
 
-  "Qwen3.5-0.8B-GGUF:Q4_K_XL":
-    ttl: 0
-    cmd: |
-      /app/llama-server
-        -hf unsloth/Qwen3.5-0.8B-GGUF:Q4_K_XL
-        --ctx-size 16384
-        --temp 0.6
-        --top-p 0.95
-        --top-k 20
-        --min-p 0.00
-        --no-warmup
-        --port ${PORT}
-
   "Qwen3.5-2B-GGUF:Q4_K_M":
     ttl: 600
     cmd: |
@@ -605,6 +606,7 @@ models:
         --min-p 0.00
         --no-warmup
         --port ${PORT}
+        --chat-template-kwargs "{\"enable_thinking\": true}"
 
   "Qwen3.5-2B-GGUF-nothink:Q4_K_M":
     ttl: 600
@@ -632,6 +634,7 @@ models:
         --min-p 0.00
         --no-warmup
         --port ${PORT}
+        --chat-template-kwargs "{\"enable_thinking\": true}"
 
   "Qwen3.5-4B-GGUF-nothink:Q4_K_M":
     ttl: 600
@@ -659,6 +662,7 @@ models:
         --min-p 0.00
         --no-warmup
         --port ${PORT}
+        --chat-template-kwargs "{\"enable_thinking\": true}"
 
   "Qwen3.5-9B-GGUF-nothink:Q4_K_M":
     ttl: 600

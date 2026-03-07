@@ -460,8 +460,8 @@ models:
     cmd: |
       /app/llama-server
         -hf unsloth/Qwen3-Coder-Next-GGUF:Q4_K_M
-        --ctx-size 32768
-        --fit-target 2048
+        --ctx-size 65536
+        --fit-target 1536
         --predict 8192
         --temp 1.0
         --min-p 0.01

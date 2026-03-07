@@ -599,7 +599,6 @@ models:
     cmd: |
       /app/llama-server
         -hf unsloth/Qwen3.5-2B-GGUF:Q4_K_M
-        --ctx-size 16384
         --temp 0.6
         --top-p 0.95
         --top-k 20
@@ -613,7 +612,6 @@ models:
     cmd: |
       /app/llama-server
         -hf unsloth/Qwen3.5-2B-GGUF:Q4_K_M
-        --ctx-size 16384
         --temp 0.6
         --top-p 0.95
         --top-k 20
@@ -627,7 +625,6 @@ models:
     cmd: |
       /app/llama-server
         -hf unsloth/Qwen3.5-4B-GGUF:Q4_K_M
-        --ctx-size 16384
         --temp 0.6
         --top-p 0.95
         --top-k 20
@@ -641,7 +638,6 @@ models:
     cmd: |
       /app/llama-server
         -hf unsloth/Qwen3.5-4B-GGUF:Q4_K_M
-        --ctx-size 16384
         --temp 0.6
         --top-p 0.95
         --top-k 20

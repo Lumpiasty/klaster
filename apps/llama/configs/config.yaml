@@ -9,6 +9,7 @@ macros:
   qwen35_sampling: "--temp 0.6 --top-p 0.95 --top-k 20 --min-p 0.00"
   qwen35_35b_args: "--temp 1.0 --min-p 0.00 --top-p 0.95 --top-k 20"
   qwen35_35b_heretic_mmproj: "--mmproj-url https://huggingface.co/unsloth/Qwen3.5-35B-A3B-GGUF/resolve/main/mmproj-F16.gguf --mmproj /root/.cache/llama.cpp/unsloth_Qwen3.5-35B-A3B-GGUF_mmproj-F16.gguf"
+  qwen35_4b_heretic_mmproj: "--mmproj-url https://huggingface.co/unsloth/Qwen3.5-4B-GGUF/resolve/main/mmproj-F16.gguf --mmproj /root/.cache/llama.cpp/unsloth_Qwen3.5-4B-GGUF_mmproj-F16.gguf"
   thinking_on: "--chat-template-kwargs '{\"enable_thinking\": true}'"
   thinking_off: "--chat-template-kwargs '{\"enable_thinking\": false}'"
 
@@ -170,6 +171,26 @@ models:
     cmd: |
       /app/llama-server
         -hf unsloth/Qwen3.5-4B-GGUF:Q4_K_M
+        ${qwen35_sampling}
+        ${common_args}
+        ${thinking_off}
+
+  "Qwen3.5-4B-heretic-GGUF:Q4_K_M":
+    ttl: 600
+    cmd: |
+      /app/llama-server
+        -hf mradermacher/Qwen3.5-4B-heretic-GGUF:Q4_K_M
+        ${qwen35_4b_heretic_mmproj}
+        ${qwen35_sampling}
+        ${common_args}
+        ${thinking_on}
+
+  "Qwen3.5-4B-heretic-GGUF-nothink:Q4_K_M":
+    ttl: 600
+    cmd: |
+      /app/llama-server
+        -hf mradermacher/Qwen3.5-4B-heretic-GGUF:Q4_K_M
+        ${qwen35_4b_heretic_mmproj}
         ${qwen35_sampling}
         ${common_args}
         ${thinking_off}

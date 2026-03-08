@@ -2,6 +2,16 @@
 healthCheckTimeout: 600
 logToStdout: "both" # proxy and upstream
 
+macros:
+  base_args: "--no-warmup --port ${PORT}"
+  common_args: "--fit-target 1536 --fit-ctx 32768 --no-warmup --port ${PORT}"
+  gemma_sampling: "--prio 2 --temp 1.0 --repeat-penalty 1.0 --min-p 0.00 --top-k 64 --top-p 0.95"
+  qwen35_sampling: "--temp 0.6 --top-p 0.95 --top-k 20 --min-p 0.00"
+  qwen35_35b_args: "--temp 1.0 --min-p 0.00 --top-p 0.95 --top-k 20"
+  qwen35_35b_heretic_mmproj: "--mmproj-url https://huggingface.co/unsloth/Qwen3.5-35B-A3B-GGUF/resolve/main/mmproj-F16.gguf --mmproj /root/.cache/llama.cpp/unsloth_Qwen3.5-35B-A3B-GGUF_mmproj-F16.gguf"
+  thinking_on: "--chat-template-kwargs '{\"enable_thinking\": true}'"
+  thinking_off: "--chat-template-kwargs '{\"enable_thinking\": false}'"
+
 hooks:
   on_startup:
     preload:
@@ -16,444 +26,39 @@ groups:
       - "Qwen3.5-0.8B-GGUF-nothink:Q4_K_XL"
 
 models:
-  "DeepSeek-R1-0528-Qwen3-8B-GGUF":
-    ttl: 600
-    cmd: |
-      /app/llama-server
-        -hf unsloth/DeepSeek-R1-0528-Qwen3-8B-GGUF:Q4_K_M
-        --ctx-size 16384
-        --no-warmup
-        --port ${PORT}
-
-  "Qwen3-8B-GGUF":
-    ttl: 600
-    cmd: |
-      /app/llama-server
-        -hf unsloth/Qwen3-8B-GGUF:Q4_K_M
-        --ctx-size 16384
-        --no-warmup
-        --port ${PORT}
-
-  "Qwen3-8B-GGUF-no-thinking":
-    ttl: 600
-    cmd: |
-      /app/llama-server
-        -hf unsloth/Qwen3-8B-GGUF:Q4_K_M
-        --ctx-size 16384
-        --jinja
-        --chat-template-file /config/qwen_nothink_chat_template.jinja
-        --no-warmup
-        --port ${PORT}
-
-  "gemma3n-e4b":
-    ttl: 600
-    cmd: |
-      /app/llama-server
-        -hf unsloth/gemma-3n-E4B-it-GGUF:UD-Q4_K_XL
-        --ctx-size 16384
-        --seed 3407
-        --prio 2
-        --temp 1.0
-        --repeat-penalty 1.0
-        --min-p 0.00
-        --top-k 64
-        --top-p 0.95
-        --no-warmup
-        --port ${PORT}
-
   "gemma3-12b":
     ttl: 600
     cmd: |
       /app/llama-server
         -hf unsloth/gemma-3-12b-it-GGUF:Q4_K_M
-        --ctx-size 16384
-        --prio 2
-        --temp 1.0
-        --repeat-penalty 1.0
-        --min-p 0.00
-        --top-k 64
-        --top-p 0.95
-        --no-warmup
-        --port ${PORT}
+        ${gemma_sampling}
+        ${common_args}
 
   "gemma3-12b-novision":
     ttl: 600
     cmd: |
       /app/llama-server
         -hf unsloth/gemma-3-12b-it-GGUF:Q4_K_M
-        --ctx-size 16384
-        --prio 2
-        --temp 1.0
-        --repeat-penalty 1.0
-        --min-p 0.00
-        --top-k 64
-        --top-p 0.95
+        ${gemma_sampling}
         --no-mmproj
-        --no-warmup
-        --port ${PORT}
-
-  "gemma3-12b-q2":
-    ttl: 600
-    cmd: |
-      /app/llama-server
-        -hf unsloth/gemma-3-12b-it-GGUF:Q2_K_L
-        --ctx-size 16384
-        --prio 2
-        --temp 1.0
-        --repeat-penalty 1.0
-        --min-p 0.00
-        --top-k 64
-        --top-p 0.95
-        --no-warmup
-        --port ${PORT}
+        ${common_args}
 
   "gemma3-4b":
     ttl: 600
     cmd: |
       /app/llama-server
         -hf unsloth/gemma-3-4b-it-GGUF:Q4_K_M
-        --ctx-size 16384
-        --prio 2
-        --temp 1.0
-        --repeat-penalty 1.0
-        --min-p 0.00
-        --top-k 64
-        --top-p 0.95
-        --no-warmup
-        --port ${PORT}
+        ${gemma_sampling}
+        ${common_args}
 
   "gemma3-4b-novision":
     ttl: 600
     cmd: |
       /app/llama-server
         -hf unsloth/gemma-3-4b-it-GGUF:Q4_K_M
-        --ctx-size 16384
-        --prio 2
-        --temp 1.0
-        --repeat-penalty 1.0
-        --min-p 0.00
-        --top-k 64
-        --top-p 0.95
+        ${gemma_sampling}
         --no-mmproj
-        --no-warmup
-        --port ${PORT}
-
-  "Qwen3-4B-Thinking-2507":
-    ttl: 600
-    cmd: |
-      /app/llama-server
-        -hf unsloth/Qwen3-4B-Thinking-2507-GGUF:Q4_K_M
-        --ctx-size 16384
-        --predict 8192
-        --temp 0.6
-        --min-p 0.00
-        --top-p 0.95
-        --top-k 20
-        --repeat-penalty 1.0
-        --no-warmup
-        --port ${PORT}
-
-  "Qwen3-4B-Thinking-2507-long-ctx":
-    ttl: 600
-    cmd: |
-      /app/llama-server
-        -hf unsloth/Qwen3-4B-Thinking-2507-GGUF:Q4_K_M
-        --ctx-size 262144
-        --predict 81920
-        --temp 0.6
-        --min-p 0.00
-        --top-p 0.95
-        --top-k 20
-        --repeat-penalty 1.0
-        --no-warmup
-        --flash-attn auto
-        --cache-type-k q8_0
-        --cache-type-v q8_0
-        --port ${PORT}
-
-  "Qwen3-4B-Instruct-2507":
-    ttl: 600
-    cmd: |
-      /app/llama-server
-        -hf unsloth/Qwen3-4B-Instruct-2507-GGUF:Q4_K_M
-        --ctx-size 16384
-        --predict 8192
-        --temp 0.7
-        --min-p 0.00
-        --top-p 0.8
-        --top-k 20
-        --repeat-penalty 1.0
-        --no-warmup
-        --port ${PORT}
-
-  "Qwen3-4B-Instruct-2507-long-ctx":
-    ttl: 600
-    cmd: |
-      /app/llama-server
-        -hf unsloth/Qwen3-4B-Instruct-2507-GGUF:Q4_K_M
-        --ctx-size 262144
-        --predict 81920
-        --temp 0.7
-        --min-p 0.00
-        --top-p 0.8
-        --top-k 20
-        --repeat-penalty 1.0
-        --no-warmup
-        --flash-attn auto
-        --cache-type-k q8_0
-        --cache-type-v q8_0
-        --port ${PORT}
-
-  "Qwen2.5-VL-32B-Instruct-GGUF-IQ1_S":
-    ttl: 600
-    cmd: |
-      /app/llama-server
-        -hf unsloth/Qwen2.5-VL-32B-Instruct-GGUF:IQ1_S
-        --ctx-size 16384
-        --predict 8192
-        --temp 0.7
-        --min-p 0.00
-        --top-p 0.8
-        --top-k 20
-        --repeat-penalty 1.0
-        --no-warmup
-        --port ${PORT}
-
-  "Qwen2.5-VL-32B-Instruct-GGUF-Q2_K_L":
-    ttl: 600
-    cmd: |
-      /app/llama-server
-        -hf unsloth/Qwen2.5-VL-32B-Instruct-GGUF:Q2_K_L
-        --ctx-size 16384
-        --predict 8192
-        --temp 0.7
-        --min-p 0.00
-        --top-p 0.8
-        --top-k 20
-        --repeat-penalty 1.0
-        --no-warmup
-        --port ${PORT}
-
-  "Qwen2.5-VL-7B-Instruct-GGUF":
-    ttl: 600
-    cmd: |
-      /app/llama-server
-        -hf unsloth/Qwen2.5-VL-7B-Instruct-GGUF:Q4_K_M
-        --ctx-size 16384
-        --predict 8192
-        --temp 0.7
-        --min-p 0.00
-        --top-p 0.8
-        --top-k 20
-        --repeat-penalty 1.0
-        --no-warmup
-        --port ${PORT}
-
-  "Qwen3-VL-2B-Instruct-GGUF":
-    ttl: 600
-    cmd: |
-      /app/llama-server
-        -hf Qwen/Qwen3-VL-2B-Instruct-GGUF:Q8_0
-        --ctx-size 12288
-        --predict 4096
-        --flash-attn auto
-        --jinja
-        --temp 0.7
-        --top-p 0.85
-        --top-k 20
-        --min-p 0.05
-        --repeat-penalty 1.15
-        --frequency-penalty 0.5
-        --presence-penalty 0.4
-        --no-warmup
-        --port ${PORT}
-
-  "Qwen3-VL-4B-Instruct-GGUF":
-    ttl: 600
-    cmd: |
-      /app/llama-server
-        -hf Qwen/Qwen3-VL-4B-Instruct-GGUF:Q8_0
-        --ctx-size 12288
-        --predict 4096
-        --flash-attn auto
-        --jinja
-        --temp 0.7
-        --top-p 0.85
-        --top-k 20
-        --min-p 0.05
-        --repeat-penalty 1.15
-        --frequency-penalty 0.5
-        --presence-penalty 0.4
-        --no-warmup
-        --port ${PORT}
-
-  "Qwen3-VL-8B-Instruct-GGUF":
-    ttl: 600
-    cmd: |
-      /app/llama-server
-        -hf Qwen/Qwen3-VL-8B-Instruct-GGUF:Q4_K_M
-        --ctx-size 12288
-        --predict 4096
-        --flash-attn auto
-        --jinja
-        --temp 0.7
-        --top-p 0.85
-        --top-k 20
-        --min-p 0.05
-        --repeat-penalty 1.15
-        --frequency-penalty 0.5
-        --presence-penalty 0.4
-        --no-warmup
-        --port ${PORT}
-
-  "Qwen3-VL-2B-Instruct-GGUF-unslothish":
-    ttl: 600
-    cmd: |
-      /app/llama-server
-        -hf Qwen/Qwen3-VL-2B-Instruct-GGUF:Q8_0
-        --ctx-size 12288
-        --predict 4096
-        --flash-attn auto
-        --jinja
-        --temp 0.7
-        --top-p 0.8
-        --top-k 20
-        --min-p 0.05
-        --repeat-penalty 1.15
-        --frequency-penalty 0.5
-        --presence-penalty 0.6
-        --no-warmup
-        --port ${PORT}
-
-  "Qwen3-VL-4B-Instruct-GGUF-unslothish":
-    ttl: 600
-    cmd: |
-      /app/llama-server
-        -hf Qwen/Qwen3-VL-4B-Instruct-GGUF:Q8_0
-        --ctx-size 12288
-        --predict 4096
-        --flash-attn auto
-        --jinja
-        --temp 0.7
-        --top-p 0.8
-        --top-k 20
-        --min-p 0.05
-        --repeat-penalty 1.15
-        --frequency-penalty 0.5
-        --presence-penalty 0.6
-        --no-warmup
-        --port ${PORT}
-
-  "Qwen3-VL-8B-Instruct-GGUF-unslothish":
-    ttl: 600
-    cmd: |
-      /app/llama-server
-        -hf Qwen/Qwen3-VL-8B-Instruct-GGUF:Q4_K_M
-        --ctx-size 12288
-        --predict 4096
-        --flash-attn auto
-        --jinja
-        --temp 0.7
-        --top-p 0.8
-        --top-k 20
-        --min-p 0.05
-        --repeat-penalty 1.15
-        --frequency-penalty 0.5
-        --presence-penalty 0.6
-        --no-warmup
-        --port ${PORT}
-
-  "Qwen3-VL-2B-Thinking-GGUF":
-    ttl: 600
-    cmd: |
-      /app/llama-server
-        -hf Qwen/Qwen3-VL-2B-Thinking-GGUF:Q8_0
-        --ctx-size 12288
-        --predict 4096
-        --flash-attn auto
-        --jinja
-        --top-p 0.95
-        --top-k 20
-        --temp 1.0
-        --min-p 0.0
-        --repeat-penalty 1.0
-        --presence-penalty 0.0
-        --no-warmup
-        --port ${PORT}
-
-  "Qwen3-VL-4B-Thinking-GGUF":
-    ttl: 600
-    cmd: |
-      /app/llama-server
-        -hf Qwen/Qwen3-VL-4B-Thinking-GGUF:Q4_K_M
-        --ctx-size 12288
-        --predict 4096
-        --flash-attn auto
-        --jinja
-        --top-p 0.95
-        --top-k 20
-        --temp 1.0
-        --min-p 0.0
-        --repeat-penalty 1.0
-        --presence-penalty 0.0
-        --no-warmup
-        --port ${PORT}
-
-  "Qwen3-VL-8B-Thinking-GGUF":
-    ttl: 600
-    cmd: |
-      /app/llama-server
-        -hf Qwen/Qwen3-VL-8B-Thinking-GGUF:Q4_K_M
-        --ctx-size 12288
-        --predict 4096
-        --flash-attn auto
-        --jinja
-        --top-p 0.95
-        --top-k 20
-        --temp 1.0
-        --min-p 0.0
-        --repeat-penalty 1.0
-        --presence-penalty 0.0
-        --no-warmup
-        --port ${PORT}
-
-  "Huihui-Qwen3-VL-8B-Instruct-abliterated-GGUF":
-    ttl: 600
-    cmd: |
-      /app/llama-server
-        -hf noctrex/Huihui-Qwen3-VL-8B-Instruct-abliterated-GGUF:Q6_K
-        --ctx-size 12288
-        --predict 4096
-        --flash-attn auto
-        --jinja
-        --temp 0.7
-        --top-p 0.85
-        --top-k 20
-        --min-p 0.05
-        --repeat-penalty 1.15
-        --frequency-penalty 0.5
-        --presence-penalty 0.4
-        --no-warmup
-        --port ${PORT}
-
-  "Huihui-Qwen3-VL-8B-Thinking-abliterated-GGUF":
-    ttl: 600
-    cmd: |
-      /app/llama-server
-        -hf noctrex/Huihui-Qwen3-VL-8B-Thinking-abliterated-GGUF:Q6_K
-        --ctx-size 12288
-        --predict 4096
-        --flash-attn auto
-        --jinja
-        --temp 0.7
-        --top-p 0.85
-        --top-k 20
-        --min-p 0.05
-        --repeat-penalty 1.15
-        --frequency-penalty 0.5
-        --presence-penalty 0.4
-        --no-warmup
-        --port ${PORT}
+        ${common_args}
 
   "Qwen3-Coder-Next-GGUF:Q4_K_M":
     ttl: 600
@@ -461,44 +66,30 @@ models:
       /app/llama-server
         -hf unsloth/Qwen3-Coder-Next-GGUF:Q4_K_M
         --ctx-size 65536
-        --fit-target 1536
         --predict 8192
         --temp 1.0
         --min-p 0.01
         --top-p 0.95
         --top-k 40
         --repeat-penalty 1.0
-        --no-warmup
-        --port ${PORT}
+        ${common_args}
 
   "Qwen3.5-35B-A3B-GGUF:Q4_K_M":
     ttl: 600
     cmd: |
       /app/llama-server
         -hf unsloth/Qwen3.5-35B-A3B-GGUF:Q4_K_M
-        --fit-target 2048
-        --ctx-size 16384
-        --temp 1.0
-        --min-p 0.00
-        --top-p 0.95
-        --top-k 20
-        --no-warmup
-        --port ${PORT}
+        ${qwen35_35b_args}
+        ${common_args}
 
   "Qwen3.5-35B-A3B-GGUF-nothink:Q4_K_M":
     ttl: 600
     cmd: |
       /app/llama-server
         -hf unsloth/Qwen3.5-35B-A3B-GGUF:Q4_K_M
-        --fit-target 2048
-        --ctx-size 16384
-        --temp 1.0
-        --min-p 0.00
-        --top-p 0.95
-        --top-k 20
-        --no-warmup
-        --port ${PORT}
-        --chat-template-kwargs "{\"enable_thinking\": false}"
+        ${qwen35_35b_args}
+        ${common_args}
+        ${thinking_off}
 
   # The "heretic" version does not provide the mmproj
   # so providing url to the one from the non-heretic version.
@@ -507,197 +98,107 @@ models:
     cmd: |
       /app/llama-server
         -hf mradermacher/Qwen3.5-35B-A3B-heretic-GGUF:Q4_K_M
-        --mmproj-url https://huggingface.co/unsloth/Qwen3.5-35B-A3B-GGUF/resolve/main/mmproj-F16.gguf
-        --mmproj /root/.cache/llama.cpp/unsloth_Qwen3.5-35B-A3B-GGUF_mmproj-F16.gguf
-        --fit-target 2048
-        --ctx-size 16384
-        --temp 1.0
-        --min-p 0.00
-        --top-p 0.95
-        --top-k 20
-        --no-warmup
-        --port ${PORT}
+        ${qwen35_35b_heretic_mmproj}
+        ${qwen35_35b_args}
+        ${common_args}
 
   "Qwen3.5-35B-A3B-heretic-GGUF-nothink:Q4_K_M":
     ttl: 600
     cmd: |
       /app/llama-server
         -hf mradermacher/Qwen3.5-35B-A3B-heretic-GGUF:Q4_K_M
-        --mmproj-url https://huggingface.co/unsloth/Qwen3.5-35B-A3B-GGUF/resolve/main/mmproj-F16.gguf
-        --mmproj /root/.cache/llama.cpp/unsloth_Qwen3.5-35B-A3B-GGUF_mmproj-F16.gguf
-        --fit-target 2048
-        --ctx-size 16384
-        --temp 1.0
-        --min-p 0.00
-        --top-p 0.95
-        --top-k 20
-        --no-warmup
-        --port ${PORT}
-        --chat-template-kwargs "{\"enable_thinking\": false}"
-
-  "Qwen3-VL-2B-Instruct-GGUF:Q4_K_M":
-    ttl: 600
-    cmd: |
-      /app/llama-server
-        -hf unsloth/Qwen3-VL-2B-Instruct-GGUF:Q4_K_M
-        --ctx-size 6144
-        --cache-type-k q8_0
-        --cache-type-v q8_0
-        --temp 0.7
-        --top-p 0.8
-        --top-k 20
-        --min-p 0.0
-        --presence-penalty 1.5
-        --no-warmup
-        --port ${PORT}
-
-  "gemma-3-270m-it-qat-GGUF:Q4_K_M":
-    ttl: 600
-    cmd: |
-      /app/llama-server
-        -hf unsloth/gemma-3-270m-it-qat-GGUF:Q4_K_M
-        --ctx-size 16384
-        --predict 4096
-        --temp 1.0
-        --min-p 0.01
-        --top-p 0.95
-        --top-k 64
-        --repeat-penalty 1.0
-        --no-warmup
-        --port ${PORT}
+        ${qwen35_35b_heretic_mmproj}
+        ${qwen35_35b_args}
+        ${common_args}
+        ${thinking_off}
 
   "Qwen3.5-0.8B-GGUF:Q4_K_XL":
     ttl: 0
     cmd: |
       /app/llama-server
         -hf unsloth/Qwen3.5-0.8B-GGUF:Q4_K_XL
-        --ctx-size 16384
-        --temp 0.6
-        --top-p 0.95
-        --top-k 20
-        --min-p 0.00
-        --no-warmup
-        --port ${PORT}
-        --chat-template-kwargs "{\"enable_thinking\": true}"
+        ${qwen35_sampling}
+        ${base_args}
+        ${thinking_on}
 
   "Qwen3.5-0.8B-GGUF-nothink:Q4_K_XL":
     ttl: 0
     cmd: |
       /app/llama-server
         -hf unsloth/Qwen3.5-0.8B-GGUF:Q4_K_XL
-        --ctx-size 16384
-        --temp 0.6
-        --top-p 0.95
-        --top-k 20
-        --min-p 0.00
-        --no-warmup
-        --port ${PORT}
-        --chat-template-kwargs "{\"enable_thinking\": false}"
+        --ctx-size 4096
+        ${qwen35_sampling}
+        ${base_args}
+        ${thinking_off}
 
   "Qwen3.5-2B-GGUF:Q4_K_M":
     ttl: 600
     cmd: |
       /app/llama-server
         -hf unsloth/Qwen3.5-2B-GGUF:Q4_K_M
-        --temp 0.6
-        --top-p 0.95
-        --top-k 20
-        --min-p 0.00
-        --no-warmup
-        --port ${PORT}
-        --chat-template-kwargs "{\"enable_thinking\": true}"
+        ${qwen35_sampling}
+        ${common_args}
+        ${thinking_on}
 
   "Qwen3.5-2B-GGUF-nothink:Q4_K_M":
     ttl: 600
     cmd: |
       /app/llama-server
         -hf unsloth/Qwen3.5-2B-GGUF:Q4_K_M
-        --temp 0.6
-        --top-p 0.95
-        --top-k 20
-        --min-p 0.00
-        --no-warmup
-        --port ${PORT}
-        --chat-template-kwargs "{\"enable_thinking\": false}"
+        ${qwen35_sampling}
+        ${common_args}
+        ${thinking_off}
 
   "Qwen3.5-4B-GGUF:Q4_K_M":
     ttl: 600
     cmd: |
       /app/llama-server
         -hf unsloth/Qwen3.5-4B-GGUF:Q4_K_M
-        --temp 0.6
-        --top-p 0.95
-        --top-k 20
-        --min-p 0.00
-        --no-warmup
-        --port ${PORT}
-        --chat-template-kwargs "{\"enable_thinking\": true}"
+        ${qwen35_sampling}
+        ${common_args}
+        ${thinking_on}
 
   "Qwen3.5-4B-GGUF-nothink:Q4_K_M":
     ttl: 600
     cmd: |
       /app/llama-server
         -hf unsloth/Qwen3.5-4B-GGUF:Q4_K_M
-        --temp 0.6
-        --top-p 0.95
-        --top-k 20
-        --min-p 0.00
-        --no-warmup
-        --port ${PORT}
-        --chat-template-kwargs "{\"enable_thinking\": false}"
+        ${qwen35_sampling}
+        ${common_args}
+        ${thinking_off}
 
   "Qwen3.5-9B-GGUF:Q4_K_M":
     ttl: 600
     cmd: |
       /app/llama-server
         -hf unsloth/Qwen3.5-9B-GGUF:Q4_K_M
-        --ctx-size 16384
-        --temp 0.6
-        --top-p 0.95
-        --top-k 20
-        --min-p 0.00
-        --no-warmup
-        --port ${PORT}
-        --chat-template-kwargs "{\"enable_thinking\": true}"
+        ${qwen35_sampling}
+        ${common_args}
+        ${thinking_on}
 
   "Qwen3.5-9B-GGUF-nothink:Q4_K_M":
     ttl: 600
     cmd: |
       /app/llama-server
         -hf unsloth/Qwen3.5-9B-GGUF:Q4_K_M
-        --ctx-size 16384
-        --temp 0.6
-        --top-p 0.95
-        --top-k 20
-        --min-p 0.00
-        --no-warmup
-        --port ${PORT}
-        --chat-template-kwargs "{\"enable_thinking\": false}"
+        ${qwen35_sampling}
+        ${common_args}
+        ${thinking_off}
 
   "Qwen3.5-9B-GGUF:Q3_K_M":
     ttl: 600
     cmd: |
       /app/llama-server
         -hf unsloth/Qwen3.5-9B-GGUF:Q3_K_M
-        --ctx-size 16384
-        --temp 0.6
-        --top-p 0.95
-        --top-k 20
-        --min-p 0.00
-        --no-warmup
-        --port ${PORT}
-        --chat-template-kwargs "{\"enable_thinking\": true}"
+        ${qwen35_sampling}
+        ${common_args}
+        ${thinking_on}
 
   "Qwen3.5-9B-GGUF-nothink:Q3_K_M":
     ttl: 600
     cmd: |
       /app/llama-server
         -hf unsloth/Qwen3.5-9B-GGUF:Q3_K_M
-        --ctx-size 16384
-        --temp 0.6
-        --top-p 0.95
-        --top-k 20
-        --min-p 0.00
-        --no-warmup
-        --port ${PORT}
-        --chat-template-kwargs "{\"enable_thinking\": false}"
+        ${qwen35_sampling}
+        ${common_args}
+        ${thinking_off}

@@ -10,5 +10,13 @@
       "gotk-components\\.ya?ml$"
     ]
   },
-  "prHourlyLimit": 9
+  "prHourlyLimit": 9,
+  "packageRules": [
+    {
+      "matchUpdateTypes": ["patch"],
+      "automerge": true,
+      "automergeType": "pr",
+      "platformAutomerge": true
+    }
+  ]
 }

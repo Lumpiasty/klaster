@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: llama-swap
-          # TODO: make renovate update the image tag
+          # renovate: datasource=docker depName=ghcr.io/mostlygeek/llama-swap versioning=regex:^v(?<major>[0-9]+)-vulkan-b(?<patch>[0-9]+)$
           image: ghcr.io/mostlygeek/llama-swap:v197-vulkan-b8202
           imagePullPolicy: IfNotPresent
           command:

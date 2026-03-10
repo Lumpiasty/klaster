@@ -13,7 +13,20 @@
   "prHourlyLimit": 9,
   "packageRules": [
     {
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["ghcr.io/mostlygeek/llama-swap"],
+      "versioning": "regex:^v(?<major>[0-9]+)-vulkan-b(?<patch>[0-9]+)$"
+    },
+    {
       "matchUpdateTypes": ["patch"],
+      "automerge": true,
+      "automergeType": "pr",
+      "platformAutomerge": true
+    },
+    {
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["ghcr.io/mostlygeek/llama-swap"],
+      "matchUpdateTypes": ["minor"],
       "automerge": true,
       "automergeType": "pr",
       "platformAutomerge": true

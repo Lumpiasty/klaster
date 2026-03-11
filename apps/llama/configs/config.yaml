@@ -210,3 +210,19 @@ models:
         ${qwen35_sampling}
         ${common_args}
         ${thinking_off}
+
+  "Qwen3.5-27B-GGUF:Q3_K_M":
+    cmd: |
+      /app/llama-server
+        -hf unsloth/Qwen3.5-27B-GGUF:Q3_K_M
+        ${qwen35_sampling}
+        ${common_args}
+        ${thinking_on}
+
+  "Qwen3.5-27B-GGUF-nothink:Q3_K_M":
+    cmd: |
+      /app/llama-server
+        -hf unsloth/Qwen3.5-27B-GGUF:Q3_K_M
+        ${qwen35_sampling}
+        ${common_args}
+        ${thinking_off}

@@ -187,23 +187,62 @@ flowchart TD
 
 <!-- TODO: Backups, monitoring, logging, deployment with ansible etc -->
 
-## Applications / Services
+## Software
+
+### Infrastructure
+
+### Operating systems
+
+| Logo | Name | Description |
+|------|------|-------------|
+| <img src="docs/assets/talos.svg" alt="Talos Linux" height="50" width="50"> | Talos Linux | Kubernetes distribution and operating system for cluster nodes |
+| <img src="docs/assets/mikrotik.svg" alt="MikroTik RouterOS" height="50" width="50"> | MikroTik RouterOS | Router operating system for MikroTik devices |
+
+### Configuration management
+
+| Logo | Name | Description |
+|------|------|-------------|
+| <img src="docs/assets/flux.svg" alt="Flux CD" height="50" width="50"> | Flux CD | GitOps operator for reconciling cluster state with Git repository |
+| <img src="docs/assets/ansible.svg" alt="Ansible" height="50" width="50"> | Ansible | Configuration management and automation tool |
+| | Vault Secrets Operator | Kubernetes operator for syncing secrets from OpenBao/Vault to Kubernetes |
+
+### Networking
+
+| Logo | Name | Description |
+|------|------|-------------|
+| <img src="docs/assets/cilium.svg" alt="Cilium" height="50" width="50"> | Cilium | CNI, BGP control plane, kube-proxy replacement and Load Balancer for cluster networking |
+| <img src="docs/assets/nginx.svg" alt="Nginx" height="50" width="50"> | Nginx Ingress Controller | Ingress controller for routing external traffic to services in the cluster |
+| <img src="docs/assets/cert-manager.svg" alt="cert-manager" height="50" width="50"> | cert-manager | Automatic TLS certificate management |
+
+### Storage
+
+| Logo | Name | Description |
+|------|------|-------------|
+| <img src="docs/assets/openebs.svg" alt="OpenEBS" height="50" width="50"> | OpenEBS LVM LocalPV | Container Storage Interface for managing persistent volumes on local LVM pools |
+| <img src="docs/assets/openbao.svg" alt="OpenBao" height="50" width="50"> | OpenBao | Secret storage (HashiCorp Vault compatible) |
+| <img src="docs/assets/cloudnativepg.svg" alt="CloudNativePG" height="50" width="50"> | CloudNativePG | PostgreSQL operator for managing PostgreSQL instances |
+
+### Development tools
+
+| Logo | Name | Description |
+|------|------|-------------|
+| <img src="docs/assets/devenv.svg" alt="devenv" height="50" width="50"> | devenv | Tool for declarative managment of development environment using Nix |
+| <img src="docs/assets/renovate.svg" alt="Renovate" height="50" width="50"> | Renovate | Bot for keeping dependencies up to date |
+
+### AI infrastructure
 
 | Logo | Name | Address | Description |
 |------|------|---------|-------------|
-| <img src="docs/assets/flux.svg" alt="Flux CD" height="50" width="50"> | Flux CD | | GitOps operator for reconciling cluster state with Git repository |
-| <img src="docs/assets/cilium.svg" alt="Cilium" height="50" width="50"> | Cilium | | CNI, BGP control plane, kube-proxy replacement and Load Balancer for cluster networking |
-| <img src="docs/assets/openebs.svg" alt="OpenEBS" height="50" width="50"> | OpenEBS LVM LocalPV | | Container Storage Interface for managing persistent volumes on local LVM pools |
-| <img src="docs/assets/gitea.svg" alt="Gitea" height="50" width="50"> | Gitea | https://gitea.lumpiasty.xyz/ | Private Git repository hosting and artifact storage (Docker, Helm charts) |
-| <img src="docs/assets/openbao.svg" alt="OpenBao" height="50" width="50"> | OpenBao | https://openbao.lumpiasty.xyz:8200/ | Secret storage (HashiCorp Vault compatible) |
-| <img src="docs/assets/renovate.svg" alt="Renovate" height="50" width="50"> | Renovate | | Bot for keeping dependencies up to date |
-| <img src="docs/assets/cert-manager.svg" alt="cert-manager" height="50" width="50"> | cert-manager | | Automatic TLS certificate management |
-| <img src="docs/assets/nginx.svg" alt="Nginx" height="50" width="50"> | Nginx Ingress Controller | | Ingress controller for routing external traffic to services in the cluster |
-| <img src="docs/assets/cloudnativepg.svg" alt="CloudNativePG" height="50" width="50"> | CloudNativePG | | PostgreSQL operator for managing PostgreSQL instances |
-| <img src="docs/assets/immich.svg" alt="Immich" height="50" width="50"> | Immich | https://immich.lumpiasty.xyz/ | Self-hosted photo and video backup and streaming service |
-| <img src="docs/assets/teamspeak.svg" alt="iSpeak3" height="50" width="50"> | iSpeak3.pl | [ts3server://ispeak3.pl](ts3server://ispeak3.pl) | Public TeamSpeak 3 voice communication server |
 | <img src="docs/assets/llama-cpp.svg" alt="LLaMA.cpp" height="50" width="50"> | LLaMA.cpp | https://llama.lumpiasty.xyz/ | LLM inference server running local models with GPU acceleration |
+
+### Applications/Services
+
+| Logo | Name | Address | Description |
+|------|------|---------|-------------|
+| <img src="docs/assets/gitea.svg" alt="Gitea" height="50" width="50"> | Gitea | https://gitea.lumpiasty.xyz/ | Private Git repository hosting and artifact storage (Docker, Helm charts) |
 | <img src="docs/assets/open-webui.png" alt="Open WebUI" height="50" width="50"> | Open WebUI | https://openwebui.lumpiasty.xyz/ | Web UI for chatting with LLMs running on the cluster |
+| <img src="docs/assets/teamspeak.svg" alt="iSpeak3" height="50" width="50"> | iSpeak3.pl | [ts3server://ispeak3.pl](ts3server://ispeak3.pl) | Public TeamSpeak 3 voice communication server |
+| <img src="docs/assets/immich.svg" alt="Immich" height="50" width="50"> | Immich | https://immich.lumpiasty.xyz/ | Self-hosted photo and video backup and streaming service |
 | <img src="docs/assets/frigate.svg" alt="Frigate" height="50" width="50"> | Frigate | https://frigate.lumpiasty.xyz/ | NVR for camera system with AI object detection and classification |
 
 

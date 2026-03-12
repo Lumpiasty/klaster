@@ -1,5 +1,0 @@
-- name: Reload bird
-  service:
-    name: bird
-    state: restarted
-    enabled: true

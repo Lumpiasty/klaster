@@ -1,0 +1,43 @@
+---
+- name: Configure system clock
+  community.routeros.api_find_and_modify:
+    ignore_dynamic: false
+    path: system clock
+    find: {}
+    values:
+      time-zone-name: Europe/Warsaw
+
+- name: Configure dedicated Ansible management user
+  community.routeros.api_modify:
+    path: user
+    data:
+      - name: "{{ routeros_api_username }}"
+        group: full
+        password: "{{ routeros_api_password }}"
+        disabled: false
+        comment: "Ansible management user"
+    handle_absent_entries: ignore
+    handle_entries_content: remove_as_much_as_possible
+
+- name: Configure service ports and service enablement
+  community.routeros.api_find_and_modify:
+    ignore_dynamic: false
+    path: ip service
+    find:
+      name: "{{ item.name }}"
+    values: "{{ item }}"
+  loop:
+    - name: ftp
+      disabled: true
+    - name: telnet
+      disabled: true
+    - name: www
+      disabled: true
+    - name: ssh
+      port: 2137
+    - name: api
+      disabled: true
+    - name: api-ssl
+      disabled: false
+  loop_control:
+    label: "{{ item.name }}"

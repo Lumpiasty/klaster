@@ -1,0 +1,66 @@
+---
+- name: Configure container runtime defaults
+  community.routeros.api_find_and_modify:
+    ignore_dynamic: false
+    path: container config
+    find: {}
+    values:
+      registry-url: https://ghcr.io
+      tmpdir: /tmp1/pull
+
+- name: Configure container env lists
+  community.routeros.api_modify:
+    path: container envs
+    data:
+      - key: ADVERTISE_ROUTES
+        list: tailscale
+        value: 192.168.0.0/24,192.168.1.0/24,192.168.4.1/32,192.168.100.1/32,192.168.255.0/24,10.42.0.0/16,10.43.0.0/16,10.44.0.0/16,2001:470:61a3::/48
+      - key: CONTAINER_GATEWAY
+        list: tailscale
+        value: 172.17.0.1
+      - key: PASSWORD
+        list: tailscale
+        value: "{{ routeros_tailscale_container_password }}"
+      - key: TAILSCALE_ARGS
+        list: tailscale
+        value: --accept-routes --advertise-exit-node --snat-subnet-routes=false
+      - key: UPDATE_TAILSCALE
+        list: tailscale
+        value: y
+    handle_absent_entries: remove
+    handle_entries_content: remove_as_much_as_possible
+    ensure_order: true
+
+- name: Configure container mounts
+  community.routeros.api_modify:
+    path: container mounts
+    data:
+      - dst: /var/lib/tailscale
+        list: tailscale
+        src: /usb1/tailscale
+      - dst: /root
+        list: tailscale-root
+        src: /tmp1/tailscale-root
+    handle_absent_entries: remove
+    handle_entries_content: remove_as_much_as_possible
+    ensure_order: true
+
+- name: Configure tailscale container
+  community.routeros.api_modify:
+    path: container
+    data:
+      - dns: 172.17.0.1
+        envlists: tailscale
+        hostname: mikrotik
+        interface: veth1
+        layer-dir: ""
+        mountlists: tailscale
+        name: tailscale-mikrotik:latest
+        remote-image: fluent-networks/tailscale-mikrotik:latest
+        root-dir: /usb1/containers/tailscale
+        start-on-boot: true
+        tmpfs: /tmp:67108864:01777
+        workdir: /
+    handle_absent_entries: remove
+    handle_entries_content: remove_as_much_as_possible
+    ensure_order: true

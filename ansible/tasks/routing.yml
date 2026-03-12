@@ -1,0 +1,99 @@
+---
+- name: Configure IPv4 routes
+  community.routeros.api_modify:
+    path: ip route
+    data:
+      - comment: Tailnet
+        disabled: false
+        distance: 1
+        dst-address: 100.64.0.0/10
+        gateway: 172.17.0.2
+        routing-table: main
+        scope: 30
+        suppress-hw-offload: false
+        target-scope: 10
+      - disabled: false
+        distance: 1
+        dst-address: 0.0.0.0/0
+        gateway: pppoe-gpon
+        routing-table: main
+        scope: 30
+        suppress-hw-offload: false
+        target-scope: 10
+        vrf-interface: pppoe-gpon
+      - disabled: false
+        distance: 2
+        dst-address: 0.0.0.0/0
+        gateway: 192.168.8.1
+        routing-table: main
+        scope: 30
+        suppress-hw-offload: false
+        target-scope: 10
+        vrf-interface: lte1
+    handle_absent_entries: remove
+    handle_entries_content: remove_as_much_as_possible
+
+- name: Configure IPv6 routes
+  community.routeros.api_modify:
+    path: ipv6 route
+    data:
+      - disabled: false
+        distance: 1
+        dst-address: 2000::/3
+        gateway: 2001:470:70:dd::1
+        scope: 30
+        target-scope: 10
+      - comment: Tailnet
+        disabled: false
+        dst-address: fd7a:115c:a1e0::/48
+        gateway: 2001:470:61a3:500::1
+        pref-src: ""
+        routing-table: main
+        suppress-hw-offload: false
+    handle_absent_entries: remove
+    handle_entries_content: remove_as_much_as_possible
+
+- name: Configure BGP instance
+  community.routeros.api_modify:
+    path: routing bgp instance
+    data:
+      - name: bgp-homelab
+        as: 65000
+        disabled: false
+        router-id: 192.168.1.1
+        routing-table: main
+    handle_absent_entries: remove
+    handle_entries_content: remove_as_much_as_possible
+    ensure_order: true
+
+- name: Configure BGP templates
+  community.routeros.api_modify:
+    path: routing bgp template
+    data:
+      - name: klaster
+        afi: ip,ipv6
+        as: 6500
+        disabled: false
+      # Default template
+      - name: default
+    handle_absent_entries: remove
+    handle_entries_content: remove_as_much_as_possible
+
+- name: Configure BGP connections
+  community.routeros.api_modify:
+    path: routing bgp connection
+    data:
+      - name: bgp1
+        afi: ip,ipv6
+        as: 65000
+        connect: true
+        disabled: false
+        instance: bgp-homelab
+        listen: true
+        local.role: ibgp
+        remote.address: 2001:470:61a3:100::3/128
+        routing-table: main
+        templates: klaster
+    handle_absent_entries: remove
+    handle_entries_content: remove_as_much_as_possible
+    ensure_order: true

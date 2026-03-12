@@ -1,0 +1,92 @@
+---
+- name: Converge MikroTik RouterOS config
+  hosts: mikrotik
+  gather_facts: false
+  connection: local
+
+  vars_files:
+    - ../vars/routeros-secrets.yml
+
+  pre_tasks:
+    - name: Load router secrets from OpenBao
+      ansible.builtin.set_fact:
+        routeros_api_username: >-
+          {{
+            lookup(
+              'community.hashi_vault.vault_kv2_get',
+              openbao_fields.routeros_api.path,
+              engine_mount_point=openbao_kv_mount
+            ).secret[openbao_fields.routeros_api.username_key]
+          }}
+        routeros_api_password: >-
+          {{
+            lookup(
+              'community.hashi_vault.vault_kv2_get',
+              openbao_fields.routeros_api.path,
+              engine_mount_point=openbao_kv_mount
+            ).secret[openbao_fields.routeros_api.password_key]
+          }}
+        routeros_pppoe_username: >-
+          {{
+            lookup(
+              'community.hashi_vault.vault_kv2_get',
+              openbao_fields.wan_pppoe.path,
+              engine_mount_point=openbao_kv_mount
+            ).secret[openbao_fields.wan_pppoe.username_key]
+          }}
+        routeros_pppoe_password: >-
+          {{
+            lookup(
+              'community.hashi_vault.vault_kv2_get',
+              openbao_fields.wan_pppoe.path,
+              engine_mount_point=openbao_kv_mount
+            ).secret[openbao_fields.wan_pppoe.password_key]
+          }}
+        routeros_tailscale_container_password: >-
+          {{
+            lookup(
+              'community.hashi_vault.vault_kv2_get',
+              openbao_fields.routeros_tailscale_container.path,
+              engine_mount_point=openbao_kv_mount
+            ).secret[openbao_fields.routeros_tailscale_container.container_password_key]
+          }}
+      no_log: true
+
+  module_defaults:
+    group/community.routeros.api:
+      hostname: "{{ ansible_host }}"
+      username: "{{ routeros_api_username }}"
+      password: "{{ routeros_api_password }}"
+      tls: true
+      validate_certs: false
+      validate_cert_hostname: false
+      force_no_cert: true
+      encoding: UTF-8
+
+  tasks:
+    - name: Preflight checks
+      ansible.builtin.import_tasks: ../tasks/preflight.yml
+
+    - name: Base network configuration
+      ansible.builtin.import_tasks: ../tasks/base.yml
+
+    - name: WAN and tunnel interfaces
+      ansible.builtin.import_tasks: ../tasks/wan.yml
+
+    - name: Hardware and platform tuning
+      ansible.builtin.import_tasks: ../tasks/hardware.yml
+
+    - name: RouterOS container configuration
+      ansible.builtin.import_tasks: ../tasks/containers.yml
+
+    - name: Addressing configuration
+      ansible.builtin.import_tasks: ../tasks/addressing.yml
+
+    - name: Firewall configuration
+      ansible.builtin.import_tasks: ../tasks/firewall.yml
+
+    - name: Routing configuration
+      ansible.builtin.import_tasks: ../tasks/routing.yml
+
+    - name: System configuration
+      ansible.builtin.import_tasks: ../tasks/system.yml

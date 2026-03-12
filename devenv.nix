@@ -4,6 +4,7 @@ let
   # Python with hvac package
   python = pkgs.python313.withPackages (python-pkgs: with python-pkgs; [
     hvac
+    librouteros
   ]);
 in
 {
@@ -35,7 +36,6 @@ in
       openebs
       browse-pvc
     ]))
-    ansible
     fluxcd
     restic
     openbao
@@ -59,4 +59,9 @@ in
     echo "Running tests"
     git --version | grep --color=auto "${pkgs.git.version}"
   '';
+
+  languages.ansible.enable = true;
+  # TODO: automatically manage collections from ansible/requirements.yml
+  # For now, we need to manually install them with `ansible-galaxy collection install -r ansible/requirements.yml`
+  # This is not implemented in devenv
 }

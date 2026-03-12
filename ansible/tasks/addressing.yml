@@ -1,0 +1,48 @@
+---
+- name: Configure IPv4 addresses
+  community.routeros.api_modify:
+    path: ip address
+    data:
+      - address: 172.17.0.1/16
+        interface: dockers
+        network: 172.17.0.0
+      - address: 192.168.4.1/24
+        interface: lo
+        network: 192.168.4.0
+      - address: 192.168.100.20/24
+        interface: sfp-sfpplus1
+        network: 192.168.100.0
+      - address: 192.168.255.10/24
+        interface: bridge1
+        network: 192.168.255.0
+      - address: 192.168.0.1/24
+        interface: vlan2
+        network: 192.168.0.0
+      - address: 192.168.1.1/24
+        interface: vlan4
+        network: 192.168.1.0
+      - address: 192.168.3.1/24
+        interface: vlan3
+        network: 192.168.3.0
+    handle_absent_entries: remove
+    handle_entries_content: remove_as_much_as_possible
+    ensure_order: true
+
+- name: Configure IPv6 addresses
+  community.routeros.api_modify:
+    path: ipv6 address
+    data:
+      - address: 2001:470:70:dd::2/64
+        advertise: false
+        interface: sit1
+      - address: ::ffff:ffff:ffff:ffff/64
+        from-pool: pool1
+        interface: vlan2
+      - address: 2001:470:61a3:500:ffff:ffff:ffff:ffff/64
+        interface: dockers
+      - address: 2001:470:61a3:100::1/64
+        advertise: false
+        interface: vlan4
+    handle_absent_entries: remove
+    handle_entries_content: remove_as_much_as_possible
+    ensure_order: true

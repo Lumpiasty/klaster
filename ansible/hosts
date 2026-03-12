@@ -1,2 +1,0 @@
-[openwrt]
-2001:470:61a3:100:ffff:ffff:ffff:ffff ansible_scp_extra_args="-O"

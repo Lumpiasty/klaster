@@ -1,0 +1,5 @@
+collections:
+  - name: community.routeros
+    version: ">=3.16.0"
+  - name: community.hashi_vault
+    version: ">=7.1.0"

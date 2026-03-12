@@ -1,0 +1,103 @@
+---
+- name: Configure ethernet interface metadata and SFP options
+  community.routeros.api_find_and_modify:
+    ignore_dynamic: false
+    path: interface ethernet
+    find:
+      default-name: "{{ item.default_name }}"
+    values: "{{ item.config }}"
+  loop:
+    - default_name: ether1
+      config:
+        comment: Mój pc
+    - default_name: ether2
+      config:
+        comment: Wifi środek
+    - default_name: ether8
+      config:
+        comment: Serwer
+    - default_name: ether9
+      config:
+        comment: Wifi góra
+    - default_name: ether10
+      config:
+        comment: Kamera na domu
+    - default_name: ether11
+      config:
+        comment: KVM serwer
+    - default_name: sfp-sfpplus1
+      config:
+        auto-negotiation: false
+        comment: GPON WAN
+        speed: 2.5G-baseX
+    - default_name: sfp-sfpplus2
+      config:
+        comment: GARAŻ
+  loop_control:
+    label: "{{ item.default_name }}"
+
+- name: Configure LTE interface defaults
+  community.routeros.api_find_and_modify:
+    ignore_dynamic: false
+    path: interface lte
+    find:
+      default-name: lte1
+    values:
+      apn-profiles: default-nodns
+      comment: Backup LTE WAN
+
+- name: Configure LTE APN profiles
+  community.routeros.api_modify:
+    path: interface lte apn
+    data:
+      - add-default-route: false
+        apn: internet
+        comment: default but without dns and default route
+        ipv6-interface: lte1
+        name: default-nodns
+        use-network-apn: true
+        use-peer-dns: false
+      # Default APN we can't really remove yet I don't want to reconfigure it
+      - add-default-route: true
+        apn: internet
+        authentication: none
+        default-route-distance: 2
+        ip-type: auto
+        name: default
+        use-network-apn: true
+        use-peer-dns: true
+    handle_absent_entries: remove
+    handle_entries_content: remove_as_much_as_possible
+
+- name: Configure temporary disk for containers
+  community.routeros.api_modify:
+    path: disk
+    data:
+      - slot: tmp1
+        type: tmpfs
+      # This is not ideal, there's no unique identifier for usb disk,
+      # after reinstall it might be assigned to another slot
+      # Just adding disk with slot usb1 and not specifying anything else
+      # so ansible doesn't touch it
+      - slot: usb1
+    handle_absent_entries: remove
+    handle_entries_content: remove_as_much_as_possible
+
+- name: Configure switch settings
+  community.routeros.api_find_and_modify:
+    ignore_dynamic: false
+    path: interface ethernet switch
+    find:
+      .id: "0"
+    values:
+      qos-hw-offloading: true
+      # Enabling L3 offloading would cause all packets to skip firewall and NAT
+      l3-hw-offloading: false
+
+- name: Configure neighbor discovery settings
+  community.routeros.api_find_and_modify:
+    ignore_dynamic: false
+    path: ip neighbor discovery-settings
+    find: {}
+    values:
+      discover-interface-list: '!dynamic'

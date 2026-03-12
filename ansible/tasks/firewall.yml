@@ -1,0 +1,480 @@
+---
+- name: Configure IPv4 firewall filter rules
+  community.routeros.api_modify:
+    path: ip firewall filter
+    data:
+      - action: fasttrack-connection
+        chain: forward
+        connection-state: established,related
+      - action: accept
+        chain: forward
+        comment: Allow all already established connections
+        connection-state: established,related
+      - action: accept
+        chain: forward
+        comment: Allow LTE modem management (next rule forbids it otherwise)
+        dst-address: 192.168.8.1
+        out-interface: lte1
+      - action: reject
+        chain: forward
+        comment: Forbid forwarding 192.168.0.0/16 to WAN
+        dst-address: 192.168.0.0/16
+        out-interface-list: wan
+        reject-with: icmp-network-unreachable
+      - action: reject
+        chain: forward
+        comment: Forbid forwarding 10.0.0.0/8 to WAN
+        dst-address: 10.0.0.0/8
+        out-interface-list: wan
+        reject-with: icmp-network-unreachable
+      - action: reject
+        chain: forward
+        comment: Forbid forwarding 172.16.0.0/12 to WAN
+        dst-address: 172.16.0.0/12
+        out-interface-list: wan
+        reject-with: icmp-network-unreachable
+      - action: reject
+        chain: forward
+        comment: Forbid forwarding 100.64.0.0/10 to WAN
+        dst-address: 100.64.0.0/10
+        out-interface-list: wan
+        reject-with: icmp-network-unreachable
+      - action: accept
+        chain: forward
+        comment: Allow from LAN to everywhere
+        in-interface: vlan2
+      - action: accept
+        chain: forward
+        comment: Allow from SRV to internet
+        in-interface: vlan4
+        out-interface-list: wan
+      - action: accept
+        chain: forward
+        comment: Allow from SRV to CAM
+        in-interface: vlan4
+        out-interface: vlan3
+      - action: accept
+        chain: forward
+        comment: Allow from dockers to everywhere
+        in-interface: dockers
+      - action: jump
+        chain: forward
+        comment: Allow port forwards
+        in-interface: pppoe-gpon
+        jump-target: allow-ports
+      - action: reject
+        chain: forward
+        comment: Reject all remaining (port unreachable from WAN)
+        in-interface-list: wan
+        log-prefix: FORWARD REJECT
+        reject-with: icmp-port-unreachable
+      - action: reject
+        chain: forward
+        comment: Reject all remaining (net prohibited from LAN)
+        log-prefix: FORWARD REJECT
+        reject-with: icmp-net-prohibited
+      - action: accept
+        chain: input
+        comment: Allow all already established connections
+        connection-state: established,related
+      - action: accept
+        chain: input
+        comment: Allow HE tunnel
+        in-interface: pppoe-gpon
+        protocol: ipv6-encap
+      - action: accept
+        chain: input
+        comment: Allow ICMP
+        protocol: icmp
+      - action: accept
+        chain: input
+        comment: Allow Winbox
+        dst-port: 8291
+        log: true
+        protocol: tcp
+      - action: accept
+        chain: input
+        comment: Allow SSH Mikrotik
+        dst-port: 2137
+        log: true
+        protocol: tcp
+      - action: accept
+        chain: input
+        comment: Allow RouterOS API-SSL from MGMT
+        dst-port: 8729
+        protocol: tcp
+      - action: accept
+        chain: input
+        comment: Allow DNS from LAN
+        dst-port: 53
+        in-interface: vlan2
+        protocol: udp
+      - action: accept
+        chain: input
+        dst-port: 53
+        in-interface: vlan2
+        protocol: tcp
+      - action: accept
+        chain: input
+        comment: Allow DNS from SRV
+        dst-port: 53
+        in-interface: vlan4
+        protocol: udp
+      - action: accept
+        chain: input
+        dst-port: 53
+        in-interface: vlan4
+        protocol: tcp
+      - action: accept
+        chain: input
+        comment: Allow DNS from dockers
+        dst-port: 53
+        in-interface: dockers
+        protocol: udp
+      - action: accept
+        chain: input
+        dst-port: 53
+        in-interface: dockers
+        protocol: tcp
+      - action: accept
+        chain: input
+        comment: Allow BGP from SRV
+        dst-port: 179
+        in-interface: vlan4
+        protocol: udp
+      - action: accept
+        chain: input
+        comment: NAT-PMP from LAN
+        dst-port: 5351
+        in-interface: vlan2
+        protocol: udp
+      - action: accept
+        chain: input
+        comment: NAT-PMP from dockers (for tailscale)
+        dst-port: 5351
+        in-interface: dockers
+        protocol: udp
+      - action: reject
+        chain: input
+        comment: Reject all remaining
+        log-prefix: INPUT REJECT
+        reject-with: icmp-port-unreachable
+      - action: accept
+        chain: allow-ports
+        comment: Allow TS3
+        dst-port: 9987
+        out-interface: vlan4
+        protocol: udp
+      - action: accept
+        chain: allow-ports
+        dst-port: 30033
+        out-interface: vlan4
+        protocol: tcp
+      - action: accept
+        chain: allow-ports
+        comment: Allow HTTP
+        dst-port: 80
+        out-interface: vlan4
+        protocol: tcp
+      - action: accept
+        chain: allow-ports
+        comment: Allow HTTPS
+        dst-port: 443
+        out-interface: vlan4
+        protocol: tcp
+      - action: accept
+        chain: allow-ports
+        comment: Allow SSH Gitea
+        dst-port: 22
+        out-interface: vlan4
+        protocol: tcp
+      - action: accept
+        chain: allow-ports
+        comment: Allow anything udp to Tailscale
+        dst-address: 172.17.0.2
+        out-interface: dockers
+        protocol: udp
+      - action: accept
+        chain: allow-ports
+        comment: Allow anything from GPON to LAN (NAT-PMP)
+        dst-address: 192.168.0.0/24
+        in-interface: pppoe-gpon
+        out-interface: vlan2
+    handle_absent_entries: remove
+    handle_entries_content: remove_as_much_as_possible
+    ensure_order: true
+
+- name: Configure IPv4 NAT rules
+  community.routeros.api_modify:
+    path: ip firewall nat
+    data:
+      - action: masquerade
+        chain: srcnat
+        comment: Masquerade to internet
+        out-interface-list: wan
+      - action: masquerade
+        chain: srcnat
+        comment: GPON ONT management
+        dst-address: 192.168.100.1
+      - action: masquerade
+        chain: srcnat
+        comment: LTE Modem management
+        dst-address: 192.168.8.1
+      - action: dst-nat
+        chain: dstnat
+        comment: TS3
+        dst-address: 139.28.40.212
+        dst-port: 9987
+        protocol: udp
+        to-addresses: 10.44.0.0
+      - action: dst-nat
+        chain: dstnat
+        dst-address: 139.28.40.212
+        dst-port: 30033
+        protocol: tcp
+        to-addresses: 10.44.0.0
+      - action: src-nat
+        chain: srcnat
+        comment: src-nat from LAN to TS3 to some Greenland address
+        dst-address: 10.44.0.0
+        dst-port: 9987
+        in-interface: '!pppoe-gpon'
+        protocol: udp
+        to-addresses: 128.0.70.5
+      - action: src-nat
+        chain: srcnat
+        dst-address: 10.44.0.0
+        dst-port: 30033
+        in-interface: '!pppoe-gpon'
+        protocol: tcp
+        to-addresses: 128.0.70.5
+      - action: dst-nat
+        chain: dstnat
+        comment: HTTPS
+        dst-address: 139.28.40.212
+        dst-port: 443
+        protocol: tcp
+        to-addresses: 10.44.0.6
+      - action: dst-nat
+        chain: dstnat
+        comment: HTTP
+        dst-address: 139.28.40.212
+        dst-port: 80
+        protocol: tcp
+        to-addresses: 10.44.0.6
+      - action: dst-nat
+        chain: dstnat
+        comment: SSH Gitea
+        dst-address: 139.28.40.212
+        dst-port: 22
+        protocol: tcp
+        to-addresses: 10.44.0.6
+      - action: dst-nat
+        chain: dstnat
+        comment: sunshine
+        dst-address: 139.28.40.212
+        dst-port: 47984
+        in-interface: pppoe-gpon
+        protocol: tcp
+        to-addresses: 192.168.0.67
+      - action: dst-nat
+        chain: dstnat
+        comment: sunshine
+        dst-address: 139.28.40.212
+        dst-port: 47989
+        in-interface: pppoe-gpon
+        protocol: tcp
+        to-addresses: 192.168.0.67
+      - action: dst-nat
+        chain: dstnat
+        comment: sunshine
+        dst-address: 139.28.40.212
+        dst-port: 48010
+        in-interface: pppoe-gpon
+        protocol: tcp
+        to-addresses: 192.168.0.67
+      - action: dst-nat
+        chain: dstnat
+        comment: sunshine
+        dst-address: 139.28.40.212
+        dst-port: 48010
+        in-interface: pppoe-gpon
+        protocol: udp
+        to-addresses: 192.168.0.67
+      - action: dst-nat
+        chain: dstnat
+        comment: sunshine
+        dst-address: 139.28.40.212
+        dst-port: 47998-48000
+        in-interface: pppoe-gpon
+        protocol: udp
+        to-addresses: 192.168.0.67
+    handle_absent_entries: remove
+    handle_entries_content: remove_as_much_as_possible
+    ensure_order: true
+
+- name: Configure IPv6 firewall filter rules
+  community.routeros.api_modify:
+    path: ipv6 firewall filter
+    data:
+      - action: fasttrack-connection
+        chain: forward
+        connection-state: established,related
+      - action: accept
+        chain: forward
+        comment: Allow all already established connections
+        connection-state: established,related
+      - action: reject
+        chain: forward
+        comment: Forbid forwarding routed /48 from tunnelbroker to WAN
+        dst-address: 2001:470:61a3::/48
+        out-interface-list: wan
+        reject-with: icmp-no-route
+      - action: reject
+        chain: forward
+        comment: Forbid forwarding routed /64 from tunnelbroker to WAN
+        dst-address: 2001:470:71:dd::/64
+        out-interface-list: wan
+        reject-with: icmp-no-route
+      - action: accept
+        chain: forward
+        comment: Allow from LAN to everywhere
+        in-interface: vlan2
+      - action: accept
+        chain: forward
+        comment: Allow ICMPv6 from internet to LAN
+        in-interface-list: wan
+        out-interface: vlan2
+        protocol: icmpv6
+      - action: accept
+        chain: forward
+        comment: Allow from SRV to internet
+        in-interface: vlan4
+        out-interface-list: wan
+      - action: accept
+        chain: forward
+        comment: Allow from internet to SRV nodes
+        dst-address: 2001:470:61a3:100::/64
+        in-interface-list: wan
+        out-interface: vlan4
+      - action: accept
+        chain: forward
+        comment: Allow from internet to homelab LB
+        dst-address: 2001:470:61a3:400::/112
+        in-interface-list: wan
+        out-interface: vlan4
+      - action: accept
+        chain: forward
+        comment: Allow from SRV to CAM
+        in-interface: vlan4
+        out-interface: vlan3
+      - action: accept
+        chain: forward
+        comment: Allow from dockers to everywhere
+        in-interface: dockers
+      - action: accept
+        chain: forward
+        comment: Allow from internet to dockers
+        dst-address: 2001:470:61a3:500::/64
+        in-interface-list: wan
+        out-interface: dockers
+      - action: accept
+        chain: forward
+        comment: Allow tcp transmission port to LAN
+        dst-port: 51413
+        out-interface: vlan2
+        protocol: tcp
+      - action: accept
+        chain: forward
+        comment: Allow udp transmission port to LAN
+        dst-port: 51413
+        out-interface: vlan2
+        protocol: udp
+      - action: reject
+        chain: forward
+        comment: Reject all remaining
+        reject-with: icmp-no-route
+      - action: accept
+        chain: input
+        comment: Allow all already established connections
+        connection-state: established,related
+      - action: accept
+        chain: input
+        comment: Allow ICMPv6
+        protocol: icmpv6
+      - action: accept
+        chain: input
+        comment: Allow Winbox
+        dst-port: 8291
+        protocol: tcp
+      - action: accept
+        chain: input
+        comment: Allow SSH Mikrotik
+        dst-port: 2137
+        protocol: tcp
+      - action: accept
+        chain: input
+        comment: Allow DNS from LAN
+        dst-port: 53
+        in-interface: vlan2
+        protocol: udp
+      - action: accept
+        chain: input
+        dst-port: 53
+        in-interface: vlan2
+        protocol: tcp
+      - action: accept
+        chain: input
+        comment: Allow DNS from SRV
+        dst-port: 53
+        in-interface: vlan4
+        protocol: udp
+      - action: accept
+        chain: input
+        dst-port: 53
+        in-interface: vlan4
+        protocol: tcp
+      - action: accept
+        chain: input
+        comment: Allow DNS from dockers
+        dst-port: 53
+        in-interface: dockers
+        protocol: udp
+      - action: accept
+        chain: input
+        dst-port: 53
+        in-interface: dockers
+        protocol: tcp
+      - action: accept
+        chain: input
+        comment: Allow BGP from SRV
+        dst-port: 179
+        in-interface: vlan4
+        protocol: tcp
+        src-address: 2001:470:61a3:100::/64
+      - action: reject
+        chain: input
+        comment: Reject all remaining
+        reject-with: icmp-admin-prohibited
+    handle_absent_entries: remove
+    handle_entries_content: remove_as_much_as_possible
+    ensure_order: true
+
+- name: Configure IPv6 NAT rules
+  community.routeros.api_modify:
+    path: ipv6 firewall nat
+    data:
+      - action: src-nat
+        chain: srcnat
+        comment: src-nat tailnet to internet
+        out-interface-list: wan
+        src-address: fd7a:115c:a1e0::/48
+        to-address: 2001:470:61a3:600::/64
+      - action: masquerade
+        chain: srcnat
+        disabled: true
+        in-interface: vlan2
+        out-interface: vlan4
+    handle_absent_entries: remove
+    handle_entries_content: remove_as_much_as_possible
+    ensure_order: true

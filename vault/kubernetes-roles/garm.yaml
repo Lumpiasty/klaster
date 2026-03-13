@@ -1,0 +1,6 @@
+bound_service_account_names:
+  - garm
+bound_service_account_namespaces:
+  - garm
+token_policies:
+  - garm

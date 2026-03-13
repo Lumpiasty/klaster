@@ -72,6 +72,8 @@ spec:
         indexer:
           ISSUE_INDEXER_TYPE: bleve
           REPO_INDEXER_ENABLED: true
+        webhook:
+          ALLOWED_HOST_LIST: garm.garm.svc.cluster.local
       admin:
         username: GiteaAdmin
         email: gi@tea.com

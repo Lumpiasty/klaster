@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: garm
+  namespace: garm
+spec:
+  type: ClusterIP
+  selector:
+    app: garm
+  ports:
+    - name: http
+      port: 9997
+      targetPort: 9997
+      protocol: TCP

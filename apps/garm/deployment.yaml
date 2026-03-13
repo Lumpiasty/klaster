@@ -1,0 +1,122 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: garm
+  namespace: garm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: garm
+  template:
+    metadata:
+      labels:
+        app: garm
+    spec:
+      serviceAccountName: garm
+      initContainers:
+        - name: install-garm-provider-k8s
+          image: alpine:3.21
+          command:
+            - /bin/sh
+            - -ec
+            - |
+              wget -qO /tmp/garm-provider-k8s.tar.gz "https://github.com/mercedes-benz/garm-provider-k8s/releases/download/v0.3.2/garm-provider-k8s_Linux_x86_64.tar.gz"
+              tar -xzf /tmp/garm-provider-k8s.tar.gz -C /opt/garm/providers.d
+              chmod 0755 /opt/garm/providers.d/garm-provider-k8s
+          volumeMounts:
+            - name: provider-dir
+              mountPath: /opt/garm/providers.d
+        - name: render-garm-config
+          image: alpine:3.21
+          env:
+            - name: JWT_AUTH_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: garm-config
+                  key: jwt_auth_secret
+            - name: DATABASE_PASSPHRASE
+              valueFrom:
+                secretKeyRef:
+                  name: garm-config
+                  key: database_passphrase
+          command:
+            - /bin/sh
+            - -ec
+            - |
+              cat <<EOF > /etc/garm/config.toml
+              [default]
+              enable_webhook_management = true
+
+              [logging]
+              enable_log_streamer = true
+              log_format = "text"
+              log_level = "info"
+              log_source = false
+
+              [metrics]
+              enable = true
+              disable_auth = false
+
+              [jwt_auth]
+              secret = "${JWT_AUTH_SECRET}"
+              time_to_live = "8760h"
+
+              [apiserver]
+                bind = "0.0.0.0"
+                port = 9997
+                use_tls = false
+                [apiserver.webui]
+                  enable = true
+
+              [database]
+                backend = "sqlite3"
+                passphrase = "${DATABASE_PASSPHRASE}"
+                [database.sqlite3]
+                  db_file = "/data/garm.db"
+                  busy_timeout_seconds = 5
+
+              [[provider]]
+              name = "kubernetes_external"
+              description = "Kubernetes provider"
+              provider_type = "external"
+              [provider.external]
+              config_file = "/etc/garm/provider-config.yaml"
+              provider_executable = "/opt/garm/providers.d/garm-provider-k8s"
+              environment_variables = ["KUBERNETES_"]
+              EOF
+          volumeMounts:
+            - name: config-dir
+              mountPath: /etc/garm
+      containers:
+        - name: garm
+          image: ghcr.io/cloudbase/garm:v0.1.7
+          imagePullPolicy: IfNotPresent
+          command:
+            - /bin/garm
+            - --config
+            - /etc/garm/config.toml
+          ports:
+            - name: http
+              containerPort: 9997
+          volumeMounts:
+            - name: data
+              mountPath: /data
+            - name: config-dir
+              mountPath: /etc/garm
+            - name: provider-dir
+              mountPath: /opt/garm/providers.d
+            - name: provider-config
+              mountPath: /etc/garm/provider-config.yaml
+              subPath: provider-config.yaml
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: garm-lvmhdd
+        - name: config-dir
+          emptyDir: {}
+        - name: provider-dir
+          emptyDir: {}
+        - name: provider-config
+          configMap:
+            name: garm-provider-k8s-config

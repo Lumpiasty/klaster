@@ -1,0 +1,6 @@
+bound_service_account_names:
+  - authentik-secret
+bound_service_account_namespaces:
+  - authentik
+token_policies:
+  - authentik

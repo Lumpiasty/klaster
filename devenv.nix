@@ -43,7 +43,9 @@ in
     openbao
     pv-migrate
     mermaid-cli
+    opencode
     garm-cli
+    tea
   ];
 
   # Scripts

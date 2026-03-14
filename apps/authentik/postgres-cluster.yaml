@@ -1,0 +1,23 @@
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: authentik-postgresql-cluster-lvmhdd
+  namespace: authentik
+spec:
+  instances: 1
+
+  imageName: ghcr.io/cloudnative-pg/postgresql:17.4
+
+  bootstrap:
+    initdb:
+      database: authentik
+      owner: authentik
+
+  storage:
+    pvcTemplate:
+      storageClassName: hdd-lvmpv
+      resources:
+        requests:
+          storage: 10Gi
+      volumeName: authentik-postgresql-cluster-lvmhdd-1

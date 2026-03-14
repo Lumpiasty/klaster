@@ -90,6 +90,11 @@ spec:
         # Requirement for sharing ip with other service
         externalTrafficPolicy: Cluster
         ipFamilyPolicy: RequireDualStack
+      http:
+        type: ClusterIP
+        # We need the service to be at port 80 specifically
+        # to work around bug of Actions Runner
+        port: 80
 
     ingress:
       enabled: true

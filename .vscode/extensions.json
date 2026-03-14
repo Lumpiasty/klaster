@@ -2,6 +2,7 @@
   "recommendations": [
     "jnoortheen.nix-ide",
     "detachhead.basedpyright",
-    "mkhl.direnv"
+    "mkhl.direnv",
+    "mermaidchart.vscode-mermaid-chart"
   ]
 }

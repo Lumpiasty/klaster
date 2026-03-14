@@ -25,6 +25,11 @@ buildGoModule rec {
   ];
 
   postInstall = ''
+    # We need to set a temporary HOME for the completion scripts as workaround
+    # because garm-cli tries to write config to the home directory
+    # when generating the completion scripts
+    export HOME="$(mktemp -d)"
+
     installShellCompletion --cmd garm-cli \
       --bash <($out/bin/garm-cli completion bash) \
       --fish <($out/bin/garm-cli completion fish) \

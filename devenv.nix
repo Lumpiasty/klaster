@@ -6,6 +6,8 @@ let
     hvac
     librouteros
   ]);
+
+  garm-cli = pkgs.callPackage ./nix/garm-cli.nix { };
 in
 {
   # Overlays - apply krew2nix to get kubectl with krew support
@@ -41,6 +43,7 @@ in
     openbao
     pv-migrate
     mermaid-cli
+    garm-cli
   ];
 
   # Scripts

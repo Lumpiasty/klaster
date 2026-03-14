@@ -1,3 +1,7 @@
+SHELL := /usr/bin/env bash
+
+.PHONY: install-router gen-talos-config apply-talos-config get-kubeconfig garm-image-build garm-image-push garm-image-build-push
+
 install-router:
 	ansible-playbook ansible/playbook.yml -i ansible/hosts
 
@@ -23,3 +27,19 @@ apply-talos-config:
 
 get-kubeconfig:
 	talosctl -n anapistula-delrosalae kubeconfig talos/generated/kubeconfig
+
+garm-image-build:
+	set -euo pipefail; \
+	source apps/garm/image-source.env; \
+	docker build \
+		-f docker/garm/Dockerfile \
+		--build-arg GARM_COMMIT=$$GARM_COMMIT \
+		-t $$GARM_IMAGE \
+		.
+
+garm-image-push:
+	set -euo pipefail; \
+	source apps/garm/image-source.env; \
+	docker push $$GARM_IMAGE
+
+garm-image-build-push: garm-image-build garm-image-push

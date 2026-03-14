@@ -15,18 +15,6 @@ spec:
     spec:
       serviceAccountName: garm
       initContainers:
-        - name: install-garm-provider-k8s
-          image: alpine:3.21
-          command:
-            - /bin/sh
-            - -ec
-            - |
-              wget -qO /tmp/garm-provider-k8s.tar.gz "https://github.com/mercedes-benz/garm-provider-k8s/releases/download/v0.3.2/garm-provider-k8s_Linux_x86_64.tar.gz"
-              tar -xzf /tmp/garm-provider-k8s.tar.gz -C /opt/garm/providers.d
-              chmod 0755 /opt/garm/providers.d/garm-provider-k8s
-          volumeMounts:
-            - name: provider-dir
-              mountPath: /opt/garm/providers.d
         - name: render-garm-config
           image: alpine:3.21
           env:
@@ -90,7 +78,7 @@ spec:
               mountPath: /etc/garm
       containers:
         - name: garm
-          image: ghcr.io/cloudbase/garm:v0.1.7
+          image: gitea.lumpiasty.xyz/lumpiasty/garm-k8s:r1380
           imagePullPolicy: IfNotPresent
           command:
             - /bin/garm
@@ -104,8 +92,6 @@ spec:
               mountPath: /data
             - name: config-dir
               mountPath: /etc/garm
-            - name: provider-dir
-              mountPath: /opt/garm/providers.d
             - name: provider-config
               mountPath: /etc/garm/provider-config.yaml
               subPath: provider-config.yaml
@@ -114,8 +100,6 @@ spec:
           persistentVolumeClaim:
             claimName: garm-lvmhdd
         - name: config-dir
-          emptyDir: {}
-        - name: provider-dir
           emptyDir: {}
         - name: provider-config
           configMap:

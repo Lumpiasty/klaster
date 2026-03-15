@@ -16,7 +16,7 @@ spec:
       serviceAccountName: garm
       initContainers:
         - name: render-garm-config
-          image: alpine:3.21
+          image: alpine:3.23
           env:
             - name: JWT_AUTH_SECRET
               valueFrom:

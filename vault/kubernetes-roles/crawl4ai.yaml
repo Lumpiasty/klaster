@@ -1,0 +1,6 @@
+bound_service_account_names:
+  - crawl4ai-secret
+bound_service_account_namespaces:
+  - crawl4ai
+token_policies:
+  - crawl4ai

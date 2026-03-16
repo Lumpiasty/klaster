@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: crawl4ai
+  namespace: crawl4ai
+spec:
+  type: ClusterIP
+  selector:
+    app: crawl4ai
+  ports:
+    - name: http
+      port: 11235
+      targetPort: 11235
+      protocol: TCP

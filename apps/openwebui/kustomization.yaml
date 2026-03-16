@@ -4,5 +4,6 @@ resources:
   - namespace.yaml
   - pvc.yaml
   - pvc-pipelines.yaml
+  - secret.yaml
   - release.yaml
   - ingress.yaml

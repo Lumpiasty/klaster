@@ -1,0 +1,6 @@
+bound_service_account_names:
+  - openwebui-secret
+bound_service_account_namespaces:
+  - openwebui
+token_policies:
+  - openwebui

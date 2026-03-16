@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: crawl4ai-proxy
+  namespace: crawl4ai
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: crawl4ai-proxy
+  template:
+    metadata:
+      labels:
+        app: crawl4ai-proxy
+    spec:
+      containers:
+        - name: crawl4ai-proxy
+          image: ghcr.io/lennyerik/crawl4ai-proxy:latest
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: LISTEN_PORT
+              value: "8000"
+            - name: CRAWL4AI_ENDPOINT
+              value: http://crawl4ai.crawl4ai.svc.cluster.local:11235/crawl
+          ports:
+            - name: http
+              containerPort: 8000
+          readinessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: 3
+            periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 6
+          livenessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 15
+            timeoutSeconds: 2
+            failureThreshold: 6
+          resources:
+            requests:
+              cpu: 25m
+              memory: 32Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi

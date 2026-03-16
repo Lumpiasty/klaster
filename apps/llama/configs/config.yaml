@@ -10,6 +10,7 @@ macros:
   qwen35_35b_args: "--temp 1.0 --min-p 0.00 --top-p 0.95 --top-k 20 -ctk q4_0 -ctv q4_0"
   qwen35_35b_heretic_mmproj: "--mmproj-url https://huggingface.co/unsloth/Qwen3.5-35B-A3B-GGUF/resolve/main/mmproj-F16.gguf --mmproj /root/.cache/llama.cpp/unsloth_Qwen3.5-35B-A3B-GGUF_mmproj-F16.gguf"
   qwen35_4b_heretic_mmproj: "--mmproj-url https://huggingface.co/unsloth/Qwen3.5-4B-GGUF/resolve/main/mmproj-F16.gguf --mmproj /root/.cache/llama.cpp/unsloth_Qwen3.5-4B-GGUF_mmproj-F16.gguf"
+  glm47_flash_args: "--temp 0.7 --top-p 1.0 --min-p 0.01 --repeat-penalty 1.0"
   thinking_on: "--chat-template-kwargs '{\"enable_thinking\": true}'"
   thinking_off: "--chat-template-kwargs '{\"enable_thinking\": false}'"
 
@@ -226,3 +227,10 @@ models:
         ${qwen35_sampling}
         ${common_args}
         ${thinking_off}
+
+  "GLM-4.7-Flash-GGUF:Q4_K_M":
+    cmd: |
+      /app/llama-server
+        -hf unsloth/GLM-4.7-Flash-GGUF:Q4_K_M
+        ${glm47_flash_args}
+        ${common_args}

@@ -16,7 +16,7 @@ spec:
       containers:
         - name: crawl4ai-proxy
           image: gitea.lumpiasty.xyz/lumpiasty/crawl4ai-proxy-fit:latest
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           env:
             - name: LISTEN_PORT
               value: "8000"

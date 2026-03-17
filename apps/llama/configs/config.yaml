@@ -4,7 +4,9 @@ logToStdout: "both" # proxy and upstream
 
 macros:
   base_args: "--no-warmup --port ${PORT}"
-  common_args: "--fit-target 1536 --fit-ctx 65536 --no-warmup --port ${PORT}"
+  common_args: "--fit-target 1024 --no-warmup --port ${PORT}"
+  gemma3_ctx_128k: "--ctx-size 131072"
+  qwen35_ctx_256k: "--ctx-size 262144"
   gemma_sampling: "--prio 2 --temp 1.0 --repeat-penalty 1.0 --min-p 0.00 --top-k 64 --top-p 0.95"
   qwen35_sampling: "--temp 0.6 --top-p 0.95 --top-k 20 --min-p 0.00 -ctk q4_0 -ctv q4_0"
   qwen35_35b_args: "--temp 1.0 --min-p 0.00 --top-p 0.95 --top-k 20 -ctk q4_0 -ctv q4_0"
@@ -39,6 +41,7 @@ models:
     cmd: |
       /app/llama-server
         -hf unsloth/gemma-3-12b-it-GGUF:Q4_K_M
+        ${gemma3_ctx_128k}
         ${gemma_sampling}
         ${common_args}
 
@@ -46,6 +49,7 @@ models:
     cmd: |
       /app/llama-server
         -hf unsloth/gemma-3-12b-it-GGUF:Q4_K_M
+        ${gemma3_ctx_128k}
         ${gemma_sampling}
         --no-mmproj
         ${common_args}
@@ -54,6 +58,7 @@ models:
     cmd: |
       /app/llama-server
         -hf unsloth/gemma-3-4b-it-GGUF:Q4_K_M
+        ${gemma3_ctx_128k}
         ${gemma_sampling}
         ${common_args}
 
@@ -61,6 +66,7 @@ models:
     cmd: |
       /app/llama-server
         -hf unsloth/gemma-3-4b-it-GGUF:Q4_K_M
+        ${gemma3_ctx_128k}
         ${gemma_sampling}
         --no-mmproj
         ${common_args}
@@ -83,6 +89,7 @@ models:
     cmd: |
       /app/llama-server
         -hf unsloth/Qwen3.5-35B-A3B-GGUF:Q4_K_M
+        ${qwen35_ctx_256k}
         ${qwen35_35b_args}
         ${common_args}
 
@@ -90,6 +97,7 @@ models:
     cmd: |
       /app/llama-server
         -hf unsloth/Qwen3.5-35B-A3B-GGUF:Q4_K_M
+        ${qwen35_ctx_256k}
         ${qwen35_35b_args}
         ${common_args}
         ${thinking_off}
@@ -101,6 +109,7 @@ models:
       /app/llama-server
         -hf mradermacher/Qwen3.5-35B-A3B-heretic-GGUF:Q4_K_M
         ${qwen35_35b_heretic_mmproj}
+        ${qwen35_ctx_256k}
         ${qwen35_35b_args}
         ${common_args}
 
@@ -109,6 +118,7 @@ models:
       /app/llama-server
         -hf mradermacher/Qwen3.5-35B-A3B-heretic-GGUF:Q4_K_M
         ${qwen35_35b_heretic_mmproj}
+        ${qwen35_ctx_256k}
         ${qwen35_35b_args}
         ${common_args}
         ${thinking_off}
@@ -117,6 +127,7 @@ models:
     cmd: |
       /app/llama-server
         -hf unsloth/Qwen3.5-0.8B-GGUF:Q4_K_XL
+        ${qwen35_ctx_256k}
         ${qwen35_sampling}
         ${base_args}
         ${thinking_on}
@@ -134,6 +145,7 @@ models:
     cmd: |
       /app/llama-server
         -hf unsloth/Qwen3.5-2B-GGUF:Q4_K_M
+        ${qwen35_ctx_256k}
         ${qwen35_sampling}
         ${common_args}
         ${thinking_on}
@@ -142,6 +154,7 @@ models:
     cmd: |
       /app/llama-server
         -hf unsloth/Qwen3.5-2B-GGUF:Q4_K_M
+        ${qwen35_ctx_256k}
         ${qwen35_sampling}
         ${common_args}
         ${thinking_off}
@@ -150,6 +163,7 @@ models:
     cmd: |
       /app/llama-server
         -hf unsloth/Qwen3.5-4B-GGUF:Q4_K_M
+        ${qwen35_ctx_256k}
         ${qwen35_sampling}
         ${common_args}
         ${thinking_on}
@@ -158,6 +172,7 @@ models:
     cmd: |
       /app/llama-server
         -hf unsloth/Qwen3.5-4B-GGUF:Q4_K_M
+        ${qwen35_ctx_256k}
         ${qwen35_sampling}
         ${common_args}
         ${thinking_off}
@@ -167,6 +182,7 @@ models:
       /app/llama-server
         -hf mradermacher/Qwen3.5-4B-heretic-GGUF:Q4_K_M
         ${qwen35_4b_heretic_mmproj}
+        ${qwen35_ctx_256k}
         ${qwen35_sampling}
         ${common_args}
         ${thinking_on}
@@ -176,6 +192,7 @@ models:
       /app/llama-server
         -hf mradermacher/Qwen3.5-4B-heretic-GGUF:Q4_K_M
         ${qwen35_4b_heretic_mmproj}
+        ${qwen35_ctx_256k}
         ${qwen35_sampling}
         ${common_args}
         ${thinking_off}
@@ -184,6 +201,7 @@ models:
     cmd: |
       /app/llama-server
         -hf unsloth/Qwen3.5-9B-GGUF:Q4_K_M
+        ${qwen35_ctx_256k}
         ${qwen35_sampling}
         ${common_args}
         ${thinking_on}
@@ -192,6 +210,7 @@ models:
     cmd: |
       /app/llama-server
         -hf unsloth/Qwen3.5-9B-GGUF:Q4_K_M
+        ${qwen35_ctx_256k}
         ${qwen35_sampling}
         ${common_args}
         ${thinking_off}
@@ -200,6 +219,7 @@ models:
     cmd: |
       /app/llama-server
         -hf unsloth/Qwen3.5-9B-GGUF:Q3_K_M
+        ${qwen35_ctx_256k}
         ${qwen35_sampling}
         ${common_args}
         ${thinking_on}
@@ -208,6 +228,7 @@ models:
     cmd: |
       /app/llama-server
         -hf unsloth/Qwen3.5-9B-GGUF:Q3_K_M
+        ${qwen35_ctx_256k}
         ${qwen35_sampling}
         ${common_args}
         ${thinking_off}
@@ -216,6 +237,7 @@ models:
     cmd: |
       /app/llama-server
         -hf unsloth/Qwen3.5-27B-GGUF:Q3_K_M
+        ${qwen35_ctx_256k}
         ${qwen35_sampling}
         ${common_args}
         ${thinking_on}
@@ -224,6 +246,7 @@ models:
     cmd: |
       /app/llama-server
         -hf unsloth/Qwen3.5-27B-GGUF:Q3_K_M
+        ${qwen35_ctx_256k}
         ${qwen35_sampling}
         ${common_args}
         ${thinking_off}

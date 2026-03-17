@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: crawl4ai-proxy
-          image: ghcr.io/lennyerik/crawl4ai-proxy:latest
+          image: gitea.lumpiasty.xyz/lumpiasty/crawl4ai-proxy-fit:latest
           imagePullPolicy: IfNotPresent
           env:
             - name: LISTEN_PORT

@@ -8,8 +8,8 @@ macros:
   gemma3_ctx_128k: "--ctx-size 131072"
   qwen35_ctx_256k: "--ctx-size 262144"
   gemma_sampling: "--prio 2 --temp 1.0 --repeat-penalty 1.0 --min-p 0.00 --top-k 64 --top-p 0.95"
-  qwen35_sampling: "--temp 0.6 --top-p 0.95 --top-k 20 --min-p 0.00 -ctk q4_0 -ctv q4_0"
-  qwen35_35b_args: "--temp 1.0 --min-p 0.00 --top-p 0.95 --top-k 20 -ctk q4_0 -ctv q4_0"
+  qwen35_sampling: "--temp 0.6 --top-p 0.95 --top-k 20 --min-p 0.00 -ctk q8_0 -ctv q8_0"
+  qwen35_35b_args: "--temp 1.0 --min-p 0.00 --top-p 0.95 --top-k 20 -ctk q8_0 -ctv q8_0"
   qwen35_35b_heretic_mmproj: "--mmproj-url https://huggingface.co/unsloth/Qwen3.5-35B-A3B-GGUF/resolve/main/mmproj-F16.gguf --mmproj /root/.cache/llama.cpp/unsloth_Qwen3.5-35B-A3B-GGUF_mmproj-F16.gguf"
   qwen35_4b_heretic_mmproj: "--mmproj-url https://huggingface.co/unsloth/Qwen3.5-4B-GGUF/resolve/main/mmproj-F16.gguf --mmproj /root/.cache/llama.cpp/unsloth_Qwen3.5-4B-GGUF_mmproj-F16.gguf"
   glm47_flash_args: "--temp 0.7 --top-p 1.0 --min-p 0.01 --repeat-penalty 1.0"
@@ -82,7 +82,7 @@ models:
         --top-p 0.95
         --top-k 40
         --repeat-penalty 1.0
-        -ctk q4_0 -ctv q4_0
+        -ctk q8_0 -ctv q8_0
         ${common_args}
 
   "Qwen3.5-35B-A3B-GGUF:Q4_K_M":

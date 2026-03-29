@@ -4,7 +4,7 @@ logToStdout: "both" # proxy and upstream
 
 macros:
   base_args: "--no-warmup --port ${PORT}"
-  common_args: "--fit-target 1024 --no-warmup --port ${PORT}"
+  common_args: "--fit-target 1536 --no-warmup --port ${PORT}"
   gemma3_ctx_128k: "--ctx-size 131072"
   qwen35_ctx_256k: "--ctx-size 262144"
   gemma_sampling: "--prio 2 --temp 1.0 --repeat-penalty 1.0 --min-p 0.00 --top-k 64 --top-p 0.95"

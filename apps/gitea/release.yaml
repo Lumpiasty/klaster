@@ -73,7 +73,7 @@ spec:
           ISSUE_INDEXER_TYPE: bleve
           REPO_INDEXER_ENABLED: true
         webhook:
-          ALLOWED_HOST_LIST: garm.garm.svc.cluster.local
+          ALLOWED_HOST_LIST: garm.garm.svc.cluster.local,woodpecker.lumpiasty.xyz
       admin:
         username: GiteaAdmin
         email: gi@tea.com

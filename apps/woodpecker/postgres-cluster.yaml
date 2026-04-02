@@ -1,0 +1,23 @@
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: woodpecker-postgresql-cluster
+  namespace: woodpecker
+spec:
+  instances: 1
+
+  imageName: ghcr.io/cloudnative-pg/postgresql:17.4
+
+  bootstrap:
+    initdb:
+      database: woodpecker
+      owner: woodpecker
+
+  storage:
+    pvcTemplate:
+      storageClassName: ssd-lvmpv
+      resources:
+        requests:
+          storage: 10Gi
+      volumeName: woodpecker-postgresql-cluster-lvmssd

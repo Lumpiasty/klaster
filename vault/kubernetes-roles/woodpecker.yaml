@@ -1,0 +1,6 @@
+bound_service_account_names:
+  - woodpecker-secret
+bound_service_account_namespaces:
+  - woodpecker
+token_policies:
+  - woodpecker

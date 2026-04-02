@@ -1,0 +1,115 @@
+---
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
+metadata:
+  name: woodpecker
+  namespace: woodpecker
+spec:
+  interval: 24h
+  url: https://woodpecker-ci.org/
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: woodpecker
+  namespace: woodpecker
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: woodpecker
+      version: 3.5.1
+      sourceRef:
+        kind: HelmRepository
+        name: woodpecker
+        namespace: woodpecker
+      interval: 12h
+  values:
+    server:
+      enabled: true
+      statefulSet:
+        replicaCount: 1
+      
+      persistentVolume:
+        enabled: false # Using Postgresql database
+
+      env:
+        WOODPECKER_HOST: "https://woodpecker.lumpiasty.xyz"
+        # Gitea integration
+        WOODPECKER_GITEA: "true"
+        WOODPECKER_GITEA_URL: "https://gitea.lumpiasty.xyz"
+        # PostgreSQL database configuration
+        WOODPECKER_DATABASE_DRIVER: postgres
+        # Password is loaded from woodpecker-postgresql-cluster-app secret (created by CNPG)
+        WOODPECKER_DATABASE_DATASOURCE:
+          valueFrom:
+            secretKeyRef:
+              name: woodpecker-postgresql-cluster-app
+              key: fqdn-uri
+        # Allow logging in from all accounts on Gitea
+        WOODPECKER_OPEN: "true"
+        # Make lumpiasty admin
+        WOODPECKER_ADMIN: GiteaAdmin
+
+      createAgentSecret: true
+
+      extraSecretNamesForEnvFrom:
+        - woodpecker-secrets
+
+      ingress:
+        enabled: true
+        ingressClassName: nginx-ingress
+        annotations:
+          cert-manager.io/cluster-issuer: letsencrypt
+          acme.cert-manager.io/http01-edit-in-place: "true"
+        hosts:
+          - host: woodpecker.lumpiasty.xyz
+            paths:
+              - path: /
+                backend:
+                  serviceName: woodpecker-server
+                  servicePort: 80
+        tls:
+          - hosts:
+              - woodpecker.lumpiasty.xyz
+            secretName: woodpecker-ingress
+
+      resources:
+        requests:
+          cpu: 100m
+          memory: 256Mi
+
+      service:
+        type: ClusterIP
+        port: 80
+
+    agent:
+      enabled: true
+      replicaCount: 2
+
+      env:
+        WOODPECKER_SERVER: "woodpecker-server:9000"
+        WOODPECKER_BACKEND: kubernetes
+        WOODPECKER_BACKEND_K8S_NAMESPACE: woodpecker
+        WOODPECKER_BACKEND_K8S_STORAGE_CLASS: ssd-lvmpv
+        WOODPECKER_BACKEND_K8S_VOLUME_SIZE: 10G
+        WOODPECKER_BACKEND_K8S_STORAGE_RWX: false
+        WOODPECKER_CONNECT_RETRY_COUNT: "5"
+
+      mapAgentSecret: true
+
+      extraSecretNamesForEnvFrom:
+        - woodpecker-secrets
+
+      persistence:
+        enabled: false
+
+      serviceAccount:
+        create: true
+        rbac:
+          create: true
+
+      resources:
+        requests:
+          cpu: 100m
+          memory: 128Mi

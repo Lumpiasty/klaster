@@ -1,0 +1,33 @@
+apiVersion: local.openebs.io/v1alpha1
+kind: LVMVolume
+metadata:
+  labels:
+    kubernetes.io/nodename: anapistula-delrosalae
+  name: woodpecker-postgresql-cluster-lvmssd
+  namespace: openebs
+spec:
+  capacity: 10Gi
+  ownerNodeID: anapistula-delrosalae
+  shared: "yes"
+  thinProvision: "no"
+  vgPattern: ^openebs-ssd$
+  volGroup: openebs-ssd
+---
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: woodpecker-postgresql-cluster-lvmssd
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ssd-lvmpv
+  volumeMode: Filesystem
+  csi:
+    driver: local.csi.openebs.io
+    fsType: btrfs
+    volumeHandle: woodpecker-postgresql-cluster-lvmssd
+---
+# PVC is dynamically created by the Postgres operator

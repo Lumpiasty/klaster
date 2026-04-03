@@ -55,6 +55,7 @@ in
     )
     garm-cli
     tea
+    woodpecker-cli
   ];
 
   # Scripts

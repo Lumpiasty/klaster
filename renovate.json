@@ -10,57 +10,8 @@
       "gotk-components\\.ya?ml$"
     ]
   },
-  "customManagers": [
-    {
-      "customType": "regex",
-      "description": "Track garm-cli pinned main commit",
-      "managerFilePatterns": ["^nix/garm-cli\\.nix$"],
-      "matchStrings": ["garmCommit = \\\"(?<currentValue>[a-f0-9]{40})\\\";"],
-      "depNameTemplate": "cloudbase/garm",
-      "datasourceTemplate": "github-refs",
-      "versioningTemplate": "git"
-    },
-    {
-      "customType": "regex",
-      "description": "Track garm-provider-k8s release in garm image Dockerfile",
-      "managerFilePatterns": ["^docker/garm/Dockerfile$"],
-      "matchStrings": ["ARG GARM_PROVIDER_K8S_VERSION=(?<currentValue>[0-9]+\\.[0-9]+\\.[0-9]+)"],
-      "depNameTemplate": "mercedes-benz/garm-provider-k8s",
-      "datasourceTemplate": "github-releases",
-      "versioningTemplate": "semver"
-    },
-    {
-      "customType": "regex",
-      "description": "Track pinned garm main commit",
-      "managerFilePatterns": ["^apps/garm/image-source\\.env$"],
-      "matchStrings": ["GARM_COMMIT=(?<currentValue>[a-f0-9]{40})"],
-      "depNameTemplate": "cloudbase/garm",
-      "datasourceTemplate": "github-refs",
-      "versioningTemplate": "git"
-    }
-  ],
   "prHourlyLimit": 9,
   "packageRules": [
-    {
-      "matchManagers": ["custom.regex"],
-      "matchDepNames": ["cloudbase/garm"],
-      "matchFileNames": ["nix/garm-cli.nix"],
-      "postUpgradeTasks": {
-        "commands": ["node utils/update-garm-cli-hash.mjs"],
-        "fileFilters": ["nix/garm-cli.nix"],
-        "executionMode": "update"
-      }
-    },
-    {
-      "matchManagers": ["custom.regex"],
-      "matchDepNames": ["cloudbase/garm"],
-      "matchFileNames": ["apps/garm/image-source.env"],
-      "postUpgradeTasks": {
-        "commands": ["node utils/update-garm-image-pin.mjs"],
-        "fileFilters": ["apps/garm/image-source.env", "apps/garm/deployment.yaml"],
-        "executionMode": "update"
-      }
-    },
     {
       "matchDatasources": ["docker"],
       "matchPackageNames": ["ghcr.io/mostlygeek/llama-swap"],

@@ -6,8 +6,6 @@ let
     hvac
     librouteros
   ]);
-
-  garm-cli = pkgs.callPackage ./nix/garm-cli.nix { };
 in
 {
   # Overlays - apply krew2nix to get kubectl with krew support
@@ -53,7 +51,6 @@ in
           --set OPENCODE_ENABLE_EXA "1"
         ''
     )
-    garm-cli
     tea
     woodpecker-cli
   ];

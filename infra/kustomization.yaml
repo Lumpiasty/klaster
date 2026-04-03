@@ -25,3 +25,4 @@ resources:
 
   - configs/openbao-volume.yaml
   - controllers/openbao.yaml
+  - configs/openbao-k8s-se-role.yaml

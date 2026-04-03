@@ -2,6 +2,7 @@
 
 import argparse
 import os
+import pathlib
 from typing import Any, cast
 
 import hvac
@@ -42,7 +43,7 @@ def synchronize_auth_kubernetes_config(client: hvac.Client):
 def synchronize_kubernetes_roles(client: hvac.Client):
     kubernetes = Kubernetes(client.adapter)
 
-    policy_dir = os.path.join(os.path.dirname(__file__), '../vault/kubernetes-roles/')
+    policy_dir = os.path.join(os.path.dirname(__file__), '../vault/kubernetes-auth-roles/')
 
     roles: dict[str, Any] = {} # pyright:ignore[reportExplicitAny]
     for filename in os.listdir(policy_dir):
@@ -67,6 +68,47 @@ def synchronize_kubernetes_roles(client: hvac.Client):
         # Using write data instead of kubernetes.create_role, we can pass raw yaml
         _ = client.write_data(f'/auth/kubernetes/role/{role_name}', data=role_content) # pyright:ignore[reportAny]
 
+def synchronize_approle_auth(client: hvac.Client):
+    if client.sys.list_auth_methods().get('approle/') is None:
+        print('Enabling AppRole auth method')
+        client.sys.enable_auth_method('approle', 'AppRole authorization for CI')
+
+
+def synchronize_kubernetes_secretengine(client: hvac.Client):
+    # Ensure kubernetes secret engine is enabled
+    if client.sys.list_mounted_secrets_engines().get('kubernetes/') is None:
+        print('Enabling kubernetes secret engine')
+        client.sys.enable_secrets_engine('kubernetes', 'kubernetes', 'Cluster access')
+
+    # Write empty config (all defaults, working on the same cluster)
+    client.write('kubernetes/config', None)
+
+    policy_dir = pathlib.Path(__file__).parent.joinpath('../vault/kubernetes-se-roles/')
+    roles: dict[str, Any] = {}
+
+    for filename in policy_dir.iterdir():
+        with filename.open('r') as f:
+            role = yaml.safe_load(f.read())
+            assert type(role) is dict
+            # generated_role_rules must be json or yaml formatted string, convert it
+            if 'generated_role_rules' in role and type(role['generated_role_rules']) is not str:
+                role['generated_role_rules'] = yaml.safe_dump(role['generated_role_rules'])
+            roles[filename.stem] = role
+
+    roles_on_vault: list[str] = []
+    roles_response = client.list("kubernetes/roles")
+    if roles_response is not None:
+        roles_on_vault = roles_response['data']['keys']
+
+    for role in roles_on_vault:
+        if role not in roles:
+            print(f'Deleting role: {role}')
+            client.delete(f'kubernetes/roles/{role}')
+
+    for role_name, role_content in roles.items():
+        print(f'Updating role: {role_name}')
+        client.write_data(f'kubernetes/roles/{role_name}', data=role_content)
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         prog="synchronizeVault",
@@ -82,5 +124,11 @@ if __name__ == '__main__':
     print('Synchronizing kubernetes config')
     synchronize_auth_kubernetes_config(client)
 
-    print('Synchronizing kubernetes roles')
+    print('Synchronizing kubernetes auth roles')
     synchronize_kubernetes_roles(client)
+
+    print('Synchronizing AppRole auth method')
+    synchronize_approle_auth(client)
+
+    print('Synchronizing kubernetes secret engine')
+    synchronize_kubernetes_secretengine(client)

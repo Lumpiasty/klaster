@@ -1,0 +1,6 @@
+allowed_kubernetes_namespaces: flux-system
+generated_role_rules:
+  rules:
+    - apiGroups: ["kustomize.toolkit.fluxcd.io"]
+      resources: ["gitrepositories"]
+      verbs: ["update", "watch"]

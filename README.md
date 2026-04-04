@@ -141,7 +141,7 @@ Currently the k8s cluster consists of single node (hostname anapistula-delrosala
 
 ## Software stack
 
-The cluster itself is based on [Talos Linux](https://www.talos.dev/) (which is also a Kubernetes distribution) and uses [Cilium](https://cilium.io/) as CNI, IPAM, kube-proxy replacement, Load Balancer, and BGP control plane. Persistent volumes are managed by [OpenEBS LVM LocalPV](https://openebs.io/docs/user-guides/local-storage-user-guide/local-pv-lvm/lvm-overview). Applications are deployed using GitOps (this repo) and reconciled on cluster using [Flux](https://fluxcd.io/). Git repository is hosted on [Gitea](https://gitea.io/) running on a cluster itself. Secets are kept in [OpenBao](https://openbao.org/) (HashiCorp Vault fork) running on a cluster and synced to cluster objects using [Vault Secrets Operator](https://github.com/hashicorp/vault-secrets-operator). Deployments are kept up to date using self hosted [Renovate](https://www.mend.io/renovate/) bot updating manifests in the Git repository. Incoming HTTP traffic is routed to cluster using [Nginx Ingress Controller](https://kubernetes.github.io/ingress-nginx/) and certificates are issued by [cert-manager](https://cert-manager.io/) with [Let's Encrypt](https://letsencrypt.org/) ACME issuer with [cert-manager-webhook-ovh](https://github.com/aureq/cert-manager-webhook-ovh) resolving DNS-01 challanges. Cluster also runs [CloudNativePG](https://cloudnative-pg.io/) operator for managing PostgreSQL databases. Router is running [Mikrotik RouterOS](https://help.mikrotik.com/docs/spaces/ROS/pages/328059/RouterOS) and its configuration is managed via [Ansible](https://docs.ansible.com/) playbook in this repo. High level core cluster software architecture is shown on the diagram below.
+The cluster itself is based on [Talos Linux](https://www.talos.dev/) (which is also a Kubernetes distribution) and uses [Cilium](https://cilium.io/) as CNI, IPAM, kube-proxy replacement, Load Balancer, and BGP control plane. Persistent volumes are managed by [OpenEBS LVM LocalPV](https://openebs.io/docs/user-guides/local-storage-user-guide/local-pv-lvm/lvm-overview). Applications are deployed using GitOps (this repo) and reconciled on cluster using [Flux](https://fluxcd.io/). Git repository is hosted on [Gitea](https://gitea.io/) running on a cluster itself. Secets are kept in [OpenBao](https://openbao.org/) (HashiCorp Vault fork) running on a cluster and synced to cluster objects using [Vault Secrets Operator](https://github.com/hashicorp/vault-secrets-operator). Deployments are kept up to date using self hosted [Renovate](https://www.mend.io/renovate/) bot updating manifests in the Git repository. There is a [Woodpecker](https://woodpecker-ci.org/) instance watching repositories on Gitea and scheduling jobs on cluster. Incoming HTTP traffic is routed to cluster using [Nginx Ingress Controller](https://kubernetes.github.io/ingress-nginx/) and certificates are issued by [cert-manager](https://cert-manager.io/) with [Let's Encrypt](https://letsencrypt.org/) ACME issuer with [cert-manager-webhook-ovh](https://github.com/aureq/cert-manager-webhook-ovh) resolving DNS-01 challanges. Cluster also runs [CloudNativePG](https://cloudnative-pg.io/) operator for managing PostgreSQL databases. Router is running [Mikrotik RouterOS](https://help.mikrotik.com/docs/spaces/ROS/pages/328059/RouterOS) and its configuration is managed via [Ansible](https://docs.ansible.com/) playbook in this repo. High level core cluster software architecture is shown on the diagram below.
 
 > Talos Linux is an immutable Linux distribution purpose-built for running Kubernetes. The OS is distributed as an OCI (Docker) image and does not contain any package manager, shell, SSH, or any other tools for managing the system. Instead, all operations are performed using API, which can be accessed using `talosctl` CLI tool.
 
@@ -177,13 +177,22 @@ flowchart TD
       vault_operator -- "Retrieves secrets" --> vault[OpenBao] -- "Secret storage" --> lv
       vault -- "Auth method" --> kubeapi
 
+      gitea -- "Receives events" --> woodpecker[Woodpecker CI] -- "Schedules jobs" --> kubeapi
+
       gitea -- "Stores repositories" --> lv
 
-      gitea --> renovate[Renovate Bot] -- "Updates manifests" --> gitea
-
+      gitea--> renovate[Renovate Bot] -- "Updates manifests" --> gitea
 
    end
 ```
+
+### Reconcilation paths of each component
+
+- Kubernetes manifests are reconciled using Flux triggerred by Woodpecker CI on push
+- RouterOS configs are applied by Ansible <!-- ran by Gitea Action on push -->
+- Talos configs are applied using makefile <!-- switch to ansible and trigger on action push -->
+- Vault policies are applied by running `synchronize-vault.py` <!-- triggerred by Gitea action on push -->
+<!-- - Docker images are built and pushed to registry by Gitea Actions on push -->
 
 <!-- TODO: Backups, monitoring, logging, deployment with ansible etc -->
 
@@ -228,6 +237,7 @@ flowchart TD
 |------|------|-------------|
 | <img src="docs/assets/devenv.svg" alt="devenv" height="50" width="50"> | devenv | Tool for declarative managment of development environment using Nix |
 | <img src="docs/assets/renovate.svg" alt="Renovate" height="50" width="50"> | Renovate | Bot for keeping dependencies up to date |
+| <img src="docs/assets/woodpecker.svg" alt="Woodpecker" height="50" width="50"> | Woodpecker CI | Continous Integration system |
 
 ### AI infrastructure
 

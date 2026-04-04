@@ -17,13 +17,6 @@ macros:
   thinking_on: "--chat-template-kwargs '{\"enable_thinking\": true}'"
   thinking_off: "--chat-template-kwargs '{\"enable_thinking\": false}'"
 
-peers:
-  openrouter:
-    proxy: https://openrouter.ai/api
-    apiKey: ${env.OPENROUTER_API_KEY}
-    models:
-      - z-ai/glm-5
-
 hooks:
   on_startup:
     preload:

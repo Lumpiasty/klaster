@@ -29,12 +29,6 @@ spec:
             - containerPort: 8080
               name: http
               protocol: TCP
-          env:
-            - name: OPENROUTER_API_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: llama-openrouter
-                  key: OPENROUTER_API_KEY
           volumeMounts:
             - name: models
               mountPath: /root/.cache

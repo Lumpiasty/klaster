@@ -73,6 +73,28 @@ def synchronize_approle_auth(client: hvac.Client):
         print('Enabling AppRole auth method')
         client.sys.enable_auth_method('approle', 'AppRole authorization for CI')
 
+    roles_dir = pathlib.Path(__file__).parent.joinpath('../vault/approles/')
+    roles: dict[str, Any] = {}
+
+    for filename in roles_dir.iterdir():
+        with filename.open('r') as f:
+            role = yaml.safe_load(f.read())
+            assert type(role) is dict
+            roles[filename.stem] = role
+
+    roles_on_vault: list[str] = []
+    roles_response = client.list("auth/approle/roles")
+    if roles_response is not None:
+        roles_on_vault = roles_response['data']['keys']
+
+    for role in roles_on_vault:
+        if role not in roles:
+            print(f'Deleting role: {role}')
+            client.delete(f'auth/approle/role/{role}')
+
+    for role_name, role_content in roles.items():
+        print(f'Updating role: {role_name}')
+        client.write_data(f'auth/approle/role/{role_name}', data=role_content)
 
 def synchronize_kubernetes_secretengine(client: hvac.Client):
     # Ensure kubernetes secret engine is enabled

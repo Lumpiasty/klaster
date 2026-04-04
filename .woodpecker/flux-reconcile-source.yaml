@@ -1,0 +1,49 @@
+when:
+  - event: push
+    branch: fresh-start
+
+skip_clone: true
+
+steps:
+  - name: Get kubernetes access from OpenBao
+    image: quay.io/openbao/openbao:2.5.2
+    environment:
+      VAULT_ADDR: https://openbao.lumpiasty.xyz:8200
+      ROLE_ID:
+        from_secret: flux_reconcile_role_id
+      SECRET_ID:
+        from_secret: flux_reconcile_secret_id
+    commands:
+      - bao write -field token auth/approle/login
+          role_id=$ROLE_ID
+          secret_id=$SECRET_ID > /woodpecker/.vault_id
+      - export VAULT_TOKEN=$(cat /woodpecker/.vault_id)
+      - bao write -format json -f /kubernetes/creds/flux-reconcile > /woodpecker/kube_credentials
+  - name: Construct Kubeconfig
+    image: alpine/k8s:1.32.13
+    environment:
+      KUBECONFIG: /woodpecker/kubeconfig
+    commands:
+      - kubectl config set-cluster cluster
+          --server=https://$KUBERNETES_SERVICE_HOST
+          --certificate-authority=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+      - kubectl config set-credentials cluster
+          --token=$(jq -r .data.service_account_token /woodpecker/kube_credentials)
+      - kubectl config set-context cluster
+          --cluster cluster
+          --user cluster
+          --namespace flux-system
+      - kubectl config use-context cluster
+  - name: Reconcile git source
+    image: ghcr.io/fluxcd/flux-cli:v2.8.3
+    environment:
+      KUBECONFIG: /woodpecker/kubeconfig
+    commands:
+      - flux reconcile source git flux-system
+  - name: Invalidate OpenBao token
+    image: quay.io/openbao/openbao:2.5.2
+    environment:
+      VAULT_ADDR: https://openbao.lumpiasty.xyz:8200
+    commands:
+      - export VAULT_TOKEN=$(cat /woodpecker/.vault_id)
+      - bao write -f auth/token/revoke-self

@@ -2,6 +2,8 @@
 
 This repo contains configuration and documentation for my homelab setup, which is based on Talos OS for Kubernetes cluster and MikroTik router.
 
+<img src="https://woodpecker.lumpiasty.xyz/api/badges/2/status.svg" alt="Pipeline status">
+
 ## Architecture
 
 Physical setup consists of MikroTik router which connects to the internet and serves as a gateway for the cluster and other devices in the home network as shown in the diagram below.

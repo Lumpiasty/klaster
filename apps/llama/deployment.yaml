@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: llama-swap
-          image: ghcr.io/mostlygeek/llama-swap:v199-vulkan-b8667
+          image: ghcr.io/mostlygeek/llama-swap:v199-vulkan-b8672
           imagePullPolicy: IfNotPresent
           command:
             - /app/llama-swap

@@ -45,6 +45,9 @@ spec:
         enabled: true
         existingClaim: openwebui-pipelines-lvmhdd
 
+    terminals:
+      enabled: true
+
     # SSO with Authentik
     extraEnvVars:
       - name: WEBUI_URL

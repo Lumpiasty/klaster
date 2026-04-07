@@ -1,0 +1,38 @@
+when:
+  - event: cron
+    cron: renovate # schedule on 0 2 * * *, set in ui
+
+skip_clone: true
+
+steps:
+  - name: Get renovate token from OpenBao
+    image: quay.io/openbao/openbao:2.5.2
+    environment:
+      VAULT_ADDR: https://openbao.lumpiasty.xyz:8200
+      ROLE_ID:
+        from_secret: renovate_role_id
+      SECRET_ID:
+        from_secret: renovate_secret_id
+    commands:
+      - bao write -field token auth/approle/login
+          role_id=$ROLE_ID
+          secret_id=$SECRET_ID > /woodpecker/.vault_id
+      - export VAULT_TOKEN=$(cat /woodpecker/.vault_id)
+      - bao kv get -mount secret -field RENOVATE_TOKEN renovate > /woodpecker/renovate_token
+  - name: Run Renovate
+    image: renovate/renovate:43.108.2-full
+    environment:
+      RENOVATE_AUTODISCOVER: "true"
+      RENOVATE_ENDPOINT: https://gitea.lumpiasty.xyz/api/v1
+      RENOVATE_PLATFORM: gitea
+      RENOVATE_GIT_AUTHOR: Renovate Bot <renovate@lumpiasty.xyz>
+    commands:
+      - export RENOVATE_TOKEN=$(cat /woodpecker/renovate_token)
+      - /usr/local/sbin/renovate-entrypoint.sh renovate
+  - name: Invalidate OpenBao token
+    image: quay.io/openbao/openbao:2.5.2
+    environment:
+      VAULT_ADDR: https://openbao.lumpiasty.xyz:8200
+    commands:
+      - export VAULT_TOKEN=$(cat /woodpecker/.vault_id)
+      - bao write -f auth/token/revoke-self

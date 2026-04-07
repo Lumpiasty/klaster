@@ -2,7 +2,7 @@
 
 This repo contains configuration and documentation for my homelab setup, which is based on Talos OS for Kubernetes cluster and MikroTik router.
 
-<img src="https://woodpecker.lumpiasty.xyz/api/badges/2/status.svg" alt="Pipeline status">
+[<img src="https://woodpecker.lumpiasty.xyz/api/badges/2/status.svg" alt="Pipeline status">](https://woodpecker.lumpiasty.xyz/repos/2)
 
 ## Architecture
 

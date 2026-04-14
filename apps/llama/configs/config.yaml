@@ -283,3 +283,10 @@ models:
         ${ctx_128k}
         ${gemma4_sampling}
         ${common_args}
+  "prism-ml/Bonsai-8B-gguf":
+    cmd: |
+      /app/llama-server
+        -hf prism-ml/Bonsai-8B-gguf
+        --temp 0.5 --top-p 0.9 --top-k 20 --min-p 0.00
+        --repeat-penalty 1.0 -ctk q8_0 -ctv q8_0
+        ${common_args}

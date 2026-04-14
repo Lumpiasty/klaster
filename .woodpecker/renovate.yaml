@@ -20,7 +20,7 @@ steps:
       - export VAULT_TOKEN=$(cat /woodpecker/.vault_id)
       - bao kv get -mount secret -field RENOVATE_TOKEN renovate > /woodpecker/renovate_token
   - name: Run Renovate
-    image: renovate/renovate:43.109.0-full
+    image: renovate/renovate:43.118.0-full
     environment:
       RENOVATE_AUTODISCOVER: "true"
       RENOVATE_ENDPOINT: https://gitea.lumpiasty.xyz/api/v1

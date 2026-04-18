@@ -1,0 +1,51 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: meridian
+  namespace: meridian
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: meridian
+  template:
+    metadata:
+      labels:
+        app: meridian
+    spec:
+      containers:
+        - name: meridian
+          image: ghcr.io/rynfar/meridian:1.29.1
+          ports:
+            - containerPort: 3456
+              name: http
+              protocol: TCP
+          volumeMounts:
+            - name: data
+              mountPath: /home/claude/
+          env:
+              # Default port, it has some issue if not set
+            - name: MERIDIAN_PORT
+              value: "3456"
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: meridian-data-lvmssd
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: meridian
+  namespace: meridian
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 3456
+      targetPort: 3456
+      protocol: TCP
+  selector:
+    app: meridian

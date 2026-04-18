@@ -15,7 +15,7 @@
     {
       "matchDatasources": ["docker"],
       "matchPackageNames": ["ghcr.io/mostlygeek/llama-swap"],
-      "versioning": "regex:^v(?<major>[0-9]+)-vulkan-b(?<patch>[0-9]+)$"
+      "versioning": "regex:^v(?<major>[0-9]+)-rocm-b(?<patch>[0-9]+)$"
     },
     {
       "matchUpdateTypes": ["patch"],

@@ -88,6 +88,16 @@ models:
         ${qwen35_35b_args}
         ${common_args}
 
+  "Qwen3.5-35B-A3B-GGUF-CPU:Q4_K_M":
+    cmd: |
+      /app/llama-server
+        -hf unsloth/Qwen3.5-35B-A3B-GGUF:Q4_K_M
+        ${ctx_256k}
+        ${qwen35_35b_args}
+        --threads 12
+        -ngl 0
+        ${common_args}
+
   "Qwen3.5-35B-A3B-GGUF-nothink:Q4_K_M":
     cmd: |
       /app/llama-server

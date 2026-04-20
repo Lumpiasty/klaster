@@ -20,7 +20,7 @@ steps:
       - export VAULT_TOKEN=$(cat /woodpecker/.vault_id)
       - bao write -format json -f /kubernetes/creds/flux-reconcile > /woodpecker/kube_credentials
   - name: Construct Kubeconfig
-    image: alpine/k8s:1.35.3
+    image: alpine/k8s:1.35.4
     environment:
       KUBECONFIG: /woodpecker/kubeconfig
     commands:

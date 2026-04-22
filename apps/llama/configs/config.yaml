@@ -8,15 +8,11 @@ macros:
   ctx_64k: "--ctx-size 65536"
   ctx_128k: "--ctx-size 131072"
   ctx_256k: "--ctx-size 262144"
-  gemma_sampling: "--prio 2 --temp 1.0 --repeat-penalty 1.0 --min-p 0.00 --top-k 64 --top-p 0.95"
-  qwen35_sampling: "--temp 0.6 --top-p 0.95 --top-k 20 --min-p 0.00 -ctk q8_0 -ctv q8_0"
-  qwen35_35b_args: "--temp 1.0 --min-p 0.00 --top-p 0.95 --top-k 20 -ctk q8_0 -ctv q8_0"
+  qwen35_think_args:   "--temp 1.0 --top-p 0.95 --top-k 20 --min-p 0.00 -ctk q4_0 -ctv q4_0 --presence_penalty 1.5 --reasoning on"
+  qwen35_nothink_args: "--temp 0.7 --top-p 0.80 --top-k 20 --min-p 0.00 -ctk q4_0 -ctv q4_0 --presence_penalty 1.5 --reasoning off"
   qwen35_35b_heretic_mmproj: "--mmproj-url https://huggingface.co/unsloth/Qwen3.5-35B-A3B-GGUF/resolve/main/mmproj-F16.gguf --mmproj /root/.cache/llama.cpp/unsloth_Qwen3.5-35B-A3B-GGUF_mmproj-F16.gguf"
   qwen35_4b_heretic_mmproj: "--mmproj-url https://huggingface.co/unsloth/Qwen3.5-4B-GGUF/resolve/main/mmproj-F16.gguf --mmproj /root/.cache/llama.cpp/unsloth_Qwen3.5-4B-GGUF_mmproj-F16.gguf"
-  glm47_flash_args: "--temp 0.7 --top-p 1.0 --min-p 0.01 --repeat-penalty 1.0"
-  gemma4_sampling: "--temp 1.0 --top-p 0.95 --top-k 64"
-  thinking_on: "--chat-template-kwargs '{\"enable_thinking\": true}'"
-  thinking_off: "--chat-template-kwargs '{\"enable_thinking\": false}'"
+  gemma4_sampling: "--temp 1.0 --top-p 0.95 --top-k 64 -ctk q4_0 -ctv q4_0"
 
 hooks:
   on_startup:
@@ -32,40 +28,6 @@ groups:
       - "Qwen3.5-0.8B-GGUF-nothink:Q4_K_XL"
 
 models:
-  "gemma3-12b":
-    cmd: |
-      /app/llama-server
-        -hf unsloth/gemma-3-12b-it-GGUF:Q4_K_M
-        ${ctx_128k}
-        ${gemma_sampling}
-        ${common_args}
-
-  "gemma3-12b-novision":
-    cmd: |
-      /app/llama-server
-        -hf unsloth/gemma-3-12b-it-GGUF:Q4_K_M
-        ${ctx_128k}
-        ${gemma_sampling}
-        --no-mmproj
-        ${common_args}
-
-  "gemma3-4b":
-    cmd: |
-      /app/llama-server
-        -hf unsloth/gemma-3-4b-it-GGUF:Q4_K_M
-        ${ctx_128k}
-        ${gemma_sampling}
-        ${common_args}
-
-  "gemma3-4b-novision":
-    cmd: |
-      /app/llama-server
-        -hf unsloth/gemma-3-4b-it-GGUF:Q4_K_M
-        ${ctx_128k}
-        ${gemma_sampling}
-        --no-mmproj
-        ${common_args}
-
   "Qwen3-Coder-Next-GGUF:Q4_K_M":
     cmd: |
       /app/llama-server
@@ -77,7 +39,7 @@ models:
         --top-p 0.95
         --top-k 40
         --repeat-penalty 1.0
-        -ctk q8_0 -ctv q8_0
+        -ctk q4_0 -ctv q4_0
         ${common_args}
 
   "Qwen3.5-35B-A3B-GGUF:Q4_K_M":
@@ -85,17 +47,7 @@ models:
       /app/llama-server
         -hf unsloth/Qwen3.5-35B-A3B-GGUF:Q4_K_M
         ${ctx_256k}
-        ${qwen35_35b_args}
-        ${common_args}
-
-  "Qwen3.5-35B-A3B-GGUF-CPU:Q4_K_M":
-    cmd: |
-      /app/llama-server
-        -hf unsloth/Qwen3.5-35B-A3B-GGUF:Q4_K_M
-        ${ctx_256k}
-        ${qwen35_35b_args}
-        --threads 12
-        -ngl 0
+        ${qwen35_think_args}
         ${common_args}
 
   "Qwen3.5-35B-A3B-GGUF-nothink:Q4_K_M":
@@ -103,9 +55,8 @@ models:
       /app/llama-server
         -hf unsloth/Qwen3.5-35B-A3B-GGUF:Q4_K_M
         ${ctx_256k}
-        ${qwen35_35b_args}
+        ${qwen35_nothink_args}
         ${common_args}
-        ${thinking_off}
 
   # The "heretic" version does not provide the mmproj
   # so providing url to the one from the non-heretic version.
@@ -115,7 +66,7 @@ models:
         -hf mradermacher/Qwen3.5-35B-A3B-heretic-GGUF:Q4_K_M
         ${qwen35_35b_heretic_mmproj}
         ${ctx_256k}
-        ${qwen35_35b_args}
+        ${qwen35_think_args}
         ${common_args}
 
   "Qwen3.5-35B-A3B-heretic-GGUF-nothink:Q4_K_M":
@@ -124,63 +75,32 @@ models:
         -hf mradermacher/Qwen3.5-35B-A3B-heretic-GGUF:Q4_K_M
         ${qwen35_35b_heretic_mmproj}
         ${ctx_256k}
-        ${qwen35_35b_args}
+        ${qwen35_nothink_args}
         ${common_args}
-        ${thinking_off}
-
-  "Qwen3.5-0.8B-GGUF:Q4_K_XL":
-    cmd: |
-      /app/llama-server
-        -hf unsloth/Qwen3.5-0.8B-GGUF:Q4_K_XL
-        ${ctx_256k}
-        ${qwen35_sampling}
-        ${base_args}
-        ${thinking_on}
 
   "Qwen3.5-0.8B-GGUF-nothink:Q4_K_XL":
     cmd: |
       /app/llama-server
         -hf unsloth/Qwen3.5-0.8B-GGUF:Q4_K_XL
         --ctx-size 4096
-        ${qwen35_sampling}
+        ${qwen35_nothink_args}
         ${base_args}
-        ${thinking_off}
-
-  "Qwen3.5-2B-GGUF:Q4_K_M":
-    cmd: |
-      /app/llama-server
-        -hf unsloth/Qwen3.5-2B-GGUF:Q4_K_M
-        ${ctx_256k}
-        ${qwen35_sampling}
-        ${common_args}
-        ${thinking_on}
-
-  "Qwen3.5-2B-GGUF-nothink:Q4_K_M":
-    cmd: |
-      /app/llama-server
-        -hf unsloth/Qwen3.5-2B-GGUF:Q4_K_M
-        ${ctx_256k}
-        ${qwen35_sampling}
-        ${common_args}
-        ${thinking_off}
 
   "Qwen3.5-4B-GGUF:Q4_K_M":
     cmd: |
       /app/llama-server
         -hf unsloth/Qwen3.5-4B-GGUF:Q4_K_M
         ${ctx_128k}
-        ${qwen35_sampling}
+        ${qwen35_think_args}
         ${common_args}
-        ${thinking_on}
 
   "Qwen3.5-4B-GGUF-nothink:Q4_K_M":
     cmd: |
       /app/llama-server
         -hf unsloth/Qwen3.5-4B-GGUF:Q4_K_M
         ${ctx_128k}
-        ${qwen35_sampling}
+        ${qwen35_nothink_args}
         ${common_args}
-        ${thinking_off}
 
   "Qwen3.5-4B-heretic-GGUF:Q4_K_M":
     cmd: |
@@ -188,9 +108,8 @@ models:
         -hf mradermacher/Qwen3.5-4B-heretic-GGUF:Q4_K_M
         ${qwen35_4b_heretic_mmproj}
         ${ctx_128k}
-        ${qwen35_sampling}
+        ${qwen35_think_args}
         ${common_args}
-        ${thinking_on}
 
   "Qwen3.5-4B-heretic-GGUF-nothink:Q4_K_M":
     cmd: |
@@ -198,69 +117,7 @@ models:
         -hf mradermacher/Qwen3.5-4B-heretic-GGUF:Q4_K_M
         ${qwen35_4b_heretic_mmproj}
         ${ctx_128k}
-        ${qwen35_sampling}
-        ${common_args}
-        ${thinking_off}
-
-  "Qwen3.5-9B-GGUF:Q4_K_M":
-    cmd: |
-      /app/llama-server
-        -hf unsloth/Qwen3.5-9B-GGUF:Q4_K_M
-        ${ctx_256k}
-        ${qwen35_sampling}
-        ${common_args}
-        ${thinking_on}
-
-  "Qwen3.5-9B-GGUF-nothink:Q4_K_M":
-    cmd: |
-      /app/llama-server
-        -hf unsloth/Qwen3.5-9B-GGUF:Q4_K_M
-        ${ctx_256k}
-        ${qwen35_sampling}
-        ${common_args}
-        ${thinking_off}
-
-  "Qwen3.5-9B-GGUF:Q3_K_M":
-    cmd: |
-      /app/llama-server
-        -hf unsloth/Qwen3.5-9B-GGUF:Q3_K_M
-        ${ctx_256k}
-        ${qwen35_sampling}
-        ${common_args}
-        ${thinking_on}
-
-  "Qwen3.5-9B-GGUF-nothink:Q3_K_M":
-    cmd: |
-      /app/llama-server
-        -hf unsloth/Qwen3.5-9B-GGUF:Q3_K_M
-        ${ctx_256k}
-        ${qwen35_sampling}
-        ${common_args}
-        ${thinking_off}
-
-  "Qwen3.5-27B-GGUF:Q3_K_M":
-    cmd: |
-      /app/llama-server
-        -hf unsloth/Qwen3.5-27B-GGUF:Q3_K_M
-        ${ctx_256k}
-        ${qwen35_sampling}
-        ${common_args}
-        ${thinking_on}
-
-  "Qwen3.5-27B-GGUF-nothink:Q3_K_M":
-    cmd: |
-      /app/llama-server
-        -hf unsloth/Qwen3.5-27B-GGUF:Q3_K_M
-        ${ctx_256k}
-        ${qwen35_sampling}
-        ${common_args}
-        ${thinking_off}
-
-  "GLM-4.7-Flash-GGUF:Q4_K_M":
-    cmd: |
-      /app/llama-server
-        -hf unsloth/GLM-4.7-Flash-GGUF:Q4_K_M
-        ${glm47_flash_args}
+        ${qwen35_nothink_args}
         ${common_args}
 
   "gemma-4-26B-A4B-it:UD-Q4_K_XL":
@@ -295,11 +152,18 @@ models:
         ${gemma4_sampling}
         ${common_args}
 
-  "prism-ml/Bonsai-8B-gguf":
+  "unsloth/Qwen3.6-35B-A3B-GGUF:UD-Q4_K_XL":
     cmd: |
       /app/llama-server
-        -hf prism-ml/Bonsai-8B-gguf
-        ${ctx_64k}
-        --temp 0.5 --top-p 0.9 --top-k 20 --min-p 0.00
-        --repeat-penalty 1.0 -ctk q8_0 -ctv q8_0
-        ${common_args}
+      -hf unsloth/Qwen3.6-35B-A3B-GGUF:UD-Q4_K_XL
+      ${ctx_256k}
+      ${qwen35_think_args}
+      ${common_args}
+
+  "unsloth/Qwen3.6-35B-A3B-GGUF-nothink:UD-Q4_K_XL":
+    cmd: |
+      /app/llama-server
+      -hf unsloth/Qwen3.6-35B-A3B-GGUF:UD-Q4_K_XL
+      ${ctx_256k}
+      ${qwen35_nothink_args}
+      ${common_args}

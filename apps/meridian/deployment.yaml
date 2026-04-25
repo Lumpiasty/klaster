@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: meridian
-          image: ghcr.io/rynfar/meridian:1.29.1
+          image: gitea.lumpiasty.xyz/lumpiasty/meridian:1.38.0
           ports:
             - containerPort: 3456
               name: http

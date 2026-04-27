@@ -18,7 +18,8 @@ spec:
     spec:
       containers:
         - name: meridian
-          image: gitea.lumpiasty.xyz/lumpiasty/meridian:1.38.0
+          image: gitea.lumpiasty.xyz/lumpiasty/meridian:oai-tools
+          imagePullPolicy: Always
           ports:
             - containerPort: 3456
               name: http

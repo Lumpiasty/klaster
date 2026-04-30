@@ -167,3 +167,19 @@ models:
       ${ctx_256k}
       ${qwen35_nothink_args}
       ${common_args}
+
+  "HauhauCS/Qwen3.6-35B-A3B-Uncensored-HauhauCS-Aggressive:Q4_K_M":
+    cmd: |
+      /app/llama-server
+      -hf HauhauCS/Qwen3.6-35B-A3B-Uncensored-HauhauCS-Aggressive:Q4_K_M
+      ${ctx_256k}
+      ${qwen35_think_args}
+      ${common_args}
+
+  "HauhauCS/Qwen3.6-35B-A3B-Uncensored-HauhauCS-Aggressive-nothink:Q4_K_M":
+    cmd: |
+      /app/llama-server
+      -hf HauhauCS/Qwen3.6-35B-A3B-Uncensored-HauhauCS-Aggressive:Q4_K_M
+      ${ctx_256k}
+      ${qwen35_nothink_args}
+      ${common_args}

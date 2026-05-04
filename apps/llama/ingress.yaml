@@ -9,6 +9,7 @@ metadata:
     acme.cert-manager.io/http01-edit-in-place: "true"
     nginx.ingress.kubernetes.io/proxy-buffering: "false"
     nginx.ingress.kubernetes.io/proxy-read-timeout: 30m
+    nginx.ingress.kubernetes.io/proxy-body-size: 8m
 spec:
   ingressClassName: nginx-ingress
   rules:

@@ -243,9 +243,11 @@ flowchart TD
 
 ### AI infrastructure
 
-| Logo | Name | Address | Description |
-|------|------|---------|-------------|
-| <img src="docs/assets/llama-cpp.svg" alt="LLaMA.cpp" height="50" width="50"> | LLaMA.cpp | https://llama.lumpiasty.xyz/ | LLM inference server running local models with GPU acceleration |
+| Logo | Name | Description |
+|------|------|-------------|
+| <img src="docs/assets/llama-cpp.svg" alt="LLaMA.cpp" height="50" width="50"> | LLaMA.cpp | LLM inference server running local models with GPU acceleration |
+| <img src="docs/assets/llama-swap.svg" alt="llama-swap" height="50" width="50"> | llama-swap | Model swapping for LLaMA.cpp |
+| <img src="docs/assets/meridian.svg" alt="meridian" height="50" width="50"> | Meridian | Proxy that bridges Anthropic's official SDK to third-party tools |
 
 ### Applications/Services
 

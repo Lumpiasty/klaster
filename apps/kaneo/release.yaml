@@ -55,6 +55,7 @@ spec:
     kaneo:
       env:
         clientUrl: "https://kaneo.lumpiasty.xyz"
+        disablePasswordRegistration: true
         database:
           external:
             enabled: true
@@ -75,3 +76,5 @@ spec:
             secretKeyRef:
               name: kaneo-authentik
               key: client_secret
+        - name: DISABLE_GUEST_ACCESS
+          value: "true"

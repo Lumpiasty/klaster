@@ -33,19 +33,17 @@ spec:
       enabled: true
       className: nginx-ingress
       annotations:
-        nginx.ingress.kubernetes.io/rewrite-target: /$1
+        # nginx.ingress.kubernetes.io/rewrite-target: /$1
         cert-manager.io/cluster-issuer: letsencrypt
       hosts:
         - host: kaneo.lumpiasty.xyz
           paths:
-            - path: /?(.*)
-              pathType: ImplementationSpecific
-              service: web
-              port: 80
-            - path: /api/?(.*)
-              pathType: ImplementationSpecific
-              service: api
-              port: 1337
+            # Docs at https://github.com/usekaneo/kaneo/blob/main/charts/kaneo/README.md
+            # they talk nonsense 
+            - path: /
+              pathType: Prefix
+              service: kaneo
+              port: 5173
       tls:
         - secretName: kaneo-ingress
           hosts:
@@ -56,6 +54,7 @@ spec:
     
     kaneo:
       env:
+        clientUrl: "https://kaneo.lumpiasty.xyz"
         database:
           external:
             enabled: true

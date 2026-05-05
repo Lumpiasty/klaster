@@ -1,0 +1,16 @@
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: kaneo-db
+  namespace: kaneo
+spec:
+  instances: 1
+
+  storage:
+    pvcTemplate:
+      storageClassName: ssd-lvmpv
+      resources:
+        requests:
+          storage: 10Gi
+      volumeName: kaneo-db-1

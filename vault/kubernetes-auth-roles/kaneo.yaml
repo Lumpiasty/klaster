@@ -1,0 +1,6 @@
+bound_service_account_names:
+  - kaneo-secret
+bound_service_account_namespaces:
+  - kaneo
+token_policies:
+  - kaneo

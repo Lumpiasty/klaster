@@ -41,16 +41,6 @@ in
     openbao
     pv-migrate
     mermaid-cli
-    (
-      # Wrapping opencode to set the OPENCODE_ENABLE_EXA environment variable
-      runCommand "opencode" {
-        buildInputs = [ makeWrapper ];
-      } ''
-        mkdir -p $out/bin
-        makeWrapper ${pkgs.opencode}/bin/opencode $out/bin/opencode \
-          --set OPENCODE_ENABLE_EXA "1"
-        ''
-    )
     tea
     woodpecker-cli
   ];

@@ -49,8 +49,8 @@ There are two playbooks:
 ### Step 1 — `dlink-init.yml` (once, PC directly connected)
 
 Run this while your PC is plugged into one of the dlink **LAN ports** with the
-device still on its factory IP (192.168.1.1). MikroTik must **not** be in the
-picture yet.
+device still on its factory IP (192.168.1.1) and your SSH key has been added in
+web ui. MikroTik must **not** be in the picture yet.
 
 What it does:
 - Reconfigures switch0 so the **WAN port** becomes a VLAN trunk:

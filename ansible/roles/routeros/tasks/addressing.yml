@@ -27,6 +27,9 @@
       - address: 192.168.5.1/24
         interface: vlan5
         network: 192.168.5.0
+      - address: 192.168.6.1/24
+        interface: vlan6
+        network: 192.168.6.0
     handle_absent_entries: remove
     handle_entries_content: remove_as_much_as_possible
 
@@ -48,5 +51,8 @@
       - address: ::ffff:ffff:ffff:ffff/64
         from-pool: pool1
         interface: vlan5
+      - address: 2001:470:61a3:600::1/64
+        advertise: false
+        interface: vlan6
     handle_absent_entries: remove
     handle_entries_content: remove_as_much_as_possible

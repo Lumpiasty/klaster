@@ -17,6 +17,13 @@
   vars:
     ansible_host: "192.168.1.1"
     ansible_user: root
+    # Role defaults are not loaded when importing role task files directly.
+    # These must mirror roles/openwrt/defaults/main.yml.
+    openwrt_mgmt_ip: 192.168.255.11
+    openwrt_mgmt_prefix: 24
+    openwrt_mgmt_gateway: 192.168.255.10
+    openwrt_dns_servers:
+      - 192.168.0.1
 
   tasks:
     - name: Verify connectivity

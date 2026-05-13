@@ -60,6 +60,11 @@
         out-interface-list: wan
       - action: accept
         chain: forward
+        comment: Allow from OPENWRT UPLINK to internet only
+        in-interface: vlan6
+        out-interface-list: wan
+      - action: accept
+        chain: forward
         comment: Allow from dockers to everywhere
         in-interface: dockers
       - action: jump
@@ -151,6 +156,17 @@
         chain: input
         dst-port: 53
         in-interface: vlan5
+        protocol: tcp
+      - action: accept
+        chain: input
+        comment: Allow DNS from OPENWRT UPLINK
+        dst-port: 53
+        in-interface: vlan6
+        protocol: udp
+      - action: accept
+        chain: input
+        dst-port: 53
+        in-interface: vlan6
         protocol: tcp
       - action: accept
         chain: input
@@ -391,6 +407,11 @@
         out-interface-list: wan
       - action: accept
         chain: forward
+        comment: Allow from OPENWRT UPLINK to internet only
+        in-interface: vlan6
+        out-interface-list: wan
+      - action: accept
+        chain: forward
         comment: Allow from dockers to everywhere
         in-interface: dockers
       - action: accept
@@ -476,6 +497,17 @@
         chain: input
         dst-port: 53
         in-interface: vlan5
+        protocol: tcp
+      - action: accept
+        chain: input
+        comment: Allow DNS from OPENWRT UPLINK
+        dst-port: 53
+        in-interface: vlan6
+        protocol: udp
+      - action: accept
+        chain: input
+        dst-port: 53
+        in-interface: vlan6
         protocol: tcp
       - action: accept
         chain: input

@@ -29,6 +29,10 @@
         comment: IOT
         interface: bridge1
         vlan-id: 5
+      - name: vlan6
+        comment: OPENWRT UPLINK
+        interface: bridge1
+        vlan-id: 6
     handle_absent_entries: remove
     handle_entries_content: remove_as_much_as_possible
 
@@ -97,6 +101,9 @@
       - bridge: bridge1
         tagged: bridge1,ether3
         vlan-ids: 5
+      - bridge: bridge1
+        tagged: bridge1,ether3
+        vlan-ids: 6
       - bridge: bridge1
         tagged: sfp-sfpplus2
         untagged: ether10

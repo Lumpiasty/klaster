@@ -1,19 +1,24 @@
 ---
-# This device is a pure AP — no routing, no NAT, no internet-facing interface.
+# This device is a pure AP — no routing, no NAT.
 #
 # Zones:
-#   mgmt  — management interface (192.168.255.11)
-#           input: ACCEPT  (SSH, ping reachable from MGMT network)
-#           forward: REJECT (nothing routes through mgmt)
+#   mgmt   — management interface (192.168.255.11)
+#            input: ACCEPT  (SSH, ping reachable from MGMT network)
+#            forward: REJECT (nothing routes through mgmt)
 #
-#   lan   — client bridge (eth0.2, LAN ports)
-#           input: REJECT  (clients cannot SSH into the AP itself)
-#           forward: ACCEPT (traffic passes through to MikroTik for firewalling)
+#   lan    — client bridge (eth0.2, LAN ports)
+#            input: REJECT  (clients cannot SSH into the AP itself)
+#            forward: ACCEPT (traffic passes through to MikroTik for firewalling)
 #
-#   iot   — IoT bridge (eth0.5, wifi only)
-#           input: REJECT  (IoT devices cannot reach the AP itself)
-#           forward: ACCEPT (traffic passes through to MikroTik, which allows
-#                            internet only and blocks all internal networks)
+#   iot    — IoT bridge (eth0.5, wifi only)
+#            input: REJECT  (IoT devices cannot reach the AP itself)
+#            forward: ACCEPT (traffic passes through to MikroTik, which allows
+#                             internet only and blocks all internal networks)
+#
+#   uplink — internet uplink via MikroTik vlan6 (192.168.6.2/24)
+#            input: REJECT  (no inbound connections from internet side)
+#            output: ACCEPT (AP itself initiates outbound — opkg, NTP, etc.)
+#            forward: REJECT (AP does not route client traffic through uplink)
 #
 # No forwarding rules between zones — all inter-zone policy is on MikroTik.
 
@@ -52,10 +57,17 @@
         option output 'ACCEPT'
         option forward 'ACCEPT'
 
+      config zone
+        option name 'uplink'
+        list network 'uplink'
+        option input 'REJECT'
+        option output 'ACCEPT'
+        option forward 'REJECT'
+
       config rule
-        option name 'Allow-ICMP-mgmt'
-        option src 'mgmt'
-        option proto 'icmp'
+        option name 'Allow-ICMPv6-uplink'
+        option src 'uplink'
+        option proto 'icmpv6'
         option target 'ACCEPT'
 
   notify: Reload firewall

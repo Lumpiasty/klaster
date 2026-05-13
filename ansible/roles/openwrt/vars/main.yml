@@ -1,0 +1,9 @@
+---
+# Secret references only; actual values are loaded from OpenBao/Vault at runtime.
+
+openbao_kv_mount: secret
+
+openbao_fields:
+  iot_wifi:
+    path: openwrt_iot_wifi
+    password_key: password

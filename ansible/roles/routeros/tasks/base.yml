@@ -8,7 +8,6 @@
       - name: dockers
     handle_absent_entries: remove
     handle_entries_content: remove_as_much_as_possible
-    ensure_order: true
 
 - name: Configure VLAN interfaces
   community.routeros.api_modify:
@@ -26,9 +25,12 @@
         comment: SERVER LAN
         interface: bridge1
         vlan-id: 4
+      - name: vlan5
+        comment: IOT
+        interface: bridge1
+        vlan-id: 5
     handle_absent_entries: remove
     handle_entries_content: remove_as_much_as_possible
-    ensure_order: true
 
 - name: Configure interface lists
   community.routeros.api_modify:
@@ -38,7 +40,6 @@
         comment: contains interfaces facing internet
     handle_absent_entries: remove
     handle_entries_content: remove_as_much_as_possible
-    ensure_order: true
 
 - name: Configure interface list members
   community.routeros.api_modify:
@@ -52,7 +53,6 @@
         list: wan
     handle_absent_entries: remove
     handle_entries_content: remove_as_much_as_possible
-    ensure_order: true
 
 - name: Configure bridge ports
   community.routeros.api_modify:
@@ -85,7 +85,6 @@
         interface: ether11
     handle_absent_entries: remove
     handle_entries_content: remove_as_much_as_possible
-    ensure_order: true
 
 - name: Configure bridge VLAN membership
   community.routeros.api_modify:
@@ -96,6 +95,9 @@
         untagged: ether1,ether2,ether9
         vlan-ids: 2
       - bridge: bridge1
+        tagged: bridge1,ether3
+        vlan-ids: 5
+      - bridge: bridge1
         tagged: sfp-sfpplus2
         untagged: ether10
         vlan-ids: 3
@@ -104,7 +106,6 @@
         vlan-ids: 4
     handle_absent_entries: remove
     handle_entries_content: remove_as_much_as_possible
-    ensure_order: true
 
 - name: Configure IPv4 pools
   community.routeros.api_modify:
@@ -116,9 +117,11 @@
       - name: dhcp_pool1
         ranges: 192.168.255.1-192.168.255.9,192.168.255.11-192.168.255.254
         comment: MGMT DHCP pool
+      - name: dhcp_pool2
+        ranges: 192.168.5.50-192.168.5.250
+        comment: IOT DHCP pool
     handle_absent_entries: remove
     handle_entries_content: remove_as_much_as_possible
-    ensure_order: true
 
 - name: Configure DHCP servers
   community.routeros.api_modify:
@@ -134,9 +137,13 @@
         interface: bridge1
         lease-time: 30m
         comment: MGMT
+      - name: dhcp3
+        address-pool: dhcp_pool2
+        interface: vlan5
+        lease-time: 30m
+        comment: IOT
     handle_absent_entries: remove
     handle_entries_content: remove_as_much_as_possible
-    ensure_order: true
 
 - name: Configure DHCP networks
   community.routeros.api_modify:
@@ -148,9 +155,11 @@
       - address: 192.168.255.0/24
         dns-none: true
         gateway: 192.168.255.10
+      - address: 192.168.5.0/24
+        dns-server: 192.168.5.1
+        gateway: 192.168.5.1
     handle_absent_entries: remove
     handle_entries_content: remove_as_much_as_possible
-    ensure_order: true
 
 # TODO: IPv6 pools are useful when we have dynamic prefix, but we don't
 # We can remove it now
@@ -163,7 +172,6 @@
         prefix-length: 64
     handle_absent_entries: remove
     handle_entries_content: remove_as_much_as_possible
-    ensure_order: true
 
 - name: Configure DNS
   community.routeros.api_find_and_modify:
@@ -195,7 +203,6 @@
         type: internal
     handle_absent_entries: remove
     handle_entries_content: remove_as_much_as_possible
-    ensure_order: true
 
 - name: Configure UPnP global settings
   community.routeros.api_find_and_modify:
@@ -217,7 +224,6 @@
         type: internal
     handle_absent_entries: remove
     handle_entries_content: remove_as_much_as_possible
-    ensure_order: true
 
 - name: Configure IPv6 ND defaults
   community.routeros.api_find_and_modify:

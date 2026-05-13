@@ -55,6 +55,11 @@
         out-interface: vlan3
       - action: accept
         chain: forward
+        comment: Allow from IOT to internet only
+        in-interface: vlan5
+        out-interface-list: wan
+      - action: accept
+        chain: forward
         comment: Allow from dockers to everywhere
         in-interface: dockers
       - action: jump
@@ -135,6 +140,17 @@
         chain: input
         dst-port: 53
         in-interface: dockers
+        protocol: tcp
+      - action: accept
+        chain: input
+        comment: Allow DNS from IOT
+        dst-port: 53
+        in-interface: vlan5
+        protocol: udp
+      - action: accept
+        chain: input
+        dst-port: 53
+        in-interface: vlan5
         protocol: tcp
       - action: accept
         chain: input
@@ -370,6 +386,11 @@
         out-interface: vlan3
       - action: accept
         chain: forward
+        comment: Allow from IOT to internet only
+        in-interface: vlan5
+        out-interface-list: wan
+      - action: accept
+        chain: forward
         comment: Allow from dockers to everywhere
         in-interface: dockers
       - action: accept
@@ -444,6 +465,17 @@
         chain: input
         dst-port: 53
         in-interface: dockers
+        protocol: tcp
+      - action: accept
+        chain: input
+        comment: Allow DNS from IOT
+        dst-port: 53
+        in-interface: vlan5
+        protocol: udp
+      - action: accept
+        chain: input
+        dst-port: 53
+        in-interface: vlan5
         protocol: tcp
       - action: accept
         chain: input

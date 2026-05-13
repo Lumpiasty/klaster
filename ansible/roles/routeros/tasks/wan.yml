@@ -12,7 +12,6 @@
         user: "{{ routeros_pppoe_username }}"
     handle_absent_entries: remove
     handle_entries_content: remove_as_much_as_possible
-    ensure_order: true
 
 - name: Configure 6to4 tunnel interface
   community.routeros.api_modify:
@@ -25,7 +24,6 @@
         remote-address: 216.66.80.162
     handle_absent_entries: remove
     handle_entries_content: remove_as_much_as_possible
-    ensure_order: true
 
 - name: Configure veth interface for containers
   community.routeros.api_modify:
@@ -41,4 +39,3 @@
         comment: Tailscale container
     handle_absent_entries: remove
     handle_entries_content: remove_as_much_as_possible
-    ensure_order: true

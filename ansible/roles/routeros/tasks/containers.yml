@@ -29,7 +29,6 @@
         value: y
     handle_absent_entries: remove
     handle_entries_content: remove_as_much_as_possible
-    ensure_order: true
 
 - name: Configure container mounts
   community.routeros.api_modify:
@@ -43,7 +42,6 @@
         src: /tmp1/tailscale-root
     handle_absent_entries: remove
     handle_entries_content: remove_as_much_as_possible
-    ensure_order: true
 
 - name: Configure tailscale container
   community.routeros.api_modify:
@@ -63,4 +61,3 @@
         workdir: /
     handle_absent_entries: remove
     handle_entries_content: remove_as_much_as_possible
-    ensure_order: true

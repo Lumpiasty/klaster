@@ -6,13 +6,16 @@
 #           input: ACCEPT  (SSH, ping reachable from MGMT network)
 #           forward: REJECT (nothing routes through mgmt)
 #
-#   lan   — client bridge (eth0.2, wireless clients)
+#   lan   — client bridge (eth0.2, LAN ports)
 #           input: REJECT  (clients cannot SSH into the AP itself)
-#           forward: ACCEPT (client traffic passes through to MikroTik,
-#                            which does all actual firewalling)
+#           forward: ACCEPT (traffic passes through to MikroTik for firewalling)
 #
-# No forwarding rules between zones — traffic in/out of each zone goes
-# directly to/from MikroTik over the trunk, not through this device.
+#   iot   — IoT bridge (eth0.5, wifi only)
+#           input: REJECT  (IoT devices cannot reach the AP itself)
+#           forward: ACCEPT (traffic passes through to MikroTik, which allows
+#                            internet only and blocks all internal networks)
+#
+# No forwarding rules between zones — all inter-zone policy is on MikroTik.
 
 - name: Configure firewall
   community.openwrt.uci:
@@ -38,6 +41,13 @@
       config zone
         option name 'lan'
         list network 'lan'
+        option input 'REJECT'
+        option output 'ACCEPT'
+        option forward 'ACCEPT'
+
+      config zone
+        option name 'iot'
+        list network 'iot'
         option input 'REJECT'
         option output 'ACCEPT'
         option forward 'ACCEPT'

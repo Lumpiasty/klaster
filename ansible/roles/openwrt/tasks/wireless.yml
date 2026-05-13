@@ -1,0 +1,44 @@
+---
+- name: Load IoT WiFi password from OpenBao
+  ansible.builtin.set_fact:
+    openwrt_iot_wifi_password: >-
+      {{
+        lookup(
+          'community.hashi_vault.vault_kv2_get',
+          openbao_fields.iot_wifi.path,
+          engine_mount_point=openbao_kv_mount
+        ).secret[openbao_fields.iot_wifi.password_key]
+      }}
+  no_log: true
+
+- name: Configure IoT WiFi interface (szafa, WPA2, network iot)
+  community.openwrt.uci:
+    command: section
+    config: wireless
+    type: wifi-iface
+    name: iot_radio0
+    find:
+      device: radio0
+      ssid: szafa
+    value:
+      device: radio0
+      network: iot
+      mode: ap
+      ssid: szafa
+      encryption: psk2
+      key: "{{ openwrt_iot_wifi_password }}"
+      disabled: '0'
+    replace: true
+  notify: Reload wireless
+
+- name: Enable radio0
+  community.openwrt.uci:
+    command: set
+    key: wireless.radio0.disabled
+    value: '0'
+  notify: Reload wireless
+
+- name: Commit wireless config
+  community.openwrt.uci:
+    command: commit
+    key: wireless

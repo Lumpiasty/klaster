@@ -24,9 +24,11 @@
       - address: 192.168.3.1/24
         interface: vlan3
         network: 192.168.3.0
+      - address: 192.168.5.1/24
+        interface: vlan5
+        network: 192.168.5.0
     handle_absent_entries: remove
     handle_entries_content: remove_as_much_as_possible
-    ensure_order: true
 
 - name: Configure IPv6 addresses
   community.routeros.api_modify:
@@ -43,6 +45,8 @@
       - address: 2001:470:61a3:100::1/64
         advertise: false
         interface: vlan4
+      - address: ::ffff:ffff:ffff:ffff/64
+        from-pool: pool1
+        interface: vlan5
     handle_absent_entries: remove
     handle_entries_content: remove_as_much_as_possible
-    ensure_order: true

@@ -1,0 +1,14 @@
+---
+- name: Reload network
+  community.openwrt.nohup:
+    command: /etc/init.d/network reload
+  ignore_unreachable: true
+
+- name: Reload firewall
+  community.openwrt.service:
+    name: firewall
+    state: restarted
+
+- name: Reload wireless
+  community.openwrt.command:
+    cmd: wifi reload

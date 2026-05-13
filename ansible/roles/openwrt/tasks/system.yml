@@ -1,0 +1,30 @@
+---
+- name: Set hostname
+  community.openwrt.uci:
+    command: set
+    key: system.@system[0].hostname
+    value: "{{ openwrt_hostname }}"
+
+- name: Set timezone
+  community.openwrt.uci:
+    command: set
+    key: system.@system[0].timezone
+    value: "{{ openwrt_timezone }}"
+
+- name: Configure NTP servers
+  community.openwrt.uci:
+    command: set
+    key: system.ntp.server
+    value: "{{ openwrt_ntp_servers }}"
+
+- name: Commit system config
+  community.openwrt.uci:
+    command: commit
+    key: system
+
+- name: Set SSH authorized keys
+  community.openwrt.uci:
+    command: set
+    key: "dropbear.@dropbear[0].authorized_keys"
+    value: "{{ openwrt_ssh_authorized_keys | join('\n') }}"
+  when: openwrt_ssh_authorized_keys | length > 0

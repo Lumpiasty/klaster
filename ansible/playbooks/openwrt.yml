@@ -1,0 +1,10 @@
+---
+# Main OpenWrt playbook. Connects to dlink on its permanent management IP
+# (192.168.255.11 via MikroTik ether3). Run dlink-init.yml first if the
+# device has not been initialised yet.
+- name: Configure OpenWrt
+  hosts: openwrt
+  gather_facts: false
+
+  roles:
+    - role: openwrt

@@ -1,0 +1,51 @@
+---
+# This device is a pure AP — no routing, no NAT, no internet-facing interface.
+#
+# Zones:
+#   mgmt  — management interface (192.168.255.11)
+#           input: ACCEPT  (SSH, ping reachable from MGMT network)
+#           forward: REJECT (nothing routes through mgmt)
+#
+#   lan   — client bridge (eth0.2, wireless clients)
+#           input: REJECT  (clients cannot SSH into the AP itself)
+#           forward: ACCEPT (client traffic passes through to MikroTik,
+#                            which does all actual firewalling)
+#
+# No forwarding rules between zones — traffic in/out of each zone goes
+# directly to/from MikroTik over the trunk, not through this device.
+
+- name: Configure firewall
+  community.openwrt.uci:
+    command: import
+    merge: false
+    config: firewall
+    value: |
+      package firewall
+
+      config defaults
+        option syn_flood '1'
+        option input 'REJECT'
+        option output 'ACCEPT'
+        option forward 'REJECT'
+
+      config zone
+        option name 'mgmt'
+        list network 'mgmt'
+        option input 'ACCEPT'
+        option output 'ACCEPT'
+        option forward 'REJECT'
+
+      config zone
+        option name 'lan'
+        list network 'lan'
+        option input 'REJECT'
+        option output 'ACCEPT'
+        option forward 'ACCEPT'
+
+      config rule
+        option name 'Allow-ICMP-mgmt'
+        option src 'mgmt'
+        option proto 'icmp'
+        option target 'ACCEPT'
+
+  notify: Reload firewall

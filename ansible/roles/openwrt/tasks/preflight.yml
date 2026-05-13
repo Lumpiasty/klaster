@@ -1,0 +1,11 @@
+---
+- name: Verify connectivity to OpenWrt device
+  community.openwrt.ping:
+
+- name: Gather OpenWrt facts
+  community.openwrt.setup:
+  register: openwrt_facts
+
+- name: Show device info
+  ansible.builtin.debug:
+    msg: "Managing {{ inventory_hostname }} ({{ openwrt_facts.ansible_facts.ansible_system | default('OpenWrt') }})"

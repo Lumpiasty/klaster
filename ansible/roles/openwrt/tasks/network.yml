@@ -1,0 +1,88 @@
+---
+# Network layout:
+#   MikroTik ether3 ↔ dlink WAN port (switch0 port4)
+#   MikroTik sends MGMT traffic untagged, vlan2 (LAN) and vlan5 (IOT) tagged.
+#
+#   switch0 VLAN table:
+#     VLAN 1 (MGMT): CPU(6) tagged, WAN(4) untagged                        → eth0.1 → mgmt
+#     VLAN 2 (LAN):  CPU(6) tagged, WAN(4) tagged, LAN1-4(0-3) untagged    → eth0.2 → br-lan → lan
+#     VLAN 5 (IOT):  CPU(6) tagged, WAN(4) tagged                          → eth0.5 → br-iot → iot
+#
+#   Interfaces:
+#     mgmt  — static 192.168.255.11/24 on eth0.1, management
+#     lan   — bridge (br-lan) on eth0.2, LAN clients via LAN ports
+#     iot   — bridge (br-iot) on eth0.5, IoT clients via wifi only
+
+- name: Configure network
+  community.openwrt.uci:
+    command: import
+    merge: false
+    config: network
+    value: |
+      package network
+
+      config interface 'loopback'
+        option device 'lo'
+        option proto 'static'
+        list ipaddr '127.0.0.1/8'
+
+      config globals 'globals'
+        option ula_prefix 'fd4d:508e:899a::/48'
+
+      config switch
+        option name 'switch0'
+        option reset '1'
+        option enable_vlan '1'
+
+      config switch_vlan
+        option device 'switch0'
+        option vlan '1'
+        option vid '1'
+        option description 'mgmt'
+        option ports '4 6t'
+
+      config switch_vlan
+        option device 'switch0'
+        option vlan '2'
+        option vid '2'
+        option description 'lan'
+        option ports '0 1 2 3 4t 6t'
+
+      config switch_vlan
+        option device 'switch0'
+        option vlan '5'
+        option vid '5'
+        option description 'iot'
+        option ports '4t 6t'
+
+      config device
+        option name 'br-lan'
+        option type 'bridge'
+        list ports 'eth0.2'
+
+      config interface 'mgmt'
+        option device 'eth0.1'
+        option proto 'static'
+        option ipaddr '{{ openwrt_mgmt_ip }}/{{ openwrt_mgmt_prefix }}'
+        option gateway '{{ openwrt_mgmt_gateway }}'
+        option dns '{{ openwrt_dns_servers | join(" ") }}'
+
+      config interface 'lan'
+        option device 'br-lan'
+        option proto 'none'
+
+      config device
+        option name 'br-iot'
+        option type 'bridge'
+        list ports 'eth0.5'
+
+      config interface 'iot'
+        option device 'br-iot'
+        option proto 'none'
+
+  notify: Reload network
+
+- name: Commit network config
+  community.openwrt.uci:
+    command: commit
+    key: network

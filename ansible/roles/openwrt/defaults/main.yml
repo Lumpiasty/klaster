@@ -1,0 +1,27 @@
+---
+# Hostname for the AP
+openwrt_hostname: dlink
+
+# Timezone (POSIX TZ string used by OpenWrt)
+openwrt_timezone: CET-1CEST,M3.5.0,M10.5.0/3
+
+# Management interface and IP (statically assigned on VLAN 1 / eth0.1)
+openwrt_mgmt_ip: 192.168.255.11
+openwrt_mgmt_prefix: 24
+openwrt_mgmt_gateway: 192.168.255.10
+
+# DNS servers for the AP itself
+openwrt_dns_servers:
+  - 192.168.0.1
+
+# SSH authorised keys (list of public key strings)
+openwrt_ssh_authorized_keys: []
+
+# NTP servers
+openwrt_ntp_servers:
+  - 0.pl.pool.ntp.org
+  - 1.pl.pool.ntp.org
+
+# Packages to install
+openwrt_packages: []
+

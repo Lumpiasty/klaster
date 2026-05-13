@@ -3,3 +3,5 @@ collections:
     version: ">=3.16.0"
   - name: community.hashi_vault
     version: ">=7.1.0"
+  - name: community.openwrt
+    version: ">=1.0.0"

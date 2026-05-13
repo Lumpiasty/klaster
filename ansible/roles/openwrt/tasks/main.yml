@@ -1,0 +1,19 @@
+---
+- name: Preflight — verify connectivity
+  ansible.builtin.import_tasks: preflight.yml
+
+- name: System configuration
+  ansible.builtin.import_tasks: system.yml
+
+- name: Network configuration
+  ansible.builtin.import_tasks: network.yml
+
+- name: Firewall configuration
+  ansible.builtin.import_tasks: firewall.yml
+
+- name: Wireless configuration
+  ansible.builtin.import_tasks: wireless.yml
+
+- name: Package management
+  ansible.builtin.import_tasks: packages.yml
+  when: openwrt_packages | length > 0

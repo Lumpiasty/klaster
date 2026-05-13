@@ -4,10 +4,8 @@
 # Run this while your PC is directly connected to a dlink LAN port
 # (factory IP 192.168.1.1, no MikroTik in the picture yet).
 #
-# What it does:
-#   - Replaces the entire network config (switch VLANs, devices, interfaces)
-#   - Replaces the entire firewall config (mgmt/lan zones, no WAN)
-#   - Reloads network and firewall in the background
+# Applies the same network and firewall config as the main openwrt role,
+# then reloads network in the background. Skips wireless (requires Vault).
 #
 # After this playbook finishes the device is no longer reachable at 192.168.1.1.
 # Plug the WAN port into MikroTik ether3 and use playbooks/openwrt.yml for all
@@ -24,100 +22,15 @@
     - name: Verify connectivity
       community.openwrt.ping:
 
-    - name: Configure network (switch VLANs, devices, interfaces)
-      community.openwrt.uci:
-        command: import
-        merge: false
-        config: network
-        value: |
-          package network
+    # import_tasks (static) is used instead of include_tasks (dynamic) so that
+    # handler names referenced via notify in the imported files are silently
+    # ignored rather than causing an error — no handlers are defined in this
+    # play, and the explicit nohup reload below replaces them for the init case.
+    - name: Network configuration
+      ansible.builtin.import_tasks: ../roles/openwrt/tasks/network.yml
 
-          config interface 'loopback'
-            option device 'lo'
-            option proto 'static'
-            list ipaddr '127.0.0.1/8'
-
-          config globals 'globals'
-            option ula_prefix 'fd4d:508e:899a::/48'
-
-          config switch
-            option name 'switch0'
-            option reset '1'
-            option enable_vlan '1'
-
-          config switch_vlan
-            option device 'switch0'
-            option vlan '1'
-            option vid '1'
-            option description 'mgmt'
-            option ports '4 6t'
-
-          config switch_vlan
-            option device 'switch0'
-            option vlan '2'
-            option vid '2'
-            option description 'lan'
-            option ports '0 1 2 3 4t 6t'
-
-          config device
-            option name 'br-lan'
-            option type 'bridge'
-            list ports 'eth0.2'
-
-          config interface 'mgmt'
-            option device 'eth0.1'
-            option proto 'static'
-            option ipaddr '192.168.255.11/24'
-            option gateway '192.168.255.10'
-            option dns '192.168.0.1'
-
-          config interface 'lan'
-            option device 'br-lan'
-            option proto 'none'
-
-    - name: Commit network config
-      community.openwrt.uci:
-        command: commit
-        key: network
-
-    - name: Configure firewall (mgmt/lan zones, no WAN)
-      community.openwrt.uci:
-        command: import
-        merge: false
-        config: firewall
-        value: |
-          package firewall
-
-          config defaults
-            option syn_flood '1'
-            option input 'REJECT'
-            option output 'ACCEPT'
-            option forward 'REJECT'
-
-          config zone
-            option name 'mgmt'
-            list network 'mgmt'
-            option input 'ACCEPT'
-            option output 'ACCEPT'
-            option forward 'REJECT'
-
-          config zone
-            option name 'lan'
-            list network 'lan'
-            option input 'REJECT'
-            option output 'ACCEPT'
-            option forward 'ACCEPT'
-
-          config rule
-            option name 'Allow-ICMP-mgmt'
-            option src 'mgmt'
-            option proto 'icmp'
-            option target 'ACCEPT'
-
-    - name: Commit firewall config
-      community.openwrt.uci:
-        command: commit
-        key: firewall
+    - name: Firewall configuration
+      ansible.builtin.import_tasks: ../roles/openwrt/tasks/firewall.yml
 
     - name: Reload network in background (device will drop off 192.168.1.1)
       community.openwrt.nohup:

@@ -13,6 +13,9 @@
     - default_name: ether2
       config:
         comment: Wifi środek
+    - default_name: ether3
+      config:
+        comment: OpenWrt AP (dlink)
     - default_name: ether8
       config:
         comment: Serwer

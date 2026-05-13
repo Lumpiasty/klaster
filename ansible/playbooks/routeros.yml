@@ -4,9 +4,6 @@
   gather_facts: false
   connection: local
 
-  vars_files:
-    - ../vars/routeros-secrets.yml
-
   pre_tasks:
     - name: Load router secrets from OpenBao
       ansible.builtin.set_fact:
@@ -63,30 +60,5 @@
       force_no_cert: true
       encoding: UTF-8
 
-  tasks:
-    - name: Preflight checks
-      ansible.builtin.import_tasks: ../tasks/preflight.yml
-
-    - name: Base network configuration
-      ansible.builtin.import_tasks: ../tasks/base.yml
-
-    - name: WAN and tunnel interfaces
-      ansible.builtin.import_tasks: ../tasks/wan.yml
-
-    - name: Hardware and platform tuning
-      ansible.builtin.import_tasks: ../tasks/hardware.yml
-
-    - name: RouterOS container configuration
-      ansible.builtin.import_tasks: ../tasks/containers.yml
-
-    - name: Addressing configuration
-      ansible.builtin.import_tasks: ../tasks/addressing.yml
-
-    - name: Firewall configuration
-      ansible.builtin.import_tasks: ../tasks/firewall.yml
-
-    - name: Routing configuration
-      ansible.builtin.import_tasks: ../tasks/routing.yml
-
-    - name: System configuration
-      ansible.builtin.import_tasks: ../tasks/system.yml
+  roles:
+    - role: routeros

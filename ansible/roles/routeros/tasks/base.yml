@@ -68,6 +68,9 @@
         interface: ether2
         pvid: 2
       - bridge: bridge1
+        interface: ether3
+        comment: OpenWrt AP (dlink)
+      - bridge: bridge1
         interface: ether8
         pvid: 4
       - bridge: bridge1
@@ -89,7 +92,7 @@
     path: interface bridge vlan
     data:
       - bridge: bridge1
-        tagged: sfp-sfpplus2
+        tagged: sfp-sfpplus2,ether3
         untagged: ether1,ether2,ether9
         vlan-ids: 2
       - bridge: bridge1

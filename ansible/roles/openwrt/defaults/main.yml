@@ -23,5 +23,7 @@ openwrt_ntp_servers:
   - 1.pl.pool.ntp.org
 
 # Packages to install
-openwrt_packages: []
+openwrt_packages:
+  - usb-modeswitch   # switches embedded LTE modem (Qualcomm 05c6:9008) from EDL to QMI mode on boot
+  - luci-proto-qmi   # adds QMI protocol support to LuCI for configuring the embedded LTE modem
 

@@ -1,0 +1,20 @@
+---
+- name: Set WLAN WiFi LED to trigger on IoT net dev
+  community.openwrt.uci:
+    command: set
+    key: system.led_wifi_led.dev
+    value: phy0-ap0 # IoT network
+
+- name: Set WLAN WiFi LED triggers
+  community.openwrt.uci:
+    command: set
+    key: system.led_wifi_led.mode
+    value:
+      - link
+      - tx
+      - rx
+
+- name: Commit LED config
+  community.openwrt.uci:
+    command: commit
+    key: system

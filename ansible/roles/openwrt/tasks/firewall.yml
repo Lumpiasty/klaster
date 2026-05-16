@@ -20,6 +20,11 @@
 #            output: ACCEPT (AP itself initiates outbound — opkg, NTP, etc.)
 #            forward: REJECT (AP does not route client traffic through uplink)
 #
+#   wwan   — LTE modem uplink (Orange PL, /dev/cdc-wdm0, disabled by default)
+#            input: REJECT  (no inbound from LTE)
+#            output: ACCEPT (AP itself uses LTE for outbound when uplink unavailable)
+#            forward: REJECT (no client traffic through LTE)
+#
 # No forwarding rules between zones — all inter-zone policy is on MikroTik.
 
 - name: Configure firewall
@@ -64,9 +69,22 @@
         option output 'ACCEPT'
         option forward 'REJECT'
 
+      config zone
+        option name 'wwan'
+        list network 'wwan'
+        option input 'REJECT'
+        option output 'ACCEPT'
+        option forward 'REJECT'
+
       config rule
         option name 'Allow-ICMPv6-uplink'
         option src 'uplink'
+        option proto 'icmpv6'
+        option target 'ACCEPT'
+
+      config rule
+        option name 'Allow-ICMPv6-wwan'
+        option src 'wwan'
         option proto 'icmpv6'
         option target 'ACCEPT'
 

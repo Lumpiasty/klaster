@@ -1,0 +1,105 @@
+---
+# Configures the embedded BroadMobi BM806C LTE modem for QMI use.
+#
+# Two workarounds are applied here for documented bugs in this modem's firmware
+# (M1.2.0_E1.0.1_A1.1.8, no public updates available):
+#
+#   1. raw-ip framing. The modem advertises 802.3 support but the 802.3 firmware
+#      path is buggy — downlink frames don't reach the host. raw-ip works.
+#      See bmork's kernel commit "net: qmi_wwan: support 'raw IP' mode":
+#      'newer generations of QMI hardware and firmware have moved towards
+#       defaulting to raw IP mode instead, followed by an increasing number of
+#       bugs in the already buggy 802.3 firmware implementation'.
+#      qmi.sh hardcodes 802.3; we patch it in-place to use raw-ip.
+#
+#   2. --profile instead of --apn on --start-network. With --apn, the modem
+#      establishes a phantom bearer that has no working downlink data path.
+#      With --profile referencing a pre-configured NVRAM profile, data flows.
+#      See https://forum.openwrt.org/t/problem-with-bm806u-e1-dwr-921-c3/130094
+#      and https://github.com/openwrt/openwrt/issues/6295 (FS#1363).
+#      qmi.sh already supports the 'profile' UCI option; we set it in the
+#      wwan interface config (profile=1 for IPv4, v6profile=2 for IPv6).
+#      qmi.sh's --modify-profile call writes profile 1; profile 2 is bootstrapped
+#      here for the IPv6-specific APN.
+
+# Patch qmi.sh to request raw-ip framing instead of 802.3. Two distinct uqmi
+# calls in the upstream proto handler request the data format — both must be
+# patched for the readback to return raw-ip and trigger the kernel driver's
+# sysfs raw_ip=Y flip. Idempotent: lineinfile is a no-op once the patterns
+# no longer match.
+# Diff output is suppressed for these tasks: the full qmi.sh file (~13 KB) is
+# included in both before/after diff payloads, and ansible's SSH stdout parser
+# truncates the resulting JSON, causing 'Module result deserialization failed:
+# No end of json char found'. The change is self-evident from the task name.
+- name: Patch qmi.sh — set-data-format to raw-ip
+  community.openwrt.lineinfile:
+    path: /lib/netifd/proto/qmi.sh
+    regex: '^(\s*uqmi .* --set-data-format) 802\.3(.*)$'
+    line: '\1 raw-ip\2'
+    backrefs: true
+  diff: false
+
+- name: Patch qmi.sh — wda-set-data-format to raw-ip
+  community.openwrt.lineinfile:
+    path: /lib/netifd/proto/qmi.sh
+    regex: '^(\s*uqmi .* --wda-set-data-format) 802\.3(.*)$'
+    line: '\1 raw-ip\2'
+    backrefs: true
+  diff: false
+
+# The kernel rejects writes to /sys/class/net/wwan0/qmi/raw_ip while the netdev
+# is up: 'Cannot change a running device' (-EBUSY). qmi.sh tries to flip it
+# while the interface is up — this works in 802.3 mode (no-op when already N),
+# but with our raw-ip patch above, the flip is mandatory and must succeed.
+# We bracket the sysfs write with ip link down/up.
+- name: Patch qmi.sh — bracket raw_ip sysfs write with ip link down/up
+  community.openwrt.lineinfile:
+    path: /lib/netifd/proto/qmi.sh
+    regex: '^(\s*)echo "Y" > /sys/class/net/\$ifname/qmi/raw_ip$'
+    line: '\1ip link set $ifname down; echo "Y" > /sys/class/net/$ifname/qmi/raw_ip; ip link set $ifname up'
+    backrefs: true
+  diff: false
+
+# Profile 2 in modem NVRAM holds the IPv6 APN. qmi.sh only manages profile 1
+# (the v4 APN via --modify-profile, line 314); profile 2 is our responsibility.
+# These steps are skipped if the modem isn't enumerated yet (fresh boot before
+# usb-modeswitch completes, or modem in a fault state).
+- name: Check if QMI device is available
+  community.openwrt.stat:
+    path: /dev/cdc-wdm0
+  register: wwan_cdc_wdm
+
+- name: Query QMI profile list
+  community.openwrt.command:
+    cmd: uqmi -t 3000 -d /dev/cdc-wdm0 --get-profile-list 3gpp
+  register: wwan_profile_list
+  changed_when: false
+  failed_when: false
+  when: wwan_cdc_wdm.stat.exists | default(false)
+
+- name: Configure IPv6 APN profile 2
+  when:
+    - wwan_cdc_wdm.stat.exists | default(false)
+    - wwan_profile_list.rc | default(1) == 0
+    - wwan_profile_list.stdout | default('') | trim | length > 0
+    - wwan_profile_list.stdout | default('') | trim is match('^\\{')
+  block:
+    - name: Parse profile indexes
+      ansible.builtin.set_fact:
+        wwan_profile_indexes: >-
+          {{ (wwan_profile_list.stdout | from_json).profiles
+             | default([]) | map(attribute='index') | list }}
+
+    - name: Create profile 2 for IPv6 APN if missing
+      community.openwrt.command:
+        cmd: uqmi -t 3000 -d /dev/cdc-wdm0 --create-profile 3gpp --apn internetipv6 --pdp-type ipv6
+      when: 2 not in wwan_profile_indexes
+
+    # --modify-profile is idempotent at the modem level. We can't detect
+    # whether values changed (uqmi doesn't return diff info), so we always
+    # report 'ok' (changed_when: false) to keep play output clean. The cost
+    # of always calling this is one QMI roundtrip.
+    - name: Ensure profile 2 settings are current
+      community.openwrt.command:
+        cmd: uqmi -t 3000 -d /dev/cdc-wdm0 --modify-profile 3gpp,2 --apn internetipv6 --pdp-type ipv6
+      changed_when: false

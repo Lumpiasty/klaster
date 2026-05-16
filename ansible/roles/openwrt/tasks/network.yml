@@ -14,6 +14,8 @@
 #     lan    — bridge (br-lan) on eth0.2, LAN clients via LAN ports
 #     iot    — bridge (br-iot) on eth0.5, IoT clients via wifi only
 #     uplink — static 192.168.6.2/24 + 2001:470:61a3:600::2/64 on eth0.6, internet access for opkg
+#     wwan   — QMI LTE modem (/dev/cdc-wdm0), Orange PL dual-stack failover (APNs: internet + internetipv6)
+#              Manual ifup only (option auto '0'); modem-specific quirks handled in wwan.yml.
 
 - name: Configure network
   community.openwrt.uci:
@@ -125,6 +127,38 @@
       config interface 'iot'
         option device 'br-iot'
         option proto 'none'
+
+      # LTE failover via embedded BroadMobi BM806C (Qualcomm MDM9225, fw M1.2.0_E1.0.1_A1.1.8).
+      # This modem has a firmware bug: when QMI --start-network is invoked with --apn
+      # (a WDS TLV), the modem establishes a phantom bearer that gets assigned IP
+      # addresses but cannot pass downlink data — TX packets egress, zero replies arrive.
+      # See https://forum.openwrt.org/t/problem-with-bm806u-e1-dwr-921-c3/130094 and
+      # https://github.com/openwrt/openwrt/issues/6295 (FS#1363). Workaround: configure
+      # the APN via NVRAM profile (uqmi --modify-profile, done by qmi.sh) and reference
+      # the profile via --start-network --profile, NOT --apn. qmi.sh already supports
+      # passing --profile when UCI option 'profile' is set — and 'apn' is kept because
+      # qmi.sh's --modify-profile call (line 314) still needs it to write the profile.
+      # qmi.sh only writes profile 1; profile 2 (used for the IPv6 v6apn) is created by
+      # the wwan role task.
+      #
+      # The BM806C also requires raw-ip framing (kernel qmi_wwan driver mode) to
+      # work properly. qmi.sh defaults to 802.3 mode; a patch in the wwan role task
+      # changes this to raw-ip for our setup.
+      config interface 'wwan'
+        option device '/dev/cdc-wdm0'
+        option proto 'qmi'
+        option apn 'internet'
+        option v6apn 'internetipv6'
+        option profile '1'
+        option v6profile '2'
+        option auth 'pap'
+        option username 'internet'
+        option password 'internet'
+        option pdptype 'ipv4v6'
+        option dhcp '0'
+        option dhcpv6 '0'
+        option metric '100'
+        option auto '0'
 
       config interface 'uplink'
         option device 'eth0.6'

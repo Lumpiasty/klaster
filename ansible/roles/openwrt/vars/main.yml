@@ -7,3 +7,4 @@ openbao_fields:
   iot_wifi:
     path: openwrt_iot_wifi
     password_key: password
+

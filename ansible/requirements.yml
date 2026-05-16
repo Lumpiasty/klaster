@@ -3,5 +3,9 @@ collections:
     version: ">=3.16.0"
   - name: community.hashi_vault
     version: ">=7.1.0"
+  # community.openwrt.apk module (required for OpenWrt 25.12+ which dropped opkg)
+  # is only available in 1.4.0 which is not yet released on Galaxy — install from git.
   - name: community.openwrt
-    version: ">=1.0.0"
+    source: https://github.com/ansible-collections/community.openwrt.git
+    type: git
+    version: main

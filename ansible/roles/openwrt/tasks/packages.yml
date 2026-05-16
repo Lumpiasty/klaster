@@ -1,7 +1,7 @@
 ---
 - name: Install packages
-  community.openwrt.opkg:
-    name: "{{ item }}"
+  community.openwrt.apk:
+    name: "{{ openwrt_packages | join(',') }}"
     state: present
     update_cache: true
-  loop: "{{ openwrt_packages }}"
+  when: openwrt_packages | length > 0

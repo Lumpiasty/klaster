@@ -190,6 +190,8 @@ models:
       -hf unsloth/Qwen3.6-35B-A3B-MTP-GGUF:Q4_K_M
       ${ctx_256k}
       ${qwen35_think_args}
+      --spec-type draft-mtp --spec-draft-n-max 1
+      --parallel 1
       ${common_args}
 
   "unsloth/Qwen3.6-35B-A3B-MTP-GGUF-nothink:Q4_K_M":
@@ -198,4 +200,6 @@ models:
       -hf unsloth/Qwen3.6-35B-A3B-MTP-GGUF:Q4_K_M
       ${ctx_256k}
       ${qwen35_nothink_args}
+      --spec-type draft-mtp --spec-draft-n-max 1
+      --parallel 1
       ${common_args}

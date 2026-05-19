@@ -19,18 +19,46 @@ hooks:
     preload:
       - "Qwen3.5-0.8B-GGUF-nothink:Q4_K_XL"
 
-groups:
-  always:
-    persistent: true
-    exclusive: false
-    swap: false
-    members:
-      - "Qwen3.5-0.8B-GGUF-nothink:Q4_K_XL"
+# matrix replaces groups (they are mutually exclusive).
+# The small 0.8B model runs alongside any LLM.
+# FLUX runs alone — it needs all available VRAM and will evict the 0.8B first.
+matrix:
+  vars:
+    q8: "Qwen3.5-0.8B-GGUF-nothink:Q4_K_XL"
+    flux: "flux1-dev:Q4_K_S"
+    coder: "Qwen3-Coder-Next-GGUF:Q4_K_M"
+    q35t: "Qwen3.5-35B-A3B-GGUF:Q4_K_M"
+    q35nt: "Qwen3.5-35B-A3B-GGUF-nothink:Q4_K_M"
+    q35ht: "Qwen3.5-35B-A3B-heretic-GGUF:Q4_K_M"
+    q35hnt: "Qwen3.5-35B-A3B-heretic-GGUF-nothink:Q4_K_M"
+    q4t: "Qwen3.5-4B-GGUF:Q4_K_M"
+    q4nt: "Qwen3.5-4B-GGUF-nothink:Q4_K_M"
+    q4ht: "Qwen3.5-4B-heretic-GGUF:Q4_K_M"
+    q4hnt: "Qwen3.5-4B-heretic-GGUF-nothink:Q4_K_M"
+    g26xl: "gemma-4-26B-A4B-it:UD-Q4_K_XL"
+    g26q2: "gemma-4-26B-A4B-it:UD-Q2_K_XL"
+    ge4xl: "unsloth/gemma-4-E4B-it-GGUF:UD-Q4_K_XL"
+    ge2xl: "unsloth/gemma-4-E2B-it-GGUF:UD-Q4_K_XL"
+    q36t: "unsloth/Qwen3.6-35B-A3B-GGUF:UD-Q4_K_XL"
+    q36nt: "unsloth/Qwen3.6-35B-A3B-GGUF-nothink:UD-Q4_K_XL"
+    haut: "HauhauCS/Qwen3.6-35B-A3B-Uncensored-HauhauCS-Aggressive:Q4_K_M"
+    haunt: "HauhauCS/Qwen3.6-35B-A3B-Uncensored-HauhauCS-Aggressive-nothink:Q4_K_M"
+    mtpt: "unsloth/Qwen3.6-35B-A3B-MTP-GGUF:Q4_K_M"
+    mtpnt: "unsloth/Qwen3.6-35B-A3B-MTP-GGUF-nothink:Q4_K_M"
+
+  evict_costs:
+    flux: 10  # large files, slow to reload
+
+  sets:
+    # any LLM can run alongside the small always-on model
+    with_q8: "(coder | q35t | q35nt | q35ht | q35hnt | q4t | q4nt | q4ht | q4hnt | g26xl | g26q2 | ge4xl | ge2xl | q36t | q36nt | haut | haunt | mtpt | mtpnt) & q8"
+    # FLUX runs alone — evicts everything including q8
+    image_gen: "flux"
 
 models:
   "Qwen3-Coder-Next-GGUF:Q4_K_M":
     cmd: |
-      /app/llama-server
+      llama-server
         -hf unsloth/Qwen3-Coder-Next-GGUF:Q4_K_M
         --ctx-size 65536
         --predict 8192
@@ -44,7 +72,7 @@ models:
 
   "Qwen3.5-35B-A3B-GGUF:Q4_K_M":
     cmd: |
-      /app/llama-server
+      llama-server
         -hf unsloth/Qwen3.5-35B-A3B-GGUF:Q4_K_M
         ${ctx_256k}
         ${qwen35_think_args}
@@ -52,7 +80,7 @@ models:
 
   "Qwen3.5-35B-A3B-GGUF-nothink:Q4_K_M":
     cmd: |
-      /app/llama-server
+      llama-server
         -hf unsloth/Qwen3.5-35B-A3B-GGUF:Q4_K_M
         ${ctx_256k}
         ${qwen35_nothink_args}
@@ -62,7 +90,7 @@ models:
   # so providing url to the one from the non-heretic version.
   "Qwen3.5-35B-A3B-heretic-GGUF:Q4_K_M":
     cmd: |
-      /app/llama-server
+      llama-server
         -hf mradermacher/Qwen3.5-35B-A3B-heretic-GGUF:Q4_K_M
         ${qwen35_35b_heretic_mmproj}
         ${ctx_256k}
@@ -71,7 +99,7 @@ models:
 
   "Qwen3.5-35B-A3B-heretic-GGUF-nothink:Q4_K_M":
     cmd: |
-      /app/llama-server
+      llama-server
         -hf mradermacher/Qwen3.5-35B-A3B-heretic-GGUF:Q4_K_M
         ${qwen35_35b_heretic_mmproj}
         ${ctx_256k}
@@ -80,7 +108,7 @@ models:
 
   "Qwen3.5-0.8B-GGUF-nothink:Q4_K_XL":
     cmd: |
-      /app/llama-server
+      llama-server
         -hf unsloth/Qwen3.5-0.8B-GGUF:Q4_K_XL
         --ctx-size 4096
         ${qwen35_nothink_args}
@@ -88,7 +116,7 @@ models:
 
   "Qwen3.5-4B-GGUF:Q4_K_M":
     cmd: |
-      /app/llama-server
+      llama-server
         -hf unsloth/Qwen3.5-4B-GGUF:Q4_K_M
         ${ctx_128k}
         ${qwen35_think_args}
@@ -96,7 +124,7 @@ models:
 
   "Qwen3.5-4B-GGUF-nothink:Q4_K_M":
     cmd: |
-      /app/llama-server
+      llama-server
         -hf unsloth/Qwen3.5-4B-GGUF:Q4_K_M
         ${ctx_128k}
         ${qwen35_nothink_args}
@@ -104,7 +132,7 @@ models:
 
   "Qwen3.5-4B-heretic-GGUF:Q4_K_M":
     cmd: |
-      /app/llama-server
+      llama-server
         -hf mradermacher/Qwen3.5-4B-heretic-GGUF:Q4_K_M
         ${qwen35_4b_heretic_mmproj}
         ${ctx_128k}
@@ -113,7 +141,7 @@ models:
 
   "Qwen3.5-4B-heretic-GGUF-nothink:Q4_K_M":
     cmd: |
-      /app/llama-server
+      llama-server
         -hf mradermacher/Qwen3.5-4B-heretic-GGUF:Q4_K_M
         ${qwen35_4b_heretic_mmproj}
         ${ctx_128k}
@@ -122,7 +150,7 @@ models:
 
   "gemma-4-26B-A4B-it:UD-Q4_K_XL":
     cmd: |
-      /app/llama-server
+      llama-server
         -hf unsloth/gemma-4-26B-A4B-it-GGUF:UD-Q4_K_XL \
         ${ctx_256k}
         ${gemma4_sampling}
@@ -130,7 +158,7 @@ models:
 
   "gemma-4-26B-A4B-it:UD-Q2_K_XL":
     cmd: |
-      /app/llama-server
+      llama-server
         -hf unsloth/gemma-4-26B-A4B-it-GGUF:UD-Q2_K_XL \
         ${ctx_256k}
         ${gemma4_sampling}
@@ -138,7 +166,7 @@ models:
 
   "unsloth/gemma-4-E4B-it-GGUF:UD-Q4_K_XL":
     cmd: |
-      /app/llama-server
+      llama-server
         -hf unsloth/gemma-4-E4B-it-GGUF:UD-Q4_K_XL \
         ${ctx_128k}
         ${gemma4_sampling}
@@ -146,7 +174,7 @@ models:
 
   "unsloth/gemma-4-E2B-it-GGUF:UD-Q4_K_XL":
     cmd: |
-      /app/llama-server
+      llama-server
         -hf unsloth/gemma-4-E2B-it-GGUF:UD-Q4_K_XL \
         ${ctx_128k}
         ${gemma4_sampling}
@@ -154,7 +182,7 @@ models:
 
   "unsloth/Qwen3.6-35B-A3B-GGUF:UD-Q4_K_XL":
     cmd: |
-      /app/llama-server
+      llama-server
       -hf unsloth/Qwen3.6-35B-A3B-GGUF:UD-Q4_K_XL
       ${ctx_256k}
       ${qwen35_think_args}
@@ -162,7 +190,7 @@ models:
 
   "unsloth/Qwen3.6-35B-A3B-GGUF-nothink:UD-Q4_K_XL":
     cmd: |
-      /app/llama-server
+      llama-server
       -hf unsloth/Qwen3.6-35B-A3B-GGUF:UD-Q4_K_XL
       ${ctx_256k}
       ${qwen35_nothink_args}
@@ -170,7 +198,7 @@ models:
 
   "HauhauCS/Qwen3.6-35B-A3B-Uncensored-HauhauCS-Aggressive:Q4_K_M":
     cmd: |
-      /app/llama-server
+      llama-server
       -hf HauhauCS/Qwen3.6-35B-A3B-Uncensored-HauhauCS-Aggressive:Q4_K_M
       ${ctx_256k}
       ${qwen35_think_args}
@@ -178,7 +206,7 @@ models:
 
   "HauhauCS/Qwen3.6-35B-A3B-Uncensored-HauhauCS-Aggressive-nothink:Q4_K_M":
     cmd: |
-      /app/llama-server
+      llama-server
       -hf HauhauCS/Qwen3.6-35B-A3B-Uncensored-HauhauCS-Aggressive:Q4_K_M
       ${ctx_256k}
       ${qwen35_nothink_args}
@@ -186,7 +214,7 @@ models:
 
   "unsloth/Qwen3.6-35B-A3B-MTP-GGUF:Q4_K_M":
     cmd: |
-      /app/llama-server
+      llama-server
       -hf unsloth/Qwen3.6-35B-A3B-MTP-GGUF:Q4_K_M
       ${ctx_256k}
       ${qwen35_think_args}
@@ -196,10 +224,29 @@ models:
 
   "unsloth/Qwen3.6-35B-A3B-MTP-GGUF-nothink:Q4_K_M":
     cmd: |
-      /app/llama-server
+      llama-server
       -hf unsloth/Qwen3.6-35B-A3B-MTP-GGUF:Q4_K_M
       ${ctx_256k}
       ${qwen35_nothink_args}
       --spec-type draft-mtp --spec-draft-n-max 1
       --parallel 1
       ${common_args}
+
+  # Image generation via stable-diffusion.cpp (sd-server)
+  # Models must be pre-downloaded to /root/.cache/sd/
+  # FLUX.1-dev: state-of-the-art open-weight text-to-image model by Black Forest Labs
+  # Download: huggingface-cli download lllyasviel/FLUX.1-dev-gguf flux1-dev-Q4_K_S.gguf --local-dir /root/.cache/sd
+  # Download VAE: huggingface-cli download black-forest-labs/FLUX.1-dev ae.safetensors --local-dir /root/.cache/sd
+  # Download text encoders: huggingface-cli download comfyanonymous/flux_text_encoders clip_l.safetensors t5xxl_fp16.safetensors --local-dir /root/.cache/sd
+  "flux1-dev:Q4_K_S":
+    checkEndpoint: "/"
+    cmd: |
+      sd-server
+        --listen-port ${PORT}
+        --diffusion-model /root/.cache/sd/flux1-dev-Q4_K_S.gguf
+        --vae /root/.cache/sd/ae.safetensors
+        --clip_l /root/.cache/sd/clip_l.safetensors
+        --t5xxl /root/.cache/sd/t5xxl_fp16.safetensors
+        --cfg-scale 1.0
+        --sampling-method euler
+        --steps 20

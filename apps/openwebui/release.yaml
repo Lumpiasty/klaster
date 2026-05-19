@@ -74,3 +74,16 @@ spec:
         value: "false"
       - name: OAUTH_MERGE_ACCOUNTS_BY_EMAIL
         value: "true"
+      # Image generation via llama-swap sd-server
+      - name: ENABLE_IMAGE_GENERATION
+        value: "true"
+      - name: IMAGE_GENERATION_ENGINE
+        value: "openai"
+      - name: IMAGES_OPENAI_API_BASE_URL
+        value: "http://llama.llama.svc.cluster.local:11434/v1"
+      - name: IMAGES_OPENAI_API_KEY
+        value: "ignored"
+      - name: IMAGE_GENERATION_MODEL
+        value: "flux1-dev:Q4_K_S"
+      - name: IMAGE_SIZE
+        value: "512x512"

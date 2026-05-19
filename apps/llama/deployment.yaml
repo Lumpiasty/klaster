@@ -18,10 +18,10 @@ spec:
     spec:
       containers:
         - name: llama-swap
-          image: ghcr.io/mostlygeek/llama-swap:v216-vulkan-b9191
+          image: ghcr.io/mostlygeek/llama-swap:unified-vulkan-2026-05-19
           imagePullPolicy: IfNotPresent
           command:
-            - /app/llama-swap
+            - llama-swap
           args:
             - --config=/config/config.yaml
             - --watch-config

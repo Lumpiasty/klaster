@@ -87,3 +87,16 @@ spec:
         value: "flux1-dev:Q4_K_S"
       - name: IMAGE_SIZE
         value: "512x512"
+      # Image editing via llama-swap sd-server (/v1/images/edits)
+      - name: ENABLE_IMAGE_EDIT
+        value: "true"
+      - name: IMAGE_EDIT_ENGINE
+        value: "openai"
+      - name: IMAGES_EDIT_OPENAI_API_BASE_URL
+        value: "http://llama.llama.svc.cluster.local:11434/v1"
+      - name: IMAGES_EDIT_OPENAI_API_KEY
+        value: "ignored"
+      - name: IMAGE_EDIT_MODEL
+        value: "flux1-dev:Q4_K_S"
+      - name: IMAGE_EDIT_SIZE
+        value: "512x512"

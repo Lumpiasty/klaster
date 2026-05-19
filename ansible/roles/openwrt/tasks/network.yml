@@ -75,7 +75,6 @@
         option device 'eth0.1'
         option proto 'static'
         option ipaddr '{{ openwrt_mgmt_ip }}/{{ openwrt_mgmt_prefix }}'
-        option dns '{{ openwrt_dns_servers | join(" ") }}'
 
       # Policy routing for mgmt interface.
       #

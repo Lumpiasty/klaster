@@ -25,7 +25,7 @@ hooks:
 matrix:
   vars:
     q8: "Qwen3.5-0.8B-GGUF-nothink:Q4_K_XL"
-    flux: "flux1-dev:Q4_K_S"
+    flux: "flux2-klein-4b:Q4_K_M"
     coder: "Qwen3-Coder-Next-GGUF:Q4_K_M"
     q35t: "Qwen3.5-35B-A3B-GGUF:Q4_K_M"
     q35nt: "Qwen3.5-35B-A3B-GGUF-nothink:Q4_K_M"
@@ -234,19 +234,20 @@ models:
 
   # Image generation via stable-diffusion.cpp (sd-server)
   # Models must be pre-downloaded to /root/.cache/sd/
-  # FLUX.1-dev: state-of-the-art open-weight text-to-image model by Black Forest Labs
-  # Download: huggingface-cli download lllyasviel/FLUX.1-dev-gguf flux1-dev-Q4_K_S.gguf --local-dir /root/.cache/sd
-  # Download VAE: huggingface-cli download black-forest-labs/FLUX.1-dev ae.safetensors --local-dir /root/.cache/sd
-  # Download text encoders: huggingface-cli download comfyanonymous/flux_text_encoders clip_l.safetensors t5xxl_fp16.safetensors --local-dir /root/.cache/sd
-  "flux1-dev:Q4_K_S":
+  # FLUX.2-klein-4B: fast unified text-to-image and image editing model (Apache 2.0)
+  # Download: uv run --with huggingface_hub hf download unsloth/FLUX.2-klein-4B-GGUF flux-2-klein-4b-Q4_K_M.gguf --local-dir /root/.cache/sd
+  # Download VAE: uv run --with huggingface_hub hf download Comfy-Org/flux2-klein-4B split_files/vae/flux2-vae.safetensors --local-dir /root/.cache/sd/flux2-klein && cp /root/.cache/sd/flux2-klein/split_files/vae/flux2-vae.safetensors /root/.cache/sd/
+  # Download LLM: uv run --with huggingface_hub hf download unsloth/Qwen3-4B-GGUF Qwen3-4B-Q4_K_M.gguf --local-dir /root/.cache/sd
+  "flux2-klein-4b:Q4_K_M":
     checkEndpoint: "/"
     cmd: |
       sd-server
         --listen-port ${PORT}
-        --diffusion-model /root/.cache/sd/flux1-dev-Q4_K_S.gguf
-        --vae /root/.cache/sd/ae.safetensors
-        --clip_l /root/.cache/sd/clip_l.safetensors
-        --t5xxl /root/.cache/sd/t5xxl_fp16.safetensors
+        --diffusion-model /root/.cache/sd/flux-2-klein-4b-Q4_K_M.gguf
+        --vae /root/.cache/sd/flux2-vae.safetensors
+        --llm /root/.cache/sd/Qwen3-4B-Q4_K_M.gguf
         --cfg-scale 1.0
         --sampling-method euler
-        --steps 20
+        --steps 4
+        --diffusion-fa
+        --offload-to-cpu

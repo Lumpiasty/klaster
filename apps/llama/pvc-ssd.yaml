@@ -7,7 +7,7 @@ metadata:
   name: llama-models-lvmssd
   namespace: openebs
 spec:
-  capacity: "322122547200"
+  capacity: "429496729600"
   ownerNodeID: anapistula-delrosalae
   shared: "yes"
   thinProvision: "no"
@@ -20,7 +20,7 @@ metadata:
   name: llama-models-lvmssd
 spec:
   capacity:
-    storage: 300Gi
+    storage: 400Gi
   accessModes:
     - ReadWriteOnce
   persistentVolumeReclaimPolicy: Retain
@@ -41,6 +41,6 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 300Gi
+      storage: 400Gi
   storageClassName: ssd-lvmpv
   volumeName: llama-models-lvmssd

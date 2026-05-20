@@ -237,7 +237,7 @@ models:
   # FLUX.2-klein-4B: fast unified text-to-image and image editing model (Apache 2.0)
   # Download: uv run --with huggingface_hub hf download unsloth/FLUX.2-klein-4B-GGUF flux-2-klein-4b-Q4_K_M.gguf --local-dir /root/.cache/sd
   # Download VAE: uv run --with huggingface_hub hf download Comfy-Org/flux2-klein-4B split_files/vae/flux2-vae.safetensors --local-dir /root/.cache/sd/flux2-klein && cp /root/.cache/sd/flux2-klein/split_files/vae/flux2-vae.safetensors /root/.cache/sd/
-  # Download LLM: uv run --with huggingface_hub hf download unsloth/Qwen3-4B-GGUF Qwen3-4B-Q4_K_M.gguf --local-dir /root/.cache/sd
+  # Download LLM: uv run --with huggingface_hub hf download ponpoke/flux2-klein-4b-uncensored-text-encoder flux2-klein-4b-uncensored-q4_k_m.gguf --local-dir /root/.cache/sd
   "flux2-klein-4b:Q4_K_M":
     checkEndpoint: "/"
     cmd: |
@@ -245,7 +245,7 @@ models:
         --listen-port ${PORT}
         --diffusion-model /root/.cache/sd/flux-2-klein-4b-Q4_K_M.gguf
         --vae /root/.cache/sd/flux2-vae.safetensors
-        --llm /root/.cache/sd/Qwen3-4B-Q4_K_M.gguf
+        --llm /root/.cache/sd/flux2-klein-4b-uncensored-q4_k_m.gguf
         --cfg-scale 1.0
         --sampling-method euler
         --steps 4

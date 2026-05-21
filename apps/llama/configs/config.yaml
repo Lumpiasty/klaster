@@ -262,8 +262,7 @@ models:
       llama-server
         -hf OuteAI/OuteTTS-0.3-1B-GGUF
         -hff OuteTTS-0.3-1B-Q8_0.gguf
-        -hfv ggml-org/WavTokenizer
-        -hffv WavTokenizer-Large-75-F16.gguf
+        -mv /root/.cache/huggingface/hub/models--ggml-org--WavTokenizer/snapshots/0c97fdc098158ec9bf4e703cd5f81a5aa20520e6/WavTokenizer-Large-75-F16.gguf
         -c 4096
         ${cpu_args}
 

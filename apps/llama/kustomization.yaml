@@ -6,7 +6,6 @@ resources:
   - auth-proxy.yaml
   - ingress.yaml
   - pvc-ssd.yaml
-  - pvc-kokoro-ssd.yaml
   - deployment.yaml
   - kokoro.yaml
 configMapGenerator:

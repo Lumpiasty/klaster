@@ -1,0 +1,65 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kokoro
+  namespace: llama
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: kokoro
+  template:
+    metadata:
+      labels:
+        app: kokoro
+    spec:
+      # Prevent Kubernetes from auto-injecting KOKORO_PORT=tcp://... (legacy
+      # Docker-link-style env vars from same-namespace Services), which Kokoro
+      # tries to parse as an integer and fails.
+      enableServiceLinks: false
+      containers:
+        - name: kokoro
+          # OpenAI-compatible Kokoro TTS server, CPU-only PyTorch backend
+          # Exposes POST /v1/audio/speech with multiple voices and streaming
+          image: hwdsl2/kokoro-server:latest@sha256:42886b8720e901f7e31aba2050cd03867767eb9f609bbc38fe93852e72f0feeb
+          ports:
+            - containerPort: 8880
+              name: http
+              protocol: TCP
+          env:
+            # Default voice (can be overridden per-request)
+            - name: KOKORO_VOICE
+              value: "af_heart"
+          volumeMounts:
+            # Persistent cache for the ~320MB Kokoro model
+            - name: cache
+              mountPath: /var/lib/kokoro
+          resources:
+            requests:
+              memory: "2Gi"
+              cpu: "500m"
+            limits:
+              memory: "6Gi"
+      volumes:
+        - name: cache
+          persistentVolumeClaim:
+            claimName: kokoro-cache-lvmssd
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kokoro
+  namespace: llama
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 8880
+      targetPort: 8880
+      protocol: TCP
+  selector:
+    app: kokoro
+

@@ -86,16 +86,17 @@ spec:
       - name: AUDIO_STT_SUPPORTED_CONTENT_TYPES
         value: "audio/wav,audio/wave"
       # TTS via OuteTTS (routed through llama-swap)
+      # TTS via dedicated Kokoro server (CPU-only, separate pod)
       - name: AUDIO_TTS_ENGINE
         value: "openai"
       - name: AUDIO_TTS_OPENAI_API_BASE_URL
-        value: "http://llama.llama.svc.cluster.local:11434/v1"
+        value: "http://kokoro.llama.svc.cluster.local:8880/v1"
       - name: AUDIO_TTS_OPENAI_API_KEY
         value: "ignored"
       - name: AUDIO_TTS_MODEL
-        value: "outetts-tts"
+        value: "kokoro"
       - name: AUDIO_TTS_VOICE
-        value: "default"
+        value: "af_heart"
       # Image generation via llama-swap sd-server
       - name: ENABLE_IMAGE_GENERATION
         value: "true"

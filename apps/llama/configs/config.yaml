@@ -248,6 +248,7 @@ models:
         -m /root/.cache/whisper/ggml-small.bin
         --request-path /v1/audio
         --inference-path /transcriptions
+        --convert
         --threads 6
         --no-gpu
 

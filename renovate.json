@@ -15,7 +15,10 @@
     {
       "matchDatasources": ["docker"],
       "matchPackageNames": ["ghcr.io/mostlygeek/llama-swap"],
-      "versioning": "regex:^unified-vulkan-(?<patch>[0-9]{4}[0-9]{2}[0-9]{2})$"
+      "versioning": "regex:^unified-vulkan-(?<major>\\d{4})-(?<minor>\\d{2})-(?<patch>\\d{2})$",
+      "automerge": true,
+      "automergeType": "pr",
+      "platformAutomerge": true
     },
     {
       "matchUpdateTypes": ["patch"],

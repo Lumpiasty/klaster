@@ -5,6 +5,7 @@ logToStdout: "both" # proxy and upstream
 macros:
   base_args: "--no-warmup --port ${PORT}"
   common_args: "--fit-target 1536 --no-warmup --port ${PORT}"
+  cpu_args: "--no-warmup --port ${PORT} -ngl 0"
   ctx_64k: "--ctx-size 65536"
   ctx_128k: "--ctx-size 131072"
   ctx_256k: "--ctx-size 262144"
@@ -18,6 +19,8 @@ hooks:
   on_startup:
     preload:
       - "Qwen3.5-0.8B-GGUF-nothink:Q4_K_XL"
+      - "whisper-small"
+      - "outetts-tts"
 
 # matrix replaces groups (they are mutually exclusive).
 # The small 0.8B model runs alongside any LLM.
@@ -25,6 +28,8 @@ hooks:
 matrix:
   vars:
     q8: "Qwen3.5-0.8B-GGUF-nothink:Q4_K_XL"
+    stt: "whisper-small"
+    tts: "outetts-tts"
     flux: "flux2-klein-4b:Q4_K_M"
     coder: "Qwen3-Coder-Next-GGUF:Q4_K_M"
     q35t: "Qwen3.5-35B-A3B-GGUF:Q4_K_M"
@@ -50,10 +55,10 @@ matrix:
     flux: 10  # large files, slow to reload
 
   sets:
-    # any LLM can run alongside the small always-on model
-    with_q8: "(coder | q35t | q35nt | q35ht | q35hnt | q4t | q4nt | q4ht | q4hnt | g26xl | g26q2 | ge4xl | ge2xl | q36t | q36nt | haut | haunt | mtpt | mtpnt) & q8"
-    # FLUX runs alone — evicts everything including q8
-    image_gen: "flux"
+    # any LLM can run alongside the small always-on model + STT + TTS (all CPU, no VRAM cost)
+    with_q8: "(coder | q35t | q35nt | q35ht | q35hnt | q4t | q4nt | q4ht | q4hnt | g26xl | g26q2 | ge4xl | ge2xl | q36t | q36nt | haut | haunt | mtpt | mtpnt) & q8 & stt & tts"
+    # FLUX runs alone — evicts everything including q8, but keeps STT+TTS for voice during image gen
+    image_gen: "flux & stt & tts"
 
 models:
   "Qwen3-Coder-Next-GGUF:Q4_K_M":
@@ -231,6 +236,35 @@ models:
       --spec-type draft-mtp --spec-draft-n-max 1
       --parallel 1
       ${common_args}
+
+  # STT via whisper.cpp (CPU-only, always loaded)
+  # Model auto-downloaded from HuggingFace on first start
+  # whisper-small: ~240MB RAM, good accuracy/speed tradeoff on R5 3600
+  "whisper-small":
+    checkEndpoint: none
+    cmd: |
+      whisper-server
+        --port ${PORT}
+        -m /root/.cache/whisper/ggml-small.bin
+        --request-path /v1/audio
+        --inference-path /transcriptions
+        --threads 6
+        --no-gpu
+
+  # TTS via OuteTTS 0.3 1B + WavTokenizer vocoder (CPU-only, always loaded)
+  # Models auto-downloaded from HuggingFace on first start
+  # OuteTTS 0.3 1B: ~1GB RAM, WavTokenizer: ~600MB RAM
+  # Exposes /v1/audio/speech compatible with OpenAI TTS API
+  "outetts-tts":
+    checkEndpoint: none
+    cmd: |
+      llama-server
+        -hf OuteAI/OuteTTS-0.3-1B-GGUF
+        -hff OuteTTS-0.3-1B-Q8_0.gguf
+        -hfv ggml-org/WavTokenizer
+        -hffv WavTokenizer-Large-75-F16.gguf
+        -c 4096
+        ${cpu_args}
 
   # Image generation via stable-diffusion.cpp (sd-server)
   # Models must be pre-downloaded to /root/.cache/sd/

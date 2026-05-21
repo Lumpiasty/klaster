@@ -16,6 +16,24 @@ spec:
       labels:
         app: llama-swap
     spec:
+      initContainers:
+        - name: download-whisper
+          image: ghcr.io/mostlygeek/llama-swap:unified-vulkan-2026-05-21
+          command:
+            - sh
+            - -c
+            - |
+              mkdir -p /root/.cache/whisper
+              if [ ! -f /root/.cache/whisper/ggml-small.bin ]; then
+                echo "Downloading whisper-small model..."
+                curl -L -o /root/.cache/whisper/ggml-small.bin \
+                  https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.bin
+              else
+                echo "whisper-small model already present, skipping download"
+              fi
+          volumeMounts:
+            - name: models
+              mountPath: /root/.cache
       containers:
         - name: llama-swap
           image: ghcr.io/mostlygeek/llama-swap:unified-vulkan-2026-05-21

@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: llama-swap
-          image: ghcr.io/mostlygeek/llama-swap:unified-vulkan-2026-05-19
+          image: ghcr.io/mostlygeek/llama-swap:unified-vulkan-2026-05-21
           imagePullPolicy: IfNotPresent
           command:
             - llama-swap

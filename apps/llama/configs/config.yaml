@@ -235,9 +235,10 @@ models:
       --parallel 1
       ${common_args}
 
-  # STT via whisper.cpp (CPU-only, always loaded)
-  # Model auto-downloaded from HuggingFace on first start
-  # whisper-small: ~240MB RAM, good accuracy/speed tradeoff on R5 3600
+  # STT via whisper.cpp (Vulkan GPU on RX 580, always loaded, ~600MB VRAM)
+  # Model auto-downloaded by init container, see deployment.yaml
+  # Note: Vulkan whisper on AMD GPUs has known quality issues on some cards;
+  # if transcriptions come out as garbage/gibberish, add --no-gpu to fall back.
   "whisper-small":
     checkEndpoint: none
     cmd: |
@@ -248,7 +249,6 @@ models:
         --inference-path /transcriptions
         --convert
         --threads 6
-        --no-gpu
 
 
   # Image generation via stable-diffusion.cpp (sd-server)

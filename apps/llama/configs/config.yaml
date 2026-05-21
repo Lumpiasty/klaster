@@ -3,8 +3,8 @@ healthCheckTimeout: 600
 logToStdout: "both" # proxy and upstream
 
 macros:
-  base_args: "--no-warmup --port ${PORT}"
-  common_args: "--fit-target 1536 --no-warmup --port ${PORT}"
+  base_args: "--no-warmup --port ${PORT} --mlock --no-mmap"
+  common_args: "--fit-target 1536 --no-warmup --port ${PORT} --mlock --no-mmap"
   cpu_args: "--no-warmup --port ${PORT} -ngl 0"
   ctx_64k: "--ctx-size 65536"
   ctx_128k: "--ctx-size 131072"
@@ -217,7 +217,7 @@ models:
 
   "unsloth/Qwen3.6-35B-A3B-MTP-GGUF:Q4_K_M":
     cmd: |
-      llama-server
+      /app/llama-server
       -hf unsloth/Qwen3.6-35B-A3B-MTP-GGUF:Q4_K_M
       ${ctx_256k}
       ${qwen35_think_args}
@@ -227,7 +227,7 @@ models:
 
   "unsloth/Qwen3.6-35B-A3B-MTP-GGUF-nothink:Q4_K_M":
     cmd: |
-      llama-server
+      /app/llama-server
       -hf unsloth/Qwen3.6-35B-A3B-MTP-GGUF:Q4_K_M
       ${ctx_256k}
       ${qwen35_nothink_args}

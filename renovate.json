@@ -13,6 +13,10 @@
   "prHourlyLimit": 9,
   "packageRules": [
     {
+      "matchPackageNames": ["usekaneo/kaneo", "ghcr.io/usekaneo/kaneo"],
+      "groupName": "kaneo"
+    },
+    {
       "matchDatasources": ["docker"],
       "matchPackageNames": ["ghcr.io/mostlygeek/llama-swap"],
       "versioning": "regex:^unified-vulkan-(?<major>\\d{4})-(?<minor>\\d{2})-(?<patch>\\d{2})$",

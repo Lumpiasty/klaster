@@ -21,7 +21,7 @@ steps:
       - bao kv get -mount secret -field RENOVATE_TOKEN renovate > /woodpecker/renovate_token
       - bao kv get -mount secret -field GITHUB_COM_TOKEN renovate > /woodpecker/github_com_token
   - name: Run Renovate
-    image: renovate/renovate:43.186.1-full
+    image: renovate/renovate:43.191.2-full
     environment:
       RENOVATE_AUTODISCOVER: "true"
       RENOVATE_ENDPOINT: https://gitea.lumpiasty.xyz/api/v1

@@ -19,6 +19,7 @@ steps:
           secret_id=$SECRET_ID > /woodpecker/.vault_id
       - export VAULT_TOKEN=$(cat /woodpecker/.vault_id)
       - bao kv get -mount secret -field RENOVATE_TOKEN renovate > /woodpecker/renovate_token
+      - bao kv get -mount secret -field GITHUB_COM_TOKEN renovate > /woodpecker/github_com_token
   - name: Run Renovate
     image: renovate/renovate:43.186.1-full
     environment:
@@ -28,6 +29,7 @@ steps:
       RENOVATE_GIT_AUTHOR: Renovate Bot <renovate@lumpiasty.xyz>
     commands:
       - export RENOVATE_TOKEN=$(cat /woodpecker/renovate_token)
+      - export GITHUB_COM_TOKEN=$(cat /woodpecker/github_com_token)
       - /usr/local/sbin/renovate-entrypoint.sh renovate
   - name: Invalidate OpenBao token
     image: quay.io/openbao/openbao:2.5.4

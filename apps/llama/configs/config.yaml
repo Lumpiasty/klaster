@@ -4,7 +4,7 @@ logToStdout: "both" # proxy and upstream
 
 macros:
   base_args: "--no-warmup --port ${PORT} --mlock --no-mmap"
-  common_args: "--fit-target 1536 --no-warmup --port ${PORT} --mlock --no-mmap"
+  common_args: "--fit-target 1536 --no-warmup --port ${PORT} --no-mmap"
   cpu_args: "--no-warmup --port ${PORT} -ngl 0"
   ctx_64k: "--ctx-size 65536"
   ctx_128k: "--ctx-size 131072"

@@ -18,3 +18,13 @@ machine:
     # Generated on https://factory.talos.dev/
     # amd-ucode, amdgpu and btrfs
     image: factory.talos.dev/metal-installer/80c3a00af9a5930d1788532c6cc9e8a9b23f8e553d1bb2933b2221f92703d655:v1.12.4
+
+    # grubUseUKICmdline is incompatible with extraKernelArgs
+    # and there seems to not be a way around it, disabling
+    grubUseUKICmdline: false
+
+    # amdgpu is loaded by udev automatically at boot before Talos applies
+    # module parameters, so the runpm=1 from machine.kernel.modules
+    # arrives too late. Work around using kernel args:
+    extraKernelArgs:
+      - amdgpu.runpm=1

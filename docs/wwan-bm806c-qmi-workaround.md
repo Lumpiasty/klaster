@@ -1,25 +1,35 @@
 # LTE failover (BroadMobi BM806C / D-Link DWR-921 C1) — QMI data-plane workaround
 
-Last verified: 2026-05-16, OpenWrt 25.12.2 r32802-f505120278, netifd 2026.02.26~cbb83a18-r1.
+Last verified: 2026-05-27, OpenWrt 25.12.2 r32802-f505120278, netifd 2026.02.26~cbb83a18-r1.
 
 ## TL;DR
 
-The embedded BroadMobi BM806C modem in the D-Link DWR-921 attaches to
-LTE, gets assigned IP addresses through QMI, reports `"connected"` —
-but **no downlink data passes**. Every TCP SYN we send out is dropped
-somewhere between the modem and the host kernel, and we never see a
-SYN-ACK. After several hours of layered diagnostics we identified two
-independent issues, both of which must be fixed for QMI to work on this
-device:
+The embedded BroadMobi BM806C modem in the D-Link DWR-921 has **three
+independent bugs** in its firmware (`M1.2.0_E1.0.1_A1.1.8`, the only
+build that has ever shipped), all of which must be worked around for a
+usable LTE uplink:
 
-1. **`qmi.sh` requests `802.3` framing** from the modem.
+1. **Cold-boot UIM wedge.** On every cold boot, the modem's UIM (SIM)
+   QMI service comes up permanently broken: `--uim-get-sim-state`
+   returns `{}`, `--get-imsi` returns `"UIM uninitialized"`, and
+   `AT+CPIN?` returns `+CME ERROR: SIM busy`. The modem **never
+   recovers on its own** (verified at uptime 21 min). A single USB
+   re-enumeration (`echo 0 > /sys/.../1-1/authorized; sleep 3; echo 1
+   > ...`) forces the modem to redo its internal QMI init from
+   scratch, after which UIM comes up within ~1 s. The
+   `wwan-bringup` service installed by this role does the
+   re-enumeration unconditionally on boot, then calls `ifup wwan`.
+   Full investigation: `/root/wwan-diag/boot-wedge-investigation.md`
+   on the router.
+
+2. **`qmi.sh` requests `802.3` framing** from the modem.
    The BM806C's `802.3` firmware path is buggy on this generation of
    Qualcomm silicon; raw-ip framing works correctly. The same kernel
    maintainer who added raw-ip support to `qmi_wwan` documents
    "buggy 802.3 firmware implementation" as a known issue for the
    MDM9x25 family this modem is built on.
 
-2. **`qmi.sh` calls `uqmi --start-network --apn <foo>`** to bring up
+3. **`qmi.sh` calls `uqmi --start-network --apn <foo>`** to bring up
    the bearer. On BM806C this triggers a known firmware bug
    ([OpenWrt FS#1363](https://github.com/openwrt/openwrt/issues/6295))
    that establishes a *phantom* bearer: kernel and modem agree there is
@@ -29,18 +39,48 @@ device:
    <N>` against a pre-configured NVRAM profile **with the same APN**
    works perfectly.
 
-Our workaround patches `qmi.sh` in two places (raw-ip + a kernel
-`-EBUSY` fix), creates a second NVRAM profile in the modem for the
-IPv6 APN, and adds `option profile`/`option v6profile` to the UCI
-`wwan` interface so `qmi.sh` uses the working code path. After the
-workaround, `ifup wwan` produces a fully working dual-stack IPv4 +
-IPv6 LTE uplink — verified end-to-end at HTTPS layer to multiple
+Bug 1 is the boot-time wedge; without the workaround `wwan` simply
+never comes up after a reboot. Bugs 2 and 3 are about the data plane
+itself; without their workarounds, `wwan` comes up but no traffic
+flows. Our role addresses all three: it installs `wwan-bringup`
+(re-enumerates the USB device once on boot, then `ifup wwan`), patches
+`qmi.sh` in two places (raw-ip + a kernel `-EBUSY` fix), creates a
+second NVRAM profile in the modem for the IPv6 APN, and adds
+`option profile`/`option v6profile` to the UCI `wwan` interface so
+`qmi.sh` uses the working code path. After all three workarounds,
+cold boot to working dual-stack IPv4+IPv6 LTE uplink completes in
+~2:30–3:30 — verified end-to-end at HTTPS layer to multiple
 upstreams.
 
 ## Symptoms
 
-When QMI is broken on this modem, all of the following are true at the
-same time:
+### Boot-wedge symptoms (bug 1)
+
+When the modem boots into the UIM-wedged state, all of the following
+hold simultaneously:
+
+- `/dev/cdc-wdm0` exists, `wwan0` netdev exists, `qmi_wwan` driver is
+  bound to `1-1:1.4` — kernel side looks fine
+- `ifup wwan` runs forever in the SIM-init loop:
+  `wwan: SIM in illegal state - Power-cycling SIM` repeating every ~8 s
+- `uqmi -d /dev/cdc-wdm0 --uim-get-sim-state` returns `{}` (empty
+  body — no `card_application_state` field at all)
+- `uqmi -d /dev/cdc-wdm0 --get-imsi` returns the QMI string
+  `"UIM uninitialized"`
+- `uqmi -d /dev/cdc-wdm0 --get-pin-status` returns
+  `"Invalid arguments given"` (uqmi cannot allocate a UIM client
+  because the modem-side service has not registered)
+- AT side: `AT+CFUN?` returns `+CFUN: 1` (modem firmware is alive),
+  `AT+CPIN?` returns `+CME ERROR: SIM busy`, and `AT+CREG?` /
+  `AT+CEREG?` / `AT+COPS?` all return bare `ERROR`
+- This persists indefinitely; we measured no recovery at uptime
+  21 min
+
+### Data-plane symptoms (bugs 2 and 3)
+
+When the modem comes up cleanly but the qmi.sh patches are missing or
+the wrong `--start-network` invocation is used, all of the following
+are true at the same time:
 
 - `ifup wwan` succeeds, `ifstatus wwan` reports `"up": true`
 - `wwan0` has a valid CG-NAT IPv4 (`10.x.x.x/30`) and IPv6
@@ -184,9 +224,13 @@ You are affected if all of these hold:
 1. Your modem reports `Manufacturer: BroadMobi`, `Model: BM806C` (or
    `BM806U`), `Revision: M1.2.0_E1.0.1_A1.1.8`. Check via any AT port:
    `printf 'ATI\r' | picocom -qrx 3000 /dev/ttyUSB2`.
-2. Your USB IDs (after `usb-modeswitch` runs) are
-   `2020:2033`. Check `/sys/bus/usb/devices/<port>/idVendor` /
-   `idProduct`.
+2. Your USB IDs are `2020:2033`. Check
+   `/sys/bus/usb/devices/<port>/idVendor` / `idProduct`. On the C1
+   hardware revision the modem cold-boots directly into `2020:2033`
+   QMI composite mode — no `usb-modeswitch` involved (there is no
+   `2020:2033` entry in `/etc/usb-mode.json` on our build). Other
+   hardware revisions may go through an EDL `05c6:9008` →
+   `2020:2033` modeswitch first.
 3. `qmi.sh` (`/lib/netifd/proto/qmi.sh`) is the unmodified upstream
    netifd handler. Grep for `--wda-set-data-format 802.3` —
    if present, you have the unpatched script.
@@ -207,11 +251,11 @@ data flowing with `--start-network --profile 1` but not with
 | uqmi                     | 2025.07.30~7914da43-r2                     |
 | libqmi / qmi-utils       | 1.36.0-r1                                  |
 | luci-proto-qmi           | 26.133.20346~e9ebca7                       |
-| qmi_wwan kernel driver   | in-tree, kernel 6.12.74                    |
+| qmi_wwan kernel driver   | backports from Linux v6.18.7 (per dmesg)   |
 | LTE modem                | BroadMobi BM806C (Qualcomm MDM9225)        |
 | Modem firmware           | `M1.2.0_E1.0.1_A1.1.8`                     |
-| Modem USB id (data mode) | `2020:2033`                                |
-| Modem USB id (EDL mode)  | `05c6:9008` (before `usb-modeswitch`)      |
+| Modem USB id (data mode) | `2020:2033` (cold-boots directly into this) |
+| Modem USB id (EDL mode)  | `05c6:9008` (not observed on C1; may apply to other revs) |
 | Mobile network           | Orange Poland (MCC 260 / MNC 03)           |
 | APN (IPv4 / dual-stack)  | `internet` (auth: PAP, user/pass `internet`/`internet`) |
 | APN (IPv6)               | `internetipv6` (same auth)                 |
@@ -226,9 +270,25 @@ data flowing with `--start-network --profile 1` but not with
   documents the 802.3-firmware-is-buggy reality across this generation.
   Search the mainline kernel for `QMI_WWAN_FLAG_RAWIP`.
 - Kernel commit "net: qmi_wwan: add BroadMobi BM806U 2020:2033"
-  (Pawel Dembicki, 2018): adds the `qmi_wwan` entry for our exact USB
-  id `2020:2033`. The BM806C and BM806U share the device id and
-  qmi_wwan driver path.
+  (Pawel Dembicki, 2018, `6cb2669cb97f`): adds the `qmi_wwan` entry
+  for our exact USB id `2020:2033` as `QMI_FIXED_INTF(0x2020, 0x2033, 4)`
+  with no quirks. The BM806C and BM806U share the device id and
+  qmi_wwan driver path. The entry has not been touched in mainline
+  through v6.18.7 (what OpenWrt 25.12.2 ships via backports).
+- libqmi maintainer Aleksander Morgado on cdc-wdm port readiness
+  timing (libqmi-devel, Sep 2021):
+  <https://lists.freedesktop.org/archives/libqmi-devel/2021-September/003695.html>
+  — explains that cdc-wdm appearing in `/dev` is not a guarantee that
+  the modem-side QMI service is operational. ModemManager uses up to
+  45 s of warmup tolerance; we measured this modem firmware needs
+  ~5 min before CTL is even responsive, and UIM never converges
+  without a USB re-enumeration.
+- `CastixGitHub/re_wwan` (<https://github.com/CastixGitHub/re_wwan>):
+  another BM806C user, identical firmware build, identical recovery
+  pattern (`rmmod qmi_wwan; insmod qmi_wwan` to recover from a hung
+  modem; AT-side `AT+CFUN=` resets reported as not working). Useful
+  independent confirmation that the right primitive is module
+  reload / USB re-enumeration, not a soft reset.
 - D-Link DWR-921 support page (firmware images, region-specific):
   hardware revision C3 on the Polish site lists firmware
   `1.01.3.006 Generic`, `1.00B07 T-Mobile`, `1.00B06 Plus/Cyfrowy Polsat
@@ -271,9 +331,16 @@ auto-start at boot. This is a deliberate failover-only setup —
 human (or future failover script, e.g. `mwan3`) decides when to
 bring up wwan.
 
-This also sidesteps a fragile boot ordering question: the modem takes
-30–90 s after boot before its QMI service is responsive, and netifd
-would otherwise repeatedly fail and back off during that window.
+This also sidesteps a fragile boot ordering question: on cold boot the
+modem's **UIM (SIM) QMI service comes up permanently broken** and never
+recovers without an explicit USB re-enumeration (`echo 0/1 >
+/sys/bus/usb/devices/1-1/authorized`). Other QMI services (CTL, NAS,
+WDS) do come up after ~5 min of warmup, but UIM does not — verified at
+uptime 21 min with no intervention. The `wwan-bringup` service handles
+the re-enumeration on boot and then calls `ifup wwan` itself; netifd
+never has to deal with the wedge directly. See
+`/root/wwan-diag/boot-wedge-investigation.md` on the router for the
+full root-cause analysis (2026-05-27).
 
 ### IPv6 is via a second NVRAM profile, not a single dual-stack PDP
 
@@ -508,19 +575,23 @@ In rough priority order:
    - The current "patch the file, reapply via Ansible" approach is the
      simplest and most direct. It is fine as long as the role is the
      source of truth.
-5. **Implement actual failover.** `mwan3` is the conventional choice.
+5. **Periodic session keepalive / reconnect on detach.** Now that
+   boot bring-up is fast and reliable (~2:30–3:30 from cold boot to
+   wwan up), the next likely failure mode is the modem getting
+   deactivated by the network (`+CEER: Regular deactivation`) after
+   long idle periods. A simple `procd` service that polls
+   `uqmi --get-data-status` and triggers `ifup wwan` on transition
+   `connected → disconnected` would close this gap. Don't pre-emptively
+   add it; wait until you have evidence the problem occurs in practice
+   with the workaround in place. If the disconnect comes with UIM
+   going bad (same wedge signature as cold boot), the keepalive needs
+   to call `wwan-bringup` (which re-authorizes the USB device) rather
+   than `ifup wwan` directly.
+6. **Implement actual failover.** `mwan3` is the conventional choice.
    Alternatively a tiny shell loop that pings a target via `uplink`
    and triggers `ifup wwan` / `ifdown wwan` on transitions. Either way
    the wwan side of the work is done; the failover orchestration is a
    separate problem.
-6. **Periodic session keepalive / reconnect on detach.** Even after
-   our fix, the modem can still get deactivated by the network
-   (`+CEER: Regular deactivation`) after long idle periods. A simple
-   `procd` service that polls `uqmi --get-data-status` and triggers
-   `ifup wwan` on transition `connected → disconnected` would close
-   this gap. Don't pre-emptively add it; wait until you have
-   evidence the problem occurs in practice with the workaround in
-   place.
 7. **Investigate `mbim` mode**. The BM806C does not currently expose
    MBIM, but the modem chipset (MDM9225) supports it at the silicon
    level. Whether there exists a magic AT command, vendor QMI message,
@@ -570,16 +641,33 @@ In rough priority order:
   Always cross-reference with `+CEREG?` and `+CGACT?` to know if you
   are presently attached.
 - `uqmi -t 5000 -d /dev/cdc-wdm0 --get-serving-system` returns
-  `"Failed to connect to service"` for the first 30–90 s after
-  boot. This is the QMI service inside the modem firmware not being
-  up yet, not a host-side problem.
+  `"Failed to connect to service"` (or `"Unknown error"`) for the
+  first ~5 minutes after cold boot. CTL/NAS/WDS *do* eventually come
+  up (we measured `--get-versions` first OK at uptime 320 s,
+  serving-system at 376 s), but they flap in and out for several more
+  minutes. **UIM never comes up on cold boot without a USB
+  re-enumeration** — `--uim-get-sim-state` keeps returning `{}` and
+  `--get-imsi` keeps returning `"UIM uninitialized"` even at uptime
+  21 minutes. This is why the `wwan-bringup` worker now does an
+  unconditional `authorized=0/1` re-enumeration immediately after the
+  modem enumerates; it is not waiting for warmup, it is forcing the
+  modem to redo its init from scratch.
+- A reliable cold-boot vs. wedged-modem discriminator from AT side:
+  `AT+CPIN?` returning `+CME ERROR: SIM busy` while `AT+CFUN?` returns
+  `+CFUN: 1` means the modem firmware is alive but UIM is stuck. If
+  this persists past uptime 5 minutes the modem will not recover on
+  its own; re-authorize the USB port.
 - The diagnostic scripts we accumulated live on the router at
   `/root/wwan-diag/` (created during debugging; not part of the
   Ansible role). The most useful ones are `at.sh` (run AT commands
   through `picocom`), `ppp-test.sh` (PPP-via-AT as a control test
-  that bypasses QMI), and `qmi-dual-profile.sh` (manual
-  reproduction of the working `--profile`-based dual-stack flow).
-  Feel free to delete them once this is stable; they are not
+  that bypasses QMI), `qmi-dual-profile.sh` (manual reproduction of
+  the working `--profile`-based dual-stack flow), and
+  `boot-capture.sh` (instrumented per-service probe that maps the
+  cold-boot wedge timeline; every probe wrapped in `/usr/bin/timeout`
+  so it cannot hang). The full root-cause writeup for the boot wedge
+  is at `/root/wwan-diag/boot-wedge-investigation.md`. Feel free to
+  delete the older scripts once this is stable; they are not
   load-bearing.
 
 ## Acknowledgements

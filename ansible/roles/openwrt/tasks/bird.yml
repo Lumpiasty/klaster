@@ -1,0 +1,153 @@
+---
+# Configures BIRD2 on the D-Link as an iBGP peer of the MikroTik CRS418.
+#
+# Route exchange:
+#   D-Link → CRS: announces 0.0.0.0/0 and 2000::/3 when wwan0 is up.
+#                 CRS installs these at BGP distance 200 (below the GPON
+#                 static default at distance 1 — activates only on GPON failure).
+#
+#   CRS → D-Link: announces connected routes (VLAN subnets), static routes
+#                 (Tailscale, GPON default), and reflects k8s BGP routes.
+#                 BIRD2 installs all of these into the kernel at metric 10.
+#
+# D-Link's own routing:
+#   - Kernel metric 10: BGP-learned routes from CRS (preferred)
+#   - Kernel metric 100: wwan QMI-assigned routes (fallback)
+#   No static default gateway on uplink — the default comes from BGP.
+#   When GPON fails, CRS withdraws the BGP default; D-Link falls back to wwan.
+
+- name: Write BIRD2 configuration
+  community.openwrt.copy:
+    dest: /etc/bird.conf
+    mode: '0640'
+    owner: root
+    group: root
+    content: |
+      # BIRD2 — LTE failover BGP peer for MikroTik CRS418
+      # iBGP session, AS 65000, peer: 192.168.6.1 (CRS vlan6)
+
+      router id 192.168.6.2;
+
+      protocol device {
+        # Tracks interface up/down state via netlink.
+        # scan time is a periodic reconciliation fallback; real events are
+        # netlink-driven and processed immediately.
+        scan time 5;
+      }
+
+      # Announce directly connected prefixes into BIRD2's RIB so that
+      # next-hop resolution works for BGP routes received from CRS.
+      # Without this, 192.168.6.1 (CRS uplink) is unresolvable and all
+      # IPv4 BGP routes appear unreachable. Same for IPv6 uplink prefix.
+      protocol direct {
+        ipv4;
+        ipv6;
+        interface "eth0.6";
+      }
+
+      # Install BGP-learned routes from CRS into the kernel at metric 10.
+      # This is lower than the wwan QMI default (metric 100), so D-Link
+      # prefers the CRS path for its own outbound traffic when GPON is up.
+      # import none: BIRD2 does not read the kernel table, preventing
+      # wwan kernel routes from leaking into BGP.
+      protocol kernel k4 {
+        ipv4 {
+          import none;
+          export filter {
+            if proto = "crs" then {
+              krt_metric = 10;
+              accept;
+            }
+            reject;
+          };
+        };
+      }
+
+      protocol kernel k6 {
+        ipv6 {
+          import none;
+          export filter {
+            if proto = "crs" then {
+              krt_metric = 10;
+              accept;
+            }
+            reject;
+          };
+        };
+      }
+
+      # LTE default routes — exist only while wwan0 is up.
+      # BIRD2's device protocol tracks wwan0 via netlink; when the interface
+      # goes down the routes become unreachable and BGP withdraws them.
+      # Uses interface-name routing (no explicit gateway IP) which is correct
+      # for QMI raw-ip POINTOPOINT NOARP interfaces.
+      #
+      # Preference 50 is below BGP's default of 100 — these routes are only
+      # used by BIRD2 internally as a presence signal for BGP export, NOT for
+      # installing into the kernel as our active default route. The kernel
+      # already gets the wwan default at metric 100 via netifd/qmi.sh, and
+      # we want the BGP-learned default via CRS (kernel metric 10) to be
+      # preferred for D-Link's own outbound traffic when GPON is up.
+      protocol static lte_default {
+        ipv4 {
+          preference 50;
+        };
+        route 0.0.0.0/0 via "wwan0";
+      }
+
+      protocol static lte_default6 {
+        ipv6 {
+          preference 50;
+        };
+        route 2000::/3 via "wwan0";
+      }
+
+      protocol bgp crs {
+        description "MikroTik CRS418 — LTE failover signalling";
+        local 192.168.6.2 as 65000;
+        neighbor 192.168.6.1 as 65000;
+        hold time 30;
+        keepalive time 10;
+
+        ipv4 {
+          # Import all prefixes CRS announces (VLAN subnets, static routes,
+          # k8s BGP routes reflected via RR). Installed into kernel via k4.
+          import all;
+          # Export only the wwan-sourced LTE default route.
+          # BGP-learned CRS routes are never re-exported (iBGP split-horizon
+          # applies; BIRD2 also does not import CRS routes into its RIB from
+          # the kernel, so they cannot appear here).
+          export where proto = "lte_default";
+        };
+
+        ipv6 {
+          # CRS uses Extended Next Hop (RFC 5549) for IPv6 routes, advertising
+          # them with the IPv4 next-hop 192.168.6.1. The Linux kernel cannot
+          # install IPv6 routes with IPv4 next-hops. Accept the routes from BGP
+          # (we negotiated ENHE via "extended next hop yes") but rewrite the
+          # next-hop in the import filter to the CRS's native IPv6 address on
+          # vlan6 before they reach the kernel.
+          extended next hop yes;
+          import filter {
+            gw = 2001:470:61a3:600::1;
+            accept;
+          };
+          # Force our own native IPv6 address as the next-hop when advertising
+          # to CRS, otherwise BIRD2 also uses ENHE and CRS receives a route
+          # with ::ffff:192.168.6.2 which it can't resolve as an IPv6 next-hop.
+          export filter {
+            if proto = "lte_default6" then {
+              bgp_next_hop = 2001:470:61a3:600::2;
+              accept;
+            }
+            reject;
+          };
+        };
+      }
+  notify: Reload bird
+
+- name: Enable and start BIRD2 service
+  community.openwrt.service:
+    name: bird
+    enabled: true
+    state: started

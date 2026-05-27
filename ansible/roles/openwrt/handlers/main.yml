@@ -12,3 +12,8 @@
 - name: Reload wireless
   community.openwrt.command:
     cmd: wifi reload
+
+- name: Reload bird
+  community.openwrt.service:
+    name: bird
+    state: restarted

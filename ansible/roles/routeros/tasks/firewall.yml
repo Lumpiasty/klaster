@@ -10,11 +10,6 @@
         chain: forward
         comment: Allow all already established connections
         connection-state: established,related
-      - action: accept
-        chain: forward
-        comment: Allow LTE modem management (next rule forbids it otherwise)
-        dst-address: 192.168.8.1
-        out-interface: lte1
       - action: reject
         chain: forward
         comment: Forbid forwarding 192.168.0.0/16 to WAN
@@ -173,7 +168,13 @@
         comment: Allow BGP from SRV
         dst-port: 179
         in-interface: vlan4
-        protocol: udp
+        protocol: tcp
+      - action: accept
+        chain: input
+        comment: Allow BGP from OPENWRT UPLINK
+        dst-port: 179
+        in-interface: vlan6
+        protocol: tcp
       - action: accept
         chain: input
         comment: NAT-PMP from LAN
@@ -243,15 +244,11 @@
       - action: masquerade
         chain: srcnat
         comment: Masquerade to internet
-        out-interface-list: wan
+        out-interface: pppoe-gpon
       - action: masquerade
         chain: srcnat
         comment: GPON ONT management
         dst-address: 192.168.100.1
-      - action: masquerade
-        chain: srcnat
-        comment: LTE Modem management
-        dst-address: 192.168.8.1
       - action: dst-nat
         chain: dstnat
         comment: TS3
@@ -516,6 +513,13 @@
         in-interface: vlan4
         protocol: tcp
         src-address: 2001:470:61a3:100::/64
+      - action: accept
+        chain: input
+        comment: Allow BGP from OPENWRT UPLINK
+        dst-port: 179
+        in-interface: vlan6
+        protocol: tcp
+        src-address: 2001:470:61a3:600::/64
       - action: reject
         chain: input
         comment: Reject all remaining

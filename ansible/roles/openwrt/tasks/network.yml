@@ -13,7 +13,7 @@
 #     mgmt   — static 192.168.255.11/24 on eth0.1, management
 #     lan    — bridge (br-lan) on eth0.2, LAN clients via LAN ports
 #     iot    — bridge (br-iot) on eth0.5, IoT clients via wifi only
-#     uplink — static 192.168.6.2/24 + 2001:470:61a3:600::2/64 on eth0.6, internet access for opkg
+#     uplink — static 192.168.6.2/24 + 2001:470:61a3:600::2/64 on eth0.6, BGP peer link to CRS (no static gateway — default learned via BIRD2)
 #     wwan   — QMI LTE modem (/dev/cdc-wdm0), Orange PL dual-stack failover (APNs: internet + internetipv6)
 #              Manual ifup only (option auto '0'); modem-specific quirks handled in wwan.yml.
 
@@ -156,17 +156,21 @@
         option pdptype 'ipv4v6'
         option dhcp '0'
         option dhcpv6 '0'
+        option peerdns '0'
         option metric '100'
+        # auto '0': netifd does not bring up wwan at boot. The modem takes
+        # 30-90s after boot before its QMI service responds, and netifd's
+        # retry/backoff handles this poorly (failed attempts leave the
+        # interface in 'pending' state). A separate procd service waits
+        # for the modem to be ready and triggers ifup wwan once.
         option auto '0'
 
       config interface 'uplink'
         option device 'eth0.6'
         option proto 'static'
         option ipaddr '192.168.6.2/24'
-        option gateway '192.168.6.1'
         option dns '192.168.6.1'
         option ip6addr '2001:470:61a3:600::2/64'
-        option ip6gw '2001:470:61a3:600::1'
 
   notify: Reload network
 

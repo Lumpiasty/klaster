@@ -10,10 +10,6 @@ openwrt_mgmt_ip: 192.168.255.11
 openwrt_mgmt_prefix: 24
 openwrt_mgmt_gateway: 192.168.255.10
 
-# DNS servers for the AP itself
-openwrt_dns_servers:
-  - 192.168.0.1
-
 # SSH authorised keys (list of public key strings)
 openwrt_ssh_authorized_keys: []
 
@@ -26,4 +22,6 @@ openwrt_ntp_servers:
 openwrt_packages:
   - usb-modeswitch   # switches embedded LTE modem (Qualcomm 05c6:9008) from EDL to QMI mode on boot
   - luci-proto-qmi   # adds QMI protocol support to LuCI for configuring the embedded LTE modem
+  - bird2            # BGP daemon — peers with CRS for LTE failover route signalling
+  - bird2c           # Control CLI interface for BGP daemon
 

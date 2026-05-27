@@ -21,15 +21,6 @@
         suppress-hw-offload: false
         target-scope: 10
         vrf-interface: pppoe-gpon
-      - disabled: false
-        distance: 2
-        dst-address: 0.0.0.0/0
-        gateway: 192.168.8.1
-        routing-table: main
-        scope: 30
-        suppress-hw-offload: false
-        target-scope: 10
-        vrf-interface: lte1
     handle_absent_entries: remove
     handle_entries_content: remove_as_much_as_possible
 
@@ -93,5 +84,27 @@
         remote.address: 2001:470:61a3:100::3/128
         routing-table: main
         templates: klaster
+      - name: dlink-lte
+        afi: ip,ipv6
+        as: 65000
+        connect: true
+        disabled: false
+        instance: bgp-homelab
+        listen: true
+        # ibgp-rr: CRS acts as route reflector for D-Link (the RR client).
+        # This allows k8s routes learned from bgp1 to be reflected to D-Link
+        # without violating iBGP split-horizon.
+        local.role: ibgp-rr
+        remote.address: 192.168.6.2/32
+        routing-table: main
+        templates: klaster
+        hold-time: 30s
+        keepalive-time: 10s
+        # Redistribute connected (VLAN addresses) and static routes (Tailscale,
+        # GPON default) so D-Link has explicit routes to all internal subnets
+        # and a default route when GPON is up.
+        output.redistribute: connected,static
+        output.default-originate: if-installed
+        nexthop-choice: force-self
     handle_absent_entries: remove
     handle_entries_content: remove_as_much_as_possible

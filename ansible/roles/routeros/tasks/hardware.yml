@@ -39,39 +39,6 @@
   loop_control:
     label: "{{ item.default_name }}"
 
-- name: Configure LTE interface defaults
-  community.routeros.api_find_and_modify:
-    ignore_dynamic: false
-    path: interface lte
-    find:
-      default-name: lte1
-    values:
-      apn-profiles: default-nodns
-      comment: Backup LTE WAN
-
-- name: Configure LTE APN profiles
-  community.routeros.api_modify:
-    path: interface lte apn
-    data:
-      - add-default-route: false
-        apn: internet
-        comment: default but without dns and default route
-        ipv6-interface: lte1
-        name: default-nodns
-        use-network-apn: true
-        use-peer-dns: false
-      # Default APN we can't really remove yet I don't want to reconfigure it
-      - add-default-route: true
-        apn: internet
-        authentication: none
-        default-route-distance: 2
-        ip-type: auto
-        name: default
-        use-network-apn: true
-        use-peer-dns: true
-    handle_absent_entries: remove
-    handle_entries_content: remove_as_much_as_possible
-
 - name: Configure temporary disk for containers
   community.routeros.api_modify:
     path: disk

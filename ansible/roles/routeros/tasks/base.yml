@@ -51,9 +51,9 @@
     data:
       - interface: pppoe-gpon
         list: wan
-      - interface: lte1
-        list: wan
       - interface: sit1
+        list: wan
+      - interface: vlan6
         list: wan
     handle_absent_entries: remove
     handle_entries_content: remove_as_much_as_possible

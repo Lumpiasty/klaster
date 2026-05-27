@@ -18,6 +18,9 @@
 - name: WWAN modem configuration
   ansible.builtin.import_tasks: wwan.yml
 
+- name: BIRD2 BGP configuration
+  ansible.builtin.import_tasks: bird.yml
+
 - name: Firewall configuration
   ansible.builtin.import_tasks: firewall.yml
 

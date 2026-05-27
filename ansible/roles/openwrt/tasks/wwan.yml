@@ -103,3 +103,138 @@
       community.openwrt.command:
         cmd: uqmi -t 3000 -d /dev/cdc-wdm0 --modify-profile 3gpp,2 --apn internetipv6 --pdp-type ipv6
       changed_when: false
+
+# On cold boot the BM806C's UIM (SIM) QMI service comes up permanently
+# broken: --uim-get-sim-state returns {}, --get-imsi returns
+# "UIM uninitialized", AT+CPIN? returns +CME ERROR: SIM busy, and the
+# modem never converges (verified at uptime 21 min with no intervention).
+# CTL/NAS/WDS do come up after ~5 min of warmup, but UIM does not.
+#
+# A single USB re-enumeration of the device (authorized=0 / authorized=1)
+# forces the modem to redo its internal QMI service init from scratch.
+# After this, UIM comes up within ~1 s and ifup wwan succeeds normally.
+#
+# We use authorized=0/1 rather than usb/unbind+bind because the former
+# keeps qmi_wwan in the bound-drivers list and the kernel re-runs its
+# bind machinery for us; the latter detaches and re-attaches drivers
+# explicitly. Both work; authorized is cleaner.
+#
+# Full investigation, ruled-out hypotheses, and reproduction steps:
+# /root/wwan-diag/boot-wedge-investigation.md on the router.
+- name: Install wwan-bringup worker script
+  community.openwrt.copy:
+    dest: /usr/libexec/wwan-bringup
+    mode: '0755'
+    owner: root
+    group: root
+    content: |
+      #!/bin/sh
+      # Force-clean BM806C cold-boot UIM wedge by re-enumerating the USB
+      # device once, then bring up wwan. Called by /etc/init.d/wwan-bringup
+      # as a procd service.
+
+      DEV=/dev/cdc-wdm0
+      IFACE=wwan
+      USB_PORT=1-1
+
+      log() {
+        logger -t wwan-bringup "$1"
+      }
+
+      # Wait for cold-boot enumeration of cdc-wdm0 (<=60s).
+      waited=0
+      while [ ! -e "$DEV" ]; do
+        sleep 1
+        waited=$((waited + 1))
+        [ $waited -ge 60 ] && break
+      done
+      if [ ! -e "$DEV" ]; then
+        log "$DEV never appeared within 60s; giving up"
+        exit 1
+      fi
+
+      # Force-clean re-enumeration. The BM806C's UIM QMI service never
+      # comes up on cold boot without this.
+      log "BM806C cold-boot UIM workaround: re-authorizing $USB_PORT"
+      echo 0 > /sys/bus/usb/devices/$USB_PORT/authorized
+      sleep 3
+      echo 1 > /sys/bus/usb/devices/$USB_PORT/authorized
+
+      # Wait for cdc-wdm0 to return after re-enumeration (<=30s).
+      waited=0
+      while [ ! -e "$DEV" ]; do
+        sleep 1
+        waited=$((waited + 1))
+        [ $waited -ge 30 ] && break
+      done
+      if [ ! -e "$DEV" ]; then
+        log "$DEV did not return after re-auth; giving up"
+        exit 1
+      fi
+
+      # qmi.sh's own SIM-init and network-registration loops handle the
+      # small remaining warmup (~5-30s) gracefully now that UIM is healthy.
+      log "bringing up $IFACE"
+      ifup "$IFACE"
+
+      # qmi.sh installs an IPv6 default route with a source-specific prefix
+      # constraint (`default from 2a00:f44:.../64 ...`). This means only
+      # traffic sourced from the wwan IPv6 prefix uses it — forwarded traffic
+      # from internal subnets fails routing lookup with "net unreachable"
+      # before masquerade can rewrite the source. Add a non-source-specific
+      # default at a higher metric so forwarded traffic has a valid route,
+      # gets routed out wwan0, then masqueraded by fw4.
+      #
+      # Wait up to 90s for qmi.sh to install its source-specific default,
+      # then derive the gateway and add a regular default route.
+      waited=0
+      while [ $waited -lt 90 ]; do
+        gw6=$(ip -6 route show default dev wwan0 2>/dev/null | awk '/^default from/ {print $5; exit}')
+        if [ -n "$gw6" ]; then
+          if ip -6 route show default dev wwan0 | grep -qE "^default via "; then
+            log "non-source-specific IPv6 default already present"
+          else
+            log "adding non-source-specific IPv6 default via $gw6"
+            ip -6 route add default via "$gw6" dev wwan0 metric 1024
+          fi
+          break
+        fi
+        sleep 3
+        waited=$((waited + 3))
+      done
+      [ -z "$gw6" ] && log "warning: wwan IPv6 gateway never appeared, skipping default route"
+
+- name: Install wwan-bringup init script
+  community.openwrt.copy:
+    dest: /etc/init.d/wwan-bringup
+    mode: '0755'
+    owner: root
+    group: root
+    content: |
+      #!/bin/sh /etc/rc.common
+      # Starts the wwan-bringup worker which re-enumerates the BM806C USB
+      # device once to clear the cold-boot UIM wedge, then triggers
+      # `ifup wwan`. See /usr/libexec/wwan-bringup.
+
+      START=99
+      USE_PROCD=1
+
+      # One-shot script: launch the worker directly without procd_open_instance
+      # so procd does not respawn it after successful exit.
+      PIDFILE=/var/run/wwan-bringup.pid
+
+      start_service() {
+        /usr/libexec/wwan-bringup &
+        echo $! > $PIDFILE
+      }
+
+      stop_service() {
+        [ -f $PIDFILE ] && kill "$(cat $PIDFILE)" 2>/dev/null
+        rm -f $PIDFILE
+      }
+
+- name: Enable and start wwan-bringup service
+  community.openwrt.service:
+    name: wwan-bringup
+    enabled: true
+    state: started

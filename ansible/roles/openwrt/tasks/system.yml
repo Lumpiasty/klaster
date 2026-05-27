@@ -28,3 +28,13 @@
     key: "dropbear.@dropbear[0].authorized_keys"
     value: "{{ openwrt_ssh_authorized_keys | join('\n') }}"
   when: openwrt_ssh_authorized_keys | length > 0
+
+# The D-Link is a pure AP/relay — no local clients need DNS from it.
+# Disable dnsmasq entirely and point the system resolver directly at the
+# CRS (192.168.6.1), which is always reachable via vlan6 regardless of
+# WAN state and resolves using public upstream servers (1.1.1.1 etc.).
+- name: Disable dnsmasq service
+  community.openwrt.service:
+    name: dnsmasq
+    enabled: false
+    state: stopped

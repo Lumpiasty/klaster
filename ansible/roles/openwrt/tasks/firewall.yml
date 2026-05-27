@@ -20,10 +20,11 @@
 #            output: ACCEPT (AP itself initiates outbound — opkg, NTP, etc.)
 #            forward: REJECT (AP does not route client traffic through uplink)
 #
-#   wwan   — LTE modem uplink (Orange PL, /dev/cdc-wdm0, disabled by default)
+#   wwan   — LTE modem uplink (Orange PL, /dev/cdc-wdm0, always-on)
 #            input: REJECT  (no inbound from LTE)
 #            output: ACCEPT (AP itself uses LTE for outbound when uplink unavailable)
-#            forward: REJECT (no client traffic through LTE)
+#            forward: REJECT (default; overridden by explicit uplink→wwan forwarding rule)
+#            masq/masq6: enabled — NAT all traffic exiting via wwan (own + forwarded)
 #
 # No forwarding rules between zones — all inter-zone policy is on MikroTik.
 
@@ -75,6 +76,15 @@
         option input 'REJECT'
         option output 'ACCEPT'
         option forward 'REJECT'
+        option masq '1'
+        option masq6 '1'
+
+      # Forward traffic from MikroTik (arriving on uplink/vlan6) out through wwan
+      # during LTE failover. MikroTik routes LAN/SRV/IoT traffic here when GPON
+      # is down and the BGP-learned default via 192.168.6.2 is active.
+      config forwarding
+        option src 'uplink'
+        option dest 'wwan'
 
       config rule
         option name 'Allow-ICMPv6-uplink'

@@ -1,0 +1,14 @@
+# Allow Woodpecker to run privileged containers
+# Used for example to build multi-arch mikrotik-tailscale image
+# which needs to register binfmt
+
+cluster:
+  apiServer:
+    admissionControl:
+      - name: PodSecurity
+        configuration:
+          apiVersion: pod-security.admission.config.k8s.io/v1beta1
+          kind: PodSecurityConfiguration
+          exemptions:
+            namespaces:
+              - woodpecker

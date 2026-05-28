@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: teamspeak3
-        image: teamspeak:3.13.7
+        image: teamspeak:3.13.8
         ports:
         - containerPort: 9987
           name: voice

@@ -50,6 +50,7 @@ spec:
         WOODPECKER_OPEN: "true"
         # Make lumpiasty admin
         WOODPECKER_ADMIN: GiteaAdmin
+        WOODPECKER_PLUGINS_PRIVILEGED: woodpeckerci/plugin-docker-buildx
 
       createAgentSecret: true
 

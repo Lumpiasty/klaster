@@ -45,6 +45,11 @@
         out-interface-list: wan
       - action: accept
         chain: forward
+        comment: Allow from SRV to SRV
+        in-interface: vlan4
+        out-interface: vlan4
+      - action: accept
+        chain: forward
         comment: Allow from SRV to CAM
         in-interface: vlan4
         out-interface: vlan3
@@ -277,6 +282,11 @@
         in-interface: '!pppoe-gpon'
         protocol: tcp
         to-addresses: 128.0.70.5
+      - action: masquerade
+        chain: srcnat
+        comment: hairpin to LoadBalancer pool (vlan4 -> vlan4)
+        dst-address: 10.44.0.0/16
+        in-interface: vlan4
       - action: dst-nat
         chain: dstnat
         comment: HTTPS

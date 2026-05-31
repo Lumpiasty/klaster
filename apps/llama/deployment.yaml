@@ -18,7 +18,7 @@ spec:
     spec:
       initContainers:
         - name: download-whisper
-          image: gitea.lumpiasty.xyz/lumpiasty/llama-swap:unified-vulkan-test
+          image: gitea.lumpiasty.xyz/lumpiasty/llama-swap:unified-vulkan-b9222
           command:
             - sh
             - -c
@@ -48,7 +48,7 @@ spec:
               mountPath: /root/.cache
       containers:
         - name: llama-swap
-          image: gitea.lumpiasty.xyz/lumpiasty/llama-swap:unified-vulkan-test
+          image: gitea.lumpiasty.xyz/lumpiasty/llama-swap:unified-vulkan-b9222
           imagePullPolicy: IfNotPresent
           command:
             - llama-swap

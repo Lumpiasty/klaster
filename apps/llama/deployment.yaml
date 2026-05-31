@@ -55,6 +55,9 @@ spec:
           args:
             - --config=/config/config.yaml
             - --watch-config
+          env:
+            - name: RADV_EXPERIMENTAL
+              value: transfer_queue
           ports:
             - containerPort: 8080
               name: http

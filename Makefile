@@ -15,6 +15,7 @@ gen-talos-config:
 		--config-patch @talos/patches/ollama.patch \
 		--config-patch @talos/patches/llama.patch \
 		--config-patch @talos/patches/frigate.patch \
+		--config-patch @talos/patches/woodpecker.patch \
 		--config-patch @talos/patches/anapistula-delrosalae.patch \
 		--output-types controlplane -o talos/generated/anapistula-delrosalae.yaml \
 		homelab https://kube-api.homelab.lumpiasty.xyz:6443

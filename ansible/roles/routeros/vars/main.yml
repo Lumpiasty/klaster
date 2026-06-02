@@ -14,6 +14,4 @@ openbao_fields:
     path: wan_pppoe
     username_key: username
     password_key: password
-  routeros_tailscale_container:
-    path: router_tailscale
-    container_password_key: container_password
+

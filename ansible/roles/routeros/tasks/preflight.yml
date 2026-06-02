@@ -32,15 +32,4 @@
     fail_msg: "RouterOS device-mode does not report container as enabled. Payload: {{ routeros_device_mode | to_nice_json }}"
     success_msg: "RouterOS device-mode confirms container=yes"
 
-- name: Read configured disks
-  community.routeros.api_info:
-    path: disk
-  register: routeros_disks
-  check_mode: false
 
-- name: Assert usb1 disk is present
-  ansible.builtin.assert:
-    that:
-      - (routeros_disks.result | selectattr('slot', 'equalto', 'usb1') | list | length) > 0
-    fail_msg: "Required disk slot usb1 is not present on router."
-    success_msg: "Required disk usb1 is present"

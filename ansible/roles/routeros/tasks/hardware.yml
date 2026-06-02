@@ -39,19 +39,43 @@
   loop_control:
     label: "{{ item.default_name }}"
 
-- name: Configure temporary disk for containers
-  community.routeros.api_modify:
+# community.routeros.api_modify can't remove hardware disks
+# but it tries to do so with handle_absent_entries: remove
+# Working around by manually deleting other ones
+
+- name: Read current disk entries
+  community.routeros.api_info:
     path: disk
-    data:
-      - slot: tmp1
-        type: tmpfs
-      # This is not ideal, there's no unique identifier for usb disk,
-      # after reinstall it might be assigned to another slot
-      # Just adding disk with slot usb1 and not specifying anything else
-      # so ansible doesn't touch it
-      - slot: usb1
-    handle_absent_entries: remove
-    handle_entries_content: remove_as_much_as_possible
+  register: routeros_disks
+  check_mode: false
+
+- name: Remove stale software-defined disk entries
+  community.routeros.api:
+    path: disk
+    remove: "{{ item['.id'] }}"
+  loop: >-
+    {{
+      routeros_disks.result
+      | rejectattr('type', 'in', ['hardware', 'partition'])
+      | rejectattr('slot', 'equalto', 'tmp')
+    }}
+  loop_control:
+    label: "{{ item.slot }}"
+
+- name: Create temporary disk for containers if absent
+  community.routeros.api:
+    path: disk
+    add: "slot=tmp type=tmpfs"
+  when: routeros_disks.result | selectattr('slot', 'equalto', 'tmp') | list | length == 0
+
+- name: Configure temporary disk for containers
+  community.routeros.api_find_and_modify:
+    ignore_dynamic: false
+    path: disk
+    find:
+      slot: tmp
+    values:
+      type: tmpfs
 
 - name: Configure switch settings
   community.routeros.api_find_and_modify:

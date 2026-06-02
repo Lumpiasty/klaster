@@ -39,7 +39,6 @@ Secret layout expected in OpenBao (KVv2, mount `secret`):
 |---|---|
 | `routeros_api` | `username`, `password` |
 | `wan_pppoe` | `username`, `password` |
-| `router_tailscale` | `container_password` |
 
 ## OpenWrt dlink AP
 

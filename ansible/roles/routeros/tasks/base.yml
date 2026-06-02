@@ -5,7 +5,7 @@
     data:
       - name: bridge1
         vlan-filtering: true
-      - name: dockers
+      - name: containers
     handle_absent_entries: remove
     handle_entries_content: remove_as_much_as_possible
 
@@ -62,8 +62,8 @@
   community.routeros.api_modify:
     path: interface bridge port
     data:
-      - bridge: dockers
-        interface: veth1
+      - bridge: containers
+        interface: veth-tailscale
         comment: Tailscale container interface
       - bridge: bridge1
         interface: ether1
@@ -190,6 +190,18 @@
       cache-size: 20480
       servers: 1.1.1.1,1.0.0.1,2606:4700:4700::1111,2606:4700:4700::1001
 
+- name: Configure DNS static entries
+  community.routeros.api_modify:
+    path: ip dns static
+    data:
+      - name: ts.net
+        type: FWD
+        forward-to: 100.100.100.100
+        match-subdomain: true
+        comment: Tailscale MagicDNS
+    handle_absent_entries: remove
+    handle_entries_content: remove_as_much_as_possible
+
 - name: Configure NAT-PMP global settings
   community.routeros.api_find_and_modify:
     ignore_dynamic: false
@@ -202,7 +214,7 @@
   community.routeros.api_modify:
     path: ip nat-pmp interfaces
     data:
-      - interface: dockers
+      - interface: containers
         type: internal
       - interface: pppoe-gpon
         type: external
@@ -223,7 +235,7 @@
   community.routeros.api_modify:
     path: ip upnp interfaces
     data:
-      - interface: dockers
+      - interface: containers
         type: internal
       - interface: pppoe-gpon
         type: external

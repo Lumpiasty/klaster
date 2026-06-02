@@ -65,8 +65,8 @@
         out-interface-list: wan
       - action: accept
         chain: forward
-        comment: Allow from dockers to everywhere
-        in-interface: dockers
+        comment: Allow from containers to everywhere
+        in-interface: containers
       - action: jump
         chain: forward
         comment: Allow port forwards
@@ -137,14 +137,14 @@
         protocol: tcp
       - action: accept
         chain: input
-        comment: Allow DNS from dockers
+        comment: Allow DNS from containers
         dst-port: 53
-        in-interface: dockers
+        in-interface: containers
         protocol: udp
       - action: accept
         chain: input
         dst-port: 53
-        in-interface: dockers
+        in-interface: containers
         protocol: tcp
       - action: accept
         chain: input
@@ -188,9 +188,9 @@
         protocol: udp
       - action: accept
         chain: input
-        comment: NAT-PMP from dockers (for tailscale)
+        comment: NAT-PMP from containers (for tailscale)
         dst-port: 5351
-        in-interface: dockers
+        in-interface: containers
         protocol: udp
       - action: reject
         chain: input
@@ -229,8 +229,8 @@
       - action: accept
         chain: allow-ports
         comment: Allow anything udp to Tailscale
-        dst-address: 172.17.0.2
-        out-interface: dockers
+        dst-address: 172.20.0.2
+        out-interface: containers
         protocol: udp
       - action: accept
         chain: allow-ports
@@ -419,14 +419,14 @@
         out-interface-list: wan
       - action: accept
         chain: forward
-        comment: Allow from dockers to everywhere
-        in-interface: dockers
+        comment: Allow from containers to everywhere
+        in-interface: containers
       - action: accept
         chain: forward
-        comment: Allow from internet to dockers
+        comment: Allow from internet to containers
         dst-address: 2001:470:61a3:500::/64
         in-interface-list: wan
-        out-interface: dockers
+        out-interface: containers
       - action: accept
         chain: forward
         comment: Allow tcp transmission port to LAN
@@ -485,14 +485,14 @@
         protocol: tcp
       - action: accept
         chain: input
-        comment: Allow DNS from dockers
+        comment: Allow DNS from containers
         dst-port: 53
-        in-interface: dockers
+        in-interface: containers
         protocol: udp
       - action: accept
         chain: input
         dst-port: 53
-        in-interface: dockers
+        in-interface: containers
         protocol: tcp
       - action: accept
         chain: input

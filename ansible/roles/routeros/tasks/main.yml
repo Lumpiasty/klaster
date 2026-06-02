@@ -2,11 +2,11 @@
 - name: Preflight checks
   ansible.builtin.import_tasks: preflight.yml
 
-- name: Base network configuration
-  ansible.builtin.import_tasks: base.yml
-
 - name: WAN and tunnel interfaces
   ansible.builtin.import_tasks: wan.yml
+
+- name: Base network configuration
+  ansible.builtin.import_tasks: base.yml
 
 - name: Hardware and platform tuning
   ansible.builtin.import_tasks: hardware.yml

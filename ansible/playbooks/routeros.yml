@@ -39,15 +39,10 @@
               engine_mount_point=openbao_kv_mount
             ).secret[openbao_fields.wan_pppoe.password_key]
           }}
-        routeros_tailscale_container_password: >-
-          {{
-            lookup(
-              'community.hashi_vault.vault_kv2_get',
-              openbao_fields.routeros_tailscale_container.path,
-              engine_mount_point=openbao_kv_mount
-            ).secret[openbao_fields.routeros_tailscale_container.container_password_key]
-          }}
+
       no_log: true
+      tags:
+        - tailscale-script
 
   module_defaults:
     group/community.routeros.api:

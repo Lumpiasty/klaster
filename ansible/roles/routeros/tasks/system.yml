@@ -19,6 +19,101 @@
     handle_absent_entries: ignore
     handle_entries_content: remove_as_much_as_possible
 
+# The RouterOS API can neither store multi-line script source (newlines
+# collapse into one line) nor evaluate the [/file/get ...] expression itself.
+# So we fetch the update logic as a .rsc file onto the router's flash, then run
+# a single-line bootstrap script (which the API CAN store) whose body RouterOS
+# evaluates natively: it builds the real, browsable, multi-line named script
+# from the file via [/file get ... contents]. The scheduler then runs that
+# named script by name (the upstream-intended design). The update logic stays
+# out of this repo entirely.
+- name: Download tailscale auto-update script to router
+  community.routeros.api:
+    path: tool
+    cmd: >-
+      fetch
+      url=https://gitea.lumpiasty.xyz/Lumpiasty/mikrotik-tailscale/raw/branch/main/routeros/update-tailscale.rsc
+      dst-path=update-tailscale.rsc
+      mode=https
+  changed_when: true
+  tags:
+    - tailscale-script
+
+- name: Build the named auto-update script from the fetched file
+  community.routeros.api:
+    path: system script
+    cmd: >-
+      add name=update-tailscale-bootstrap
+      source=":do { /system script remove update-tailscale } on-error={};
+      /system script add name=update-tailscale
+      comment=\"Check for mikrotik-tailscale image updates\"
+      source=[/file get update-tailscale.rsc contents]"
+  changed_when: true
+  tags:
+    - tailscale-script
+
+- name: Find bootstrap script id
+  community.routeros.api:
+    path: system script
+    extended_query:
+      attributes: [.id, name]
+      where:
+        - attribute: name
+          is: "=="
+          value: update-tailscale-bootstrap
+  register: routeros_bootstrap
+  changed_when: false
+  tags:
+    - tailscale-script
+
+- name: Run bootstrap to create the named auto-update script
+  community.routeros.api:
+    path: system script
+    cmd: "run .id={{ routeros_bootstrap.msg[0]['.id'] }}"
+  register: routeros_bootstrap_run
+  failed_when:
+    - routeros_bootstrap_run is failed
+    - "'interrupted' not in (routeros_bootstrap_run.msg | string)"
+  changed_when: true
+  tags:
+    - tailscale-script
+
+- name: Verify named auto-update script exists
+  community.routeros.api:
+    path: system script
+    extended_query:
+      attributes: [.id, name]
+      where:
+        - attribute: name
+          is: "=="
+          value: update-tailscale
+  register: routeros_named_script
+  failed_when: (routeros_named_script.msg | length) == 0
+  changed_when: false
+  tags:
+    - tailscale-script
+
+- name: Remove bootstrap script
+  community.routeros.api:
+    path: system script
+    remove: "{{ routeros_bootstrap.msg[0]['.id'] }}"
+  changed_when: true
+  tags:
+    - tailscale-script
+
+- name: Configure tailscale auto-update scheduler
+  community.routeros.api_modify:
+    path: system scheduler
+    data:
+      - name: update-tailscale
+        interval: 1d
+        on-event: /system script run update-tailscale
+        comment: Check for mikrotik-tailscale image updates
+    handle_absent_entries: remove
+    handle_entries_content: remove_as_much_as_possible
+  tags:
+    - tailscale-script
+
 - name: Configure service ports and service enablement
   community.routeros.api_find_and_modify:
     ignore_dynamic: false

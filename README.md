@@ -248,6 +248,8 @@ flowchart TD
 | <img src="docs/assets/llama-cpp.svg" alt="LLaMA.cpp" height="50" width="50"> | LLaMA.cpp | LLM inference server running local models with GPU acceleration |
 | <img src="docs/assets/llama-swap.svg" alt="llama-swap" height="50" width="50"> | llama-swap | Model swapping for LLaMA.cpp |
 | <img src="docs/assets/meridian.svg" alt="meridian" height="50" width="50"> | Meridian | Proxy that bridges Anthropic's official SDK to third-party tools |
+| | whisper.cpp | High-performance Whisper Automatic Speech Recognition inference server |
+| | Kokoro-FastAPI | Kokoro-82M text-to-speech inference server |
 
 ### Applications/Services
 
@@ -258,6 +260,7 @@ flowchart TD
 | <img src="docs/assets/teamspeak.svg" alt="iSpeak3" height="50" width="50"> | iSpeak3.pl | [ts3server://ispeak3.pl](ts3server://ispeak3.pl) | Public TeamSpeak 3 voice communication server |
 | <img src="docs/assets/immich.svg" alt="Immich" height="50" width="50"> | Immich | https://immich.lumpiasty.xyz/ | Self-hosted photo and video backup and streaming service |
 | <img src="docs/assets/frigate.svg" alt="Frigate" height="50" width="50"> | Frigate | https://frigate.lumpiasty.xyz/ | NVR for camera system with AI object detection and classification |
+| <img src="docs/assets/kaneo.svg" alt="Kaneo" height="50" width="50"> | Kaneo | https://kaneo.lumpiasty.xyz | Project management software |
 
 
 ## Development

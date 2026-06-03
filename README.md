@@ -139,6 +139,8 @@ flowchart TD
    cluster -- "Routes exported via BGP" ----- k8s
 ```
 
+More information on network are available in [Network documentation](docs/network.md)
+
 Currently the k8s cluster consists of single node (hostname anapistula-delrosalae), which is a PC with Ryzen 5 3600, 64GB RAM, RX 580 8GB (for accelerating LLMs), 1TB NVMe SSD, 2TB and 3TB HDDs and serves both as control plane and worker node.
 
 ## Software stack
@@ -269,7 +271,7 @@ This repo leverages [devenv](https://devenv.sh/) for easy setup of a development
 
 ### App deployment
 
-This repo is being watched by Flux running on cluster. To change config/add new app, simply commit to this repo and wait a while for cluster to reconcile changes. You can speed up this process by "notifying" Flux using `flux reconcile source git flux-system`.
+This repo is being watched by Flux running on cluster. To change config/add new app, simply commit to this repo and wait a while for cluster to reconcile changes. There is a Woodpecker job pushing Flux to reconcile cluster on push to this repository.
 
 Flux watches 3 kustomizations in this repo:
 

@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: caddy
-          image: caddy:2.11.3-alpine
+          image: caddy:2.11.4-alpine
           imagePullPolicy: IfNotPresent
           volumeMounts:
             - mountPath: /etc/caddy

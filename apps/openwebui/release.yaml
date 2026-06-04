@@ -74,6 +74,16 @@ spec:
         value: "false"
       - name: OAUTH_MERGE_ACCOUNTS_BY_EMAIL
         value: "true"
+      - name: ENABLE_OAUTH_ROLE_MANAGEMENT
+        value: "true"
+      - name: OAUTH_ROLES_CLAIM
+        value: "groups"
+      - name: OAUTH_ADMIN_ROLES
+        value: "Admins"
+      - name: OAUTH_ALLOWED_ROLES
+        value: "Users"
+      - name: OAUTH_AUTO_REDIRECT
+        value: "true"
       # STT via whisper-server (routed through llama-swap)
       - name: AUDIO_STT_ENGINE
         value: "openai"

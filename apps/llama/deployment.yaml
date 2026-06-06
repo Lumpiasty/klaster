@@ -18,7 +18,7 @@ spec:
     spec:
       initContainers:
         - name: download-whisper
-          image: ghcr.io/mostlygeek/llama-swap:unified-vulkan-2026-06-04
+          image: ghcr.io/mostlygeek/llama-swap:unified-vulkan-2026-06-05
           command:
             - sh
             - -c
@@ -48,7 +48,7 @@ spec:
               mountPath: /root/.cache
       containers:
         - name: llama-swap
-          image: ghcr.io/mostlygeek/llama-swap:unified-vulkan-2026-06-04
+          image: ghcr.io/mostlygeek/llama-swap:unified-vulkan-2026-06-05
           imagePullPolicy: IfNotPresent
           command:
             - llama-swap

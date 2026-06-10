@@ -13,3 +13,4 @@ configMapGenerator:
     namespace: llama
     files:
       - config.yaml=configs/config.yaml
+      - parakeet-proxy.py=configs/parakeet-proxy.py

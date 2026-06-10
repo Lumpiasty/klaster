@@ -93,8 +93,6 @@ spec:
         value: "ignored"
       - name: AUDIO_STT_MODEL
         value: "parakeet-tdt_ctc-1.1b"
-      - name: AUDIO_STT_SUPPORTED_CONTENT_TYPES
-        value: "audio/wav,audio/wave"
       # TTS via OuteTTS (routed through llama-swap)
       # TTS via dedicated Kokoro server (CPU-only, separate pod)
       - name: AUDIO_TTS_ENGINE

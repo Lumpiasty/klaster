@@ -238,14 +238,12 @@ models:
 
   # STT via parakeet-server (parakeet.cpp OpenAI-compatible server, CPU, always loaded)
   # Model downloaded on first start and cached under /root/.cache/parakeet.cpp/models
-  # Exposes POST /v1/audio/transcriptions (OpenAI-compatible)
+  # parakeet-proxy.py sits in front to convert any audio format to WAV via ffmpeg,
+  # since parakeet-server only accepts real WAV but browsers send Ogg/Opus.
   "parakeet-tdt_ctc-1.1b":
     checkEndpoint: none
     cmd: |
-      parakeet-server
-        --port ${PORT}
-        --model tdt_ctc-1.1b-q4_k.gguf
-        --cache-dir /root/.cache/parakeet.cpp/models
+      env PROXY_PORT=${PORT} FFMPEG_BIN=/root/.cache/ffmpeg/ffmpeg python3 /config/parakeet-proxy.py
 
 
   # Image generation via stable-diffusion.cpp (sd-server)

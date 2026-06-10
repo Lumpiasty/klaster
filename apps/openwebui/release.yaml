@@ -84,7 +84,7 @@ spec:
         value: "Users"
       - name: OAUTH_AUTO_REDIRECT
         value: "true"
-      # STT via whisper-server (routed through llama-swap)
+      # STT via parakeet-server (routed through llama-swap)
       - name: AUDIO_STT_ENGINE
         value: "openai"
       - name: AUDIO_STT_OPENAI_API_BASE_URL
@@ -92,7 +92,7 @@ spec:
       - name: AUDIO_STT_OPENAI_API_KEY
         value: "ignored"
       - name: AUDIO_STT_MODEL
-        value: "whisper-small"
+        value: "parakeet-tdt_ctc-1.1b"
       - name: AUDIO_STT_SUPPORTED_CONTENT_TYPES
         value: "audio/wav,audio/wave"
       # TTS via OuteTTS (routed through llama-swap)

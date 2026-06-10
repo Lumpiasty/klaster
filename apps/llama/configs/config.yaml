@@ -19,7 +19,7 @@ hooks:
   on_startup:
     preload:
       - "Qwen3.5-0.8B-GGUF-nothink:Q4_K_XL"
-      - "whisper-small"
+      - "parakeet-tdt_ctc-1.1b"
 
 # matrix replaces groups (they are mutually exclusive).
 # The small 0.8B model runs alongside any LLM.
@@ -27,7 +27,7 @@ hooks:
 matrix:
   vars:
     q8: "Qwen3.5-0.8B-GGUF-nothink:Q4_K_XL"
-    stt: "whisper-small"
+    stt: "parakeet-tdt_ctc-1.1b"
     flux: "flux2-klein-4b:Q4_K_M"
     coder: "Qwen3-Coder-Next-GGUF:Q4_K_M"
     q35t: "Qwen3.5-35B-A3B-GGUF:Q4_K_M"
@@ -57,6 +57,7 @@ matrix:
     with_q8: "(coder | q35t | q35nt | q35ht | q35hnt | q4t | q4nt | q4ht | q4hnt | g26xl | g26q2 | ge4xl | ge2xl | q36t | q36nt | haut | haunt | mtpt | mtpnt) & q8 & stt"
     # FLUX runs alone — evicts everything including q8, but keeps STT for voice during image gen
     image_gen: "flux & stt"
+
 
 models:
   "Qwen3-Coder-Next-GGUF:Q4_K_M":
@@ -235,20 +236,16 @@ models:
       --parallel 1
       ${common_args}
 
-  # STT via whisper.cpp (Vulkan GPU on RX 580, always loaded, ~600MB VRAM)
-  # Model auto-downloaded by init container, see deployment.yaml
-  # Note: Vulkan whisper on AMD GPUs has known quality issues on some cards;
-  # if transcriptions come out as garbage/gibberish, add --no-gpu to fall back.
-  "whisper-small":
+  # STT via parakeet-server (parakeet.cpp OpenAI-compatible server, CPU, always loaded)
+  # Model downloaded on first start and cached under /root/.cache/parakeet.cpp/models
+  # Exposes POST /v1/audio/transcriptions (OpenAI-compatible)
+  "parakeet-tdt_ctc-1.1b":
     checkEndpoint: none
     cmd: |
-      whisper-server
+      parakeet-server
         --port ${PORT}
-        -m /root/.cache/whisper/ggml-small.bin
-        --request-path /v1/audio
-        --inference-path /transcriptions
-        --convert
-        --threads 6
+        --model tdt_ctc-1.1b-q4_k.gguf
+        --cache-dir /root/.cache/parakeet.cpp/models
 
 
   # Image generation via stable-diffusion.cpp (sd-server)

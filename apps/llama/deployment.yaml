@@ -18,7 +18,7 @@ spec:
     spec:
       initContainers:
         - name: download-whisper
-          image: ghcr.io/mostlygeek/llama-swap:unified-vulkan-2026-06-09
+          image: gitea.lumpiasty.xyz/lumpiasty/llama-swap:unified-vulkan-parakeet-2026-06-09
           command:
             - sh
             - -c
@@ -48,7 +48,7 @@ spec:
               mountPath: /root/.cache
       containers:
         - name: llama-swap
-          image: ghcr.io/mostlygeek/llama-swap:unified-vulkan-2026-06-09
+          image: gitea.lumpiasty.xyz/lumpiasty/llama-swap:unified-vulkan-parakeet-2026-06-09
           imagePullPolicy: IfNotPresent
           command:
             - llama-swap

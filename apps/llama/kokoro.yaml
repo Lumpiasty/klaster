@@ -21,7 +21,7 @@ spec:
           # OpenAI-compatible Kokoro-FastAPI TTS server, CPU PyTorch backend.
           # Models baked into the image (no PVC needed).
           # v0.3.0 includes fix for per-request voice tensor memory leak (#459).
-          image: ghcr.io/remsky/kokoro-fastapi-cpu:v0.4.0
+          image: ghcr.io/remsky/kokoro-fastapi-cpu:v0.5.0
           ports:
             - containerPort: 8880
               name: http

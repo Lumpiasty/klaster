@@ -14,6 +14,7 @@ macros:
   qwen35_35b_heretic_mmproj: "--mmproj-url https://huggingface.co/unsloth/Qwen3.5-35B-A3B-GGUF/resolve/main/mmproj-F16.gguf --mmproj /root/.cache/llama.cpp/unsloth_Qwen3.5-35B-A3B-GGUF_mmproj-F16.gguf"
   qwen35_4b_heretic_mmproj: "--mmproj-url https://huggingface.co/unsloth/Qwen3.5-4B-GGUF/resolve/main/mmproj-F16.gguf --mmproj /root/.cache/llama.cpp/unsloth_Qwen3.5-4B-GGUF_mmproj-F16.gguf"
   gemma4_sampling: "--temp 1.0 --top-p 0.95 --top-k 64 -ctk q4_0 -ctv q4_0"
+  gemma4_nothink_sampling: "--temp 1.0 --top-p 0.95 --top-k 64 -ctk q4_0 -ctv q4_0 --reasoning off"
 
 hooks:
   on_startup:
@@ -39,9 +40,19 @@ matrix:
     q4ht: "Qwen3.5-4B-heretic-GGUF:Q4_K_M"
     q4hnt: "Qwen3.5-4B-heretic-GGUF-nothink:Q4_K_M"
     g26xl: "gemma-4-26B-A4B-it:UD-Q4_K_XL"
+    g26xlnt: "gemma-4-26B-A4B-it-nothink:UD-Q4_K_XL"
     g26q2: "gemma-4-26B-A4B-it:UD-Q2_K_XL"
-    ge4xl: "unsloth/gemma-4-E4B-it-GGUF:UD-Q4_K_XL"
-    ge2xl: "unsloth/gemma-4-E2B-it-GGUF:UD-Q4_K_XL"
+    g26q2nt: "gemma-4-26B-A4B-it-nothink:UD-Q2_K_XL"
+    ge4qat: "unsloth/gemma-4-E4B-it-qat-GGUF:UD-Q4_K_XL"
+    ge4qatnt: "unsloth/gemma-4-E4B-it-qat-GGUF-nothink:UD-Q4_K_XL"
+    ge2qat: "unsloth/gemma-4-E2B-it-qat-GGUF:UD-Q4_K_XL"
+    ge2qatnt: "unsloth/gemma-4-E2B-it-qat-GGUF-nothink:UD-Q4_K_XL"
+    ge4mtp: "unsloth/gemma-4-E4B-it-qat-GGUF-mtp:UD-Q4_K_XL"
+    ge4mtpnt: "unsloth/gemma-4-E4B-it-qat-GGUF-mtp-nothink:UD-Q4_K_XL"
+    ge4ht: "llmfan46/gemma-4-E4B-it-ultra-uncensored-heretic-GGUF:Q4_K_M"
+    ge4hnt: "llmfan46/gemma-4-E4B-it-ultra-uncensored-heretic-GGUF-nothink:Q4_K_M"
+    ge4hmtp: "llmfan46/gemma-4-E4B-it-ultra-uncensored-heretic-GGUF-mtp:Q4_K_M"
+    ge4hmnt: "llmfan46/gemma-4-E4B-it-ultra-uncensored-heretic-GGUF-mtp-nothink:Q4_K_M"
     q36t: "unsloth/Qwen3.6-35B-A3B-GGUF:UD-Q4_K_XL"
     q36nt: "unsloth/Qwen3.6-35B-A3B-GGUF-nothink:UD-Q4_K_XL"
     haut: "HauhauCS/Qwen3.6-35B-A3B-Uncensored-HauhauCS-Aggressive:Q4_K_M"
@@ -54,7 +65,7 @@ matrix:
 
   sets:
     # any LLM can run alongside the small always-on model + STT + TTS (all CPU, no VRAM cost)
-    with_q8: "(coder | q35t | q35nt | q35ht | q35hnt | q4t | q4nt | q4ht | q4hnt | g26xl | g26q2 | ge4xl | ge2xl | q36t | q36nt | haut | haunt | mtpt | mtpnt) & q8 & stt"
+    with_q8: "(coder | q35t | q35nt | q35ht | q35hnt | q4t | q4nt | q4ht | q4hnt | g26xl | g26xlnt | g26q2 | g26q2nt | ge4qat | ge4qatnt | ge2qat | ge2qatnt | ge4mtp | ge4mtpnt | ge4ht | ge4hnt | ge4hmtp | ge4hmnt | q36t | q36nt | haut | haunt | mtpt | mtpnt) & q8 & stt"
     # FLUX runs alone — evicts everything including q8, but keeps STT for voice during image gen
     image_gen: "flux & stt"
 
@@ -160,6 +171,14 @@ models:
         ${gemma4_sampling}
         ${common_args}
 
+  "gemma-4-26B-A4B-it-nothink:UD-Q4_K_XL":
+    cmd: |
+      llama-server
+        -hf unsloth/gemma-4-26B-A4B-it-GGUF:UD-Q4_K_XL \
+        ${ctx_256k}
+        ${gemma4_nothink_sampling}
+        ${common_args}
+
   "gemma-4-26B-A4B-it:UD-Q2_K_XL":
     cmd: |
       llama-server
@@ -168,20 +187,116 @@ models:
         ${gemma4_sampling}
         ${common_args}
 
-  "unsloth/gemma-4-E4B-it-GGUF:UD-Q4_K_XL":
+  "gemma-4-26B-A4B-it-nothink:UD-Q2_K_XL":
     cmd: |
       llama-server
-        -hf unsloth/gemma-4-E4B-it-GGUF:UD-Q4_K_XL \
+        -hf unsloth/gemma-4-26B-A4B-it-GGUF:UD-Q2_K_XL \
+        ${ctx_256k}
+        ${gemma4_nothink_sampling}
+        ${common_args}
+
+  "unsloth/gemma-4-E4B-it-qat-GGUF:UD-Q4_K_XL":
+    cmd: |
+      llama-server
+        -hf unsloth/gemma-4-E4B-it-qat-GGUF:UD-Q4_K_XL \
         ${ctx_128k}
         ${gemma4_sampling}
         ${common_args}
 
-  "unsloth/gemma-4-E2B-it-GGUF:UD-Q4_K_XL":
+  "unsloth/gemma-4-E4B-it-qat-GGUF-nothink:UD-Q4_K_XL":
     cmd: |
       llama-server
-        -hf unsloth/gemma-4-E2B-it-GGUF:UD-Q4_K_XL \
+        -hf unsloth/gemma-4-E4B-it-qat-GGUF:UD-Q4_K_XL \
+        ${ctx_128k}
+        ${gemma4_nothink_sampling}
+        ${common_args}
+
+  "unsloth/gemma-4-E2B-it-qat-GGUF:UD-Q4_K_XL":
+    cmd: |
+      llama-server
+        -hf unsloth/gemma-4-E2B-it-qat-GGUF:UD-Q4_K_XL \
         ${ctx_128k}
         ${gemma4_sampling}
+        ${common_args}
+
+  "unsloth/gemma-4-E2B-it-qat-GGUF-nothink:UD-Q4_K_XL":
+    cmd: |
+      llama-server
+        -hf unsloth/gemma-4-E2B-it-qat-GGUF:UD-Q4_K_XL \
+        ${ctx_128k}
+        ${gemma4_nothink_sampling}
+        ${common_args}
+
+  "unsloth/gemma-4-E4B-it-qat-GGUF-mtp:UD-Q4_K_XL":
+    cmd: |
+      llama-server
+        -hf unsloth/gemma-4-E4B-it-qat-GGUF:UD-Q4_K_XL \
+        --spec-draft-hf unsloth/gemma-4-E4B-it-qat-GGUF:Q8_0-MTP \
+        --spec-type draft-mtp
+        --spec-draft-n-max 1
+        --swa-full
+        --kv-unified
+        --parallel 1
+        ${ctx_128k}
+        ${gemma4_sampling}
+        ${common_args}
+
+  "unsloth/gemma-4-E4B-it-qat-GGUF-mtp-nothink:UD-Q4_K_XL":
+    cmd: |
+      llama-server
+        -hf unsloth/gemma-4-E4B-it-qat-GGUF:UD-Q4_K_XL \
+        --spec-draft-hf unsloth/gemma-4-E4B-it-qat-GGUF:Q8_0-MTP \
+        --spec-type draft-mtp
+        --spec-draft-n-max 1
+        --swa-full
+        --kv-unified
+        --parallel 1
+        ${ctx_128k}
+        ${gemma4_nothink_sampling}
+        ${common_args}
+
+  "llmfan46/gemma-4-E4B-it-ultra-uncensored-heretic-GGUF:Q4_K_M":
+    cmd: |
+      llama-server
+        -hf llmfan46/gemma-4-E4B-it-ultra-uncensored-heretic-GGUF:Q4_K_M \
+        ${ctx_128k}
+        ${gemma4_sampling}
+        ${common_args}
+
+  "llmfan46/gemma-4-E4B-it-ultra-uncensored-heretic-GGUF-nothink:Q4_K_M":
+    cmd: |
+      llama-server
+        -hf llmfan46/gemma-4-E4B-it-ultra-uncensored-heretic-GGUF:Q4_K_M \
+        ${ctx_128k}
+        ${gemma4_nothink_sampling}
+        ${common_args}
+
+  "llmfan46/gemma-4-E4B-it-ultra-uncensored-heretic-GGUF-mtp:Q4_K_M":
+    cmd: |
+      llama-server
+        -hf llmfan46/gemma-4-E4B-it-ultra-uncensored-heretic-GGUF:Q4_K_M \
+        --spec-draft-hf unsloth/gemma-4-E4B-it-qat-GGUF:Q8_0-MTP \
+        --spec-type draft-mtp
+        --spec-draft-n-max 1
+        --swa-full
+        --kv-unified
+        --parallel 1
+        ${ctx_128k}
+        ${gemma4_sampling}
+        ${common_args}
+
+  "llmfan46/gemma-4-E4B-it-ultra-uncensored-heretic-GGUF-mtp-nothink:Q4_K_M":
+    cmd: |
+      llama-server
+        -hf llmfan46/gemma-4-E4B-it-ultra-uncensored-heretic-GGUF:Q4_K_M \
+        --spec-draft-hf unsloth/gemma-4-E4B-it-qat-GGUF:Q8_0-MTP \
+        --spec-type draft-mtp
+        --spec-draft-n-max 1
+        --swa-full
+        --kv-unified
+        --parallel 1
+        ${ctx_128k}
+        ${gemma4_nothink_sampling}
         ${common_args}
 
   "unsloth/Qwen3.6-35B-A3B-GGUF:UD-Q4_K_XL":

@@ -8,7 +8,8 @@
         keepalive-timeout: 2
         name: pppoe-gpon
         password: "{{ routeros_pppoe_password }}"
-        use-peer-dns: true
+        # Using CoreDNS container with DNS64
+        use-peer-dns: false
         user: "{{ routeros_pppoe_username }}"
     handle_absent_entries: remove
     handle_entries_content: remove_as_much_as_possible
@@ -37,5 +38,16 @@
         mac-address: 7E:7E:A1:B1:2A:7B
         name: veth-tailscale
         comment: Tailscale container
+      - address: 172.20.0.3/24
+        dhcp: false
+        gateway: 172.20.0.1
+        name: veth-coredns
+        comment: CoreDNS container
+      - address: 192.168.239.2/30,fc64::2/126
+        dhcp: false
+        gateway: 192.168.239.1
+        gateway6: fc64::1
+        name: veth-tayga
+        comment: Tayga NAT64 container
     handle_absent_entries: remove
     handle_entries_content: remove_as_much_as_possible

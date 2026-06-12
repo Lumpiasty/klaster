@@ -24,11 +24,11 @@
     handle_absent_entries: remove
     handle_entries_content: remove_as_much_as_possible
 
-- name: Configure tailscale container
+- name: Configure containers
   community.routeros.api_modify:
     path: container
     data:
-      - dns: 172.17.0.1
+      - dns: 172.20.0.1
         interface: veth-tailscale
         logging: true
         mountlists: tailscale_state
@@ -36,5 +36,20 @@
         remote-image: gitea.lumpiasty.xyz/lumpiasty/mikrotik-tailscale:stable
         root-dir: tailscale/root
         start-on-boot: true
+      - dns: 172.20.0.1
+        interface: veth-coredns
+        logging: true
+        name: coredns
+        remote-image: gitea.lumpiasty.xyz/lumpiasty/coredns-mikrotik:latest
+        root-dir: coredns/root
+        start-on-boot: true
+      # Tayga auto-configures from the veth addresses and routes — no env vars needed.
+      - interface: veth-tayga
+        logging: true
+        name: tayga
+        remote-image: ghcr.io/apalrd/tayga-nat64
+        root-dir: tayga/root
+        start-on-boot: true
+        workdir: /app
     handle_absent_entries: remove
     handle_entries_content: remove_as_much_as_possible

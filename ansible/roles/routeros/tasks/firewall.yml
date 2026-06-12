@@ -67,6 +67,11 @@
         chain: forward
         comment: Allow from containers to everywhere
         in-interface: containers
+      - action: accept
+        chain: forward
+        comment: Allow Tayga NAT64 pool to internet
+        out-interface: pppoe-gpon
+        src-address: 192.168.240.0/20
       - action: jump
         chain: forward
         comment: Allow port forwards
@@ -254,6 +259,11 @@
         chain: srcnat
         comment: GPON ONT management
         dst-address: 192.168.100.1
+      - action: masquerade
+        chain: srcnat
+        comment: Tayga NAT64 dynamic pool to internet
+        out-interface: pppoe-gpon
+        src-address: 192.168.240.0/20
       - action: dst-nat
         chain: dstnat
         comment: TS3
@@ -375,6 +385,30 @@
         dst-address: 2001:470:71:dd::/64
         out-interface-list: wan
         reject-with: icmp-no-route
+      # Block NAT64-mapped RFC1918 destinations before any broad accept rules.
+      # Without these, NAT64 (64:ff9b::/96) could be used to reach private IPv4
+      # ranges by encoding them in the prefix — bypassing IPv4 forward policy.
+      # 64:ff9b::a00:0/104  = 10.0.0.0/8
+      # 64:ff9b::ac10:0/108 = 172.16.0.0/12
+      # 64:ff9b::c0a8:0/112 = 192.168.0.0/16
+      - action: reject
+        chain: forward
+        comment: Block NAT64 to RFC1918 (10/8)
+        dst-address: 64:ff9b::a00:0/104
+        out-interface: nat64
+        reject-with: icmp-no-route
+      - action: reject
+        chain: forward
+        comment: Block NAT64 to RFC1918 (172.16/12)
+        dst-address: 64:ff9b::ac10:0/108
+        out-interface: nat64
+        reject-with: icmp-no-route
+      - action: reject
+        chain: forward
+        comment: Block NAT64 to RFC1918 (192.168/16)
+        dst-address: 64:ff9b::c0a8:0/112
+        out-interface: nat64
+        reject-with: icmp-no-route
       - action: accept
         chain: forward
         comment: Allow from LAN to everywhere
@@ -414,6 +448,11 @@
         out-interface-list: wan
       - action: accept
         chain: forward
+        comment: Allow from IOT to internet via NAT64
+        in-interface: vlan5
+        out-interface: nat64
+      - action: accept
+        chain: forward
         comment: Allow from OPENWRT UPLINK to internet only
         in-interface: vlan6
         out-interface-list: wan
@@ -427,6 +466,9 @@
         dst-address: 2001:470:61a3:500::/64
         in-interface-list: wan
         out-interface: containers
+      # NAT64 to Tayga is now covered by the broad per-VLAN accept rules above.
+      # RFC1918-mapped destinations are blocked at the top of the chain before
+      # those broad accepts, so no separate per-source NAT64 rules are needed.
       - action: accept
         chain: forward
         comment: Allow tcp transmission port to LAN

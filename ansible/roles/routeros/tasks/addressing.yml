@@ -6,6 +6,9 @@
       - address: 172.20.0.1/24
         interface: containers
         network: 172.20.0.0
+      - address: 192.168.239.1/30
+        interface: nat64
+        network: 192.168.239.0
       - address: 192.168.4.1/24
         interface: lo
         network: 192.168.4.0
@@ -37,19 +40,25 @@
   community.routeros.api_modify:
     path: ipv6 address
     data:
+      - address: fc64::1/126
+        advertise: false
+        comment: nat64 loopback
+        interface: nat64
       - address: 2001:470:70:dd::2/64
         advertise: false
         interface: sit1
-      - address: ::ffff:ffff:ffff:ffff/64
-        from-pool: pool1
+      # Static instead of from-pool: pool allocation is dynamic (first free /64,
+      # e.g. ...:0::/64) which made the RDNSS address advertised in ND config
+      # point at a nonexistent router address. HE prefix is static, so static
+      # per-VLAN addressing is deterministic and matches docs/network.md.
+      - address: 2001:470:61a3:9:ffff:ffff:ffff:ffff/64
         interface: vlan2
       - address: 2001:470:61a3:500:ffff:ffff:ffff:ffff/64
         interface: containers
       - address: 2001:470:61a3:100::1/64
         advertise: false
         interface: vlan4
-      - address: ::ffff:ffff:ffff:ffff/64
-        from-pool: pool1
+      - address: 2001:470:61a3:a:ffff:ffff:ffff:ffff/64
         interface: vlan5
       - address: 2001:470:61a3:600::1/64
         advertise: false

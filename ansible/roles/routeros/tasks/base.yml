@@ -6,6 +6,7 @@
       - name: bridge1
         vlan-filtering: true
       - name: containers
+      - name: nat64
     handle_absent_entries: remove
     handle_entries_content: remove_as_much_as_possible
 
@@ -65,6 +66,12 @@
       - bridge: containers
         interface: veth-tailscale
         comment: Tailscale container interface
+      - bridge: containers
+        interface: veth-coredns
+        comment: CoreDNS container interface
+      - bridge: nat64
+        interface: veth-tayga
+        comment: Tayga NAT64 container interface
       - bridge: bridge1
         interface: ether1
         pvid: 2
@@ -152,24 +159,9 @@
     handle_absent_entries: remove
     handle_entries_content: remove_as_much_as_possible
 
-- name: Configure DHCP networks
-  community.routeros.api_modify:
-    path: ip dhcp-server network
-    data:
-      - address: 192.168.0.0/24
-        dns-server: 192.168.0.1
-        gateway: 192.168.0.1
-      - address: 192.168.255.0/24
-        dns-none: true
-        gateway: 192.168.255.10
-      - address: 192.168.5.0/24
-        dns-server: 192.168.5.1
-        gateway: 192.168.5.1
-    handle_absent_entries: remove
-    handle_entries_content: remove_as_much_as_possible
-
-# TODO: IPv6 pools are useful when we have dynamic prefix, but we don't
-# We can remove it now
+# Pool is no longer referenced — vlan2/vlan5 now use static addresses
+# (addressing.yml) so the RDNSS addresses in ND config are deterministic.
+# Kept defined for one run after migration; safe to delete afterwards.
 - name: Configure IPv6 pools
   community.routeros.api_modify:
     path: ipv6 pool
@@ -188,7 +180,8 @@
     values:
       allow-remote-requests: true
       cache-size: 20480
-      servers: 1.1.1.1,1.0.0.1,2606:4700:4700::1111,2606:4700:4700::1001
+      # CoreDNS container provides DNS64; it forwards upstream to 1.1.1.1/8.8.8.8.
+      servers: 172.20.0.3
 
 - name: Configure DNS static entries
   community.routeros.api_modify:
@@ -199,6 +192,11 @@
         forward-to: 100.100.100.100
         match-subdomain: true
         comment: Tailscale MagicDNS
+      - name: lumpiasty.xyz
+        type: FWD
+        forward-to: 1.1.1.1
+        match-subdomain: true
+        comment: lumpiasty.xyz bypass nat64
     handle_absent_entries: remove
     handle_entries_content: remove_as_much_as_possible
 
@@ -244,6 +242,42 @@
     handle_absent_entries: remove
     handle_entries_content: remove_as_much_as_possible
 
+# Option 108 (IPv6-only preferred, RFC 8925). Without force=yes RouterOS only
+# includes the option for clients that request code 108 in their Parameter
+# Request List — i.e. RFC 8925-capable clients. Clients that receive it drop
+# IPv4 and rely on CLAT/NAT64, which REQUIRES pref64 in RA (see ND tasks below).
+- name: Configure DHCP server options (IPv6-only preferred, RFC 8925)
+  community.routeros.api_modify:
+    path: ip dhcp-server option
+    data:
+      # 32-bit seconds timer (V6ONLY_WAIT) — how long the client suppresses
+      # IPv4. Refreshed on every renewal; acts as automatic fallback if the
+      # DHCP server disappears. 0x00015180 = 86400 s (1 day).
+      # Quoted to prevent YAML from parsing the hex literal as integer 86400.
+      - name: v6only-preferred
+        code: 108
+        value: "0x00015180"
+    handle_absent_entries: remove
+    handle_entries_content: remove_as_much_as_possible
+
+- name: Configure DHCP networks
+  community.routeros.api_modify:
+    path: ip dhcp-server network
+    data:
+      - address: 192.168.0.0/24
+        dns-server: 192.168.0.1
+        gateway: 192.168.0.1
+        dhcp-option: v6only-preferred
+      - address: 192.168.255.0/24
+        dns-none: true
+        gateway: 192.168.255.10
+      - address: 192.168.5.0/24
+        dns-server: 192.168.5.1
+        gateway: 192.168.5.1
+        dhcp-option: v6only-preferred
+    handle_absent_entries: remove
+    handle_entries_content: remove_as_much_as_possible
+
 - name: Configure IPv6 ND defaults
   community.routeros.api_find_and_modify:
     ignore_dynamic: false
@@ -252,3 +286,30 @@
       default: true
     values:
       advertise-dns: true
+
+# Per-interface ND entries must be CREATED — only the interface=all default
+# exists out of the box. The previous api_find_and_modify approach silently
+# matched zero entries and never applied pref64.
+#
+# pref64: NAT64 prefix discovery (RFC 8781) — required by clients honouring
+# DHCP option 108 to activate CLAT. Without it they go IPv6-only with no
+# working translation and appear stuck while "obtaining IP address".
+#
+# dns: RDNSS (RFC 8106) — IPv6-only clients ignore DHCPv4 entirely, including
+# its dns-server. They need an IPv6 DNS address from RA. We advertise the
+# router's own per-VLAN IPv6 address; RouterOS DNS forwards to CoreDNS.
+- name: Configure IPv6 ND per-interface (pref64 + RDNSS)
+  community.routeros.api_modify:
+    path: ipv6 nd
+    data:
+      # advertise-dns must be explicitly enabled — RouterOS creates new ND
+      # entries with advertise-dns=no, which suppresses the RDNSS option
+      # entirely even when a static dns= list is configured.
+      - interface: vlan2
+        advertise-dns: true
+        pref64: 64:ff9b::/96
+        dns: 2001:470:61a3:9:ffff:ffff:ffff:ffff
+      - interface: vlan5
+        advertise-dns: true
+        pref64: 64:ff9b::/96
+        dns: 2001:470:61a3:a:ffff:ffff:ffff:ffff

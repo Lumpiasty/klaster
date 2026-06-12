@@ -1,0 +1,46 @@
+when:
+  - event: push
+    path:
+      include:
+        - mikrotik/coredns/**
+
+steps:
+  - name: Get registry creds from OpenBao
+    image: quay.io/openbao/openbao:2.5.4
+    environment:
+      VAULT_ADDR: https://openbao.lumpiasty.xyz:8200
+      ROLE_ID:
+        from_secret: renovate_role_id
+      SECRET_ID:
+        from_secret: renovate_secret_id
+    commands:
+      - bao write -field token auth/approle/login
+          role_id=$ROLE_ID
+          secret_id=$SECRET_ID > /woodpecker/.vault_id
+      - export VAULT_TOKEN=$(cat /woodpecker/.vault_id)
+      - 'printf "PLUGIN_USERNAME=%s\n" "$(bao kv get -mount secret -field REGISTRY_USERNAME container-registry)" > /woodpecker/registry.env'
+      - 'printf "PLUGIN_PASSWORD=%s\n" "$(bao kv get -mount secret -field REGISTRY_PASSWORD container-registry)" >> /woodpecker/registry.env'
+
+  - name: Build and push
+    image: woodpeckerci/plugin-docker-buildx:6.1.0
+    privileged: true
+    settings:
+      registry: gitea.lumpiasty.xyz
+      repo: gitea.lumpiasty.xyz/lumpiasty/coredns-mikrotik
+      platforms: linux/arm64
+      tags:
+        - latest
+        - ${CI_COMMIT_SHA:0:8}
+      dockerfile: mikrotik/coredns/Dockerfile
+      context: mikrotik/coredns/
+      env_file: /woodpecker/registry.env
+
+  - name: Invalidate OpenBao token
+    image: quay.io/openbao/openbao:2.5.4
+    environment:
+      VAULT_ADDR: https://openbao.lumpiasty.xyz:8200
+    commands:
+      - export VAULT_TOKEN=$(cat /woodpecker/.vault_id)
+      - bao write -f auth/token/revoke-self
+    when:
+      - status: [success, failure]

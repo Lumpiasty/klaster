@@ -1,0 +1,21 @@
+.:53 {
+    # Synthesize AAAA from A records for all destinations.
+    # translate_all: override real AAAA records too, so all traffic exits
+    # via NAT64 (our IPv4 WAN) rather than the HE tunnel broker.
+    # This eliminates datacenter flagging and CAPTCHA loops from HE addresses.
+    dns64 {
+        prefix 64:ff9b::/96
+        translate_all
+        allow_ipv4
+    }
+
+    forward . 1.1.1.1 8.8.8.8 {
+        prefer_udp
+    }
+
+    cache 300
+    errors
+    log
+    reload
+    health :8080
+}

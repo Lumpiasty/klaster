@@ -67,19 +67,38 @@ Provides:
 - Static IPv6 route `64:ff9b::/96 → Tayga`
 - Masquerade of Tayga's IPv4 pool to WAN
 - PREF64 option in Router Advertisements (`/ipv6/nd pref64`)
-- DHCP option 108 to signal IPv6-only preference to capable clients
+- PREF64 + RDNSS options in Router Advertisements (per-interface `ipv6 nd` entries)
+- DHCP option 108 to signal IPv6-only preference to capable clients (sent only when requested)
 
 ## Client behaviour with DHCPv4 option 108
 
+Option 108 and PREF64 work as a pair — deploying one without the other breaks clients:
+
+- **Option 108** (RFC 8925): tells capable clients to drop IPv4. RouterOS only sends it to clients that request code 108 in their Parameter Request List (that is what the `force` flag on the option controls — we leave it unset). Legacy clients never see it.
+- **PREF64 in RA** (RFC 8781): tells the now IPv6-only client the NAT64 prefix so it can activate CLAT. Without PREF64, a client that honoured option 108 has no working translation and appears stuck "obtaining IP address".
+- **RDNSS in RA** (RFC 8106): IPv6-only clients ignore DHCPv4 entirely, including its `dns-server`. They need an IPv6 DNS address from RA. We advertise the router's per-VLAN IPv6 address; RouterOS DNS forwards to CoreDNS.
+
 | Client OS | Behaviour |
 |---|---|
-| iOS 16+, macOS 13+ | Activates CLAT, drops IPv4, uses NAT64 for IPv4 literals |
-| Android 10+ | Activates CLAT via PREF64, drops IPv4 |
+| iOS 16+, macOS 13+ | Requests 108, drops IPv4, activates CLAT via PREF64 |
+| Android 10+ | Requests 108, drops IPv4, activates CLAT via PREF64 |
 | Windows 11 (preview) | Partial — CLAT support in preview as of 2026 |
-| Linux (NetworkManager) | DHCP option 108 honoured; CLAT via NM requires PREF64 |
-| Legacy/unaware devices | Ignore option 108, receive IPv4 lease normally, continue dual-stack |
+| Linux (NetworkManager) | Honours option 108; CLAT requires PREF64 |
+| Legacy/unaware devices | Never request 108, receive IPv4 lease normally, dual-stack |
 
-Option 108 value is a 32-bit seconds timer. Set to 28 (0x1c) for testing, 86400 for production.
+Option 108 value is a 32-bit seconds timer (V6ONLY_WAIT, minimum 300 per RFC), refreshed on each DHCP renewal. We use 86400 (1 day) so a failed DNS64/NAT64 stack self-heals within a day by clients falling back to IPv4.
+
+### Deployment pitfalls (learned the hard way)
+
+Option 108 must never be deployed before the whole IPv6-only path works end to end. A client that honours it drops IPv4 immediately and depends on RA-provided PREF64 + RDNSS and a working NAT64. Each of these failure modes was hit in sequence, and every one presented identically on the phone ("stuck obtaining IP address" / "failed to connect"):
+
+1. **ND entries silently not created.** RouterOS ships only the `interface=all` default in `/ipv6/nd`. An `api_find_and_modify` task searching for `interface=vlan2` matches zero entries and silently succeeds (`require_matches_min` defaults to 0) — PREF64 was never advertised. Use `api_modify`, which creates missing entries.
+2. **RDNSS pointing at a nonexistent address.** VLAN IPv6 addresses came `from-pool`, so the actual prefix was dynamic (`:0::/64`), while the ND `dns=` advertised the documented-but-wrong `:9::/64` router address. Fixed by switching VLANs to static addressing — the HE prefix is static, the pool indirection served no purpose.
+3. **`advertise-dns=no` on new ND entries.** RouterOS creates per-interface ND entries with `advertise-dns=no`, which suppresses the RDNSS option entirely — even when a static `dns=` list is configured on the entry. Must be set to `yes` explicitly.
+
+4. **RouterOS static FWD entries corrupt NXDOMAIN.** A manually added `type=FWD match-subdomain=yes` entry for `lumpiasty.xyz` (intended to bypass DNS64 for our own zone) returned `NOERROR` with an empty answer for nonexistent subdomains instead of relaying NXDOMAIN. Combined with `ndots:5` and the `homelab-infra.lumpiasty.xyz` search domain in kubernetes pods, `getaddrinfo` received NODATA for the search-suffixed candidate (`authentik.lumpiasty.xyz.homelab-infra.lumpiasty.xyz`), concluded the name exists, stopped the search loop, and never tried the absolute name — apps failed with `ENOTFOUND` for perfectly valid hostnames while `nslookup` (absolute query) worked. The zone bypass now lives in the CoreDNS Corefile as a dedicated `lumpiasty.xyz:53` server block without `dns64`, which relays rcodes faithfully. RouterOS DNS does plain forwarding only; no FWD entries except Tailscale MagicDNS.
+
+Verification tooling: `rdisc6` (NixOS package `ndisc6`) shows the exact RA contents — RDNSS and PREF64 must both be present. When capturing DHCP in Wireshark, do not filter by client MAC: OFFER/ACK are sent to the broadcast MAC and disappear from the capture, hiding the server side of the exchange. When diagnosing DNS, the CoreDNS `log` plugin output is visible via `/log print` on the router (container `logging=yes`) and includes the rcode CoreDNS returned — comparing it with what the client received isolates which hop corrupts responses. Beware misleading test names: `*.example.com` legitimately returns NODATA upstream, making it useless for NXDOMAIN testing.
 
 ## CI/CD
 

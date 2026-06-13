@@ -192,11 +192,12 @@
         forward-to: 100.100.100.100
         match-subdomain: true
         comment: Tailscale MagicDNS
-      - name: lumpiasty.xyz
-        type: FWD
-        forward-to: 1.1.1.1
-        match-subdomain: true
-        comment: lumpiasty.xyz bypass nat64
+      # Do NOT add a lumpiasty.xyz FWD entry here. RouterOS FWD entries return
+      # NOERROR with an empty answer instead of relaying NXDOMAIN, which breaks
+      # getaddrinfo search-domain processing (ENOTFOUND for valid names in k8s
+      # pods). The DNS64 bypass for our own zone lives in the CoreDNS Corefile
+      # (mikrotik/coredns/Corefile, lumpiasty.xyz server block) which relays
+      # rcodes correctly. See docs/coredns-nat64.md pitfall #4.
     handle_absent_entries: remove
     handle_entries_content: remove_as_much_as_possible
 

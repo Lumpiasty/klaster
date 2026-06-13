@@ -93,8 +93,12 @@ There are also networks, which are not VLANs, but are routed:
   Static assignment on CRS, access to factory IP of ONU
 - Containers on CRS<br>
   Access to every other network<br>
-  IP: 172.17.0.1/16, 2001:470:61a3:500::/64<br>
-  Static IP management
+  IP: 172.20.0.1/24, 2001:470:61a3:500::/64<br>
+  Static IP management, hosts Tailscale and CoreDNS (DNS64) containers
+- NAT64 link on CRS<br>
+  Dedicated bridge for the Tayga NAT64 container<br>
+  IP: 192.168.239.0/30, fc64::/126 (link), 192.168.240.0/20 (Tayga dynamic pool)<br>
+  IPv6 traffic to 64:ff9b::/96 is routed here for translation to IPv4
 
 Whole network is designed to eliminate VLANs, overlays where unnecessary to keep things simple. Only NAT rules are:
 
@@ -103,7 +107,12 @@ Whole network is designed to eliminate VLANs, overlays where unnecessary to keep
   It doesn't have a gateway configured, we want to access it from other networks so we need to talk to it as if we were in the same subnet
 - src-nat tailscale IPv6 to internet<br>
   Tailscale assigns IPv6 from private subnet with no way to configure it, so the assigned IPs are not routable
+- Masquerade Tayga NAT64 dynamic pool (192.168.240.0/20) via GPON PPPoE
 - IPv4 port forwards from GPON PPPoE to respective services
+
+## IPv6-mostly (NAT64/DNS64)
+
+LAN (vlan2) and IoT (vlan5) are IPv6-mostly networks (RFC 8925): clients capable of IPv6-only operation receive DHCP option 108, drop their IPv4 address, and activate CLAT using the NAT64 prefix advertised via PREF64 in router advertisements. Legacy clients keep dual-stack. DNS64 (CoreDNS container, with `translate_all`) synthesizes 64:ff9b::/96 AAAA answers so all named traffic exits via NAT64 (Tayga container) on our IPv4 WAN — bypassing the HE tunnel for egress and avoiding datacenter-IP captcha flagging. See [CoreDNS DNS64 + NAT64 design](./coredns-nat64.md) for details and deployment pitfalls.
 
 There is also an UPnP and NAT-PMP enabled to automatically configure port forwards from LAN.
 

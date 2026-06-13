@@ -1,3 +1,22 @@
+# Our own zone bypasses DNS64: internal services have native IPv6 (LB pool
+# routed via HE prefix), so clients should get real AAAA records and connect
+# directly instead of hairpinning through NAT64.
+#
+# This MUST live here, not as a RouterOS static FWD entry: RouterOS FWD
+# entries return NOERROR with an empty answer instead of relaying NXDOMAIN,
+# which breaks getaddrinfo search-domain processing (resolver stops at the
+# first NODATA search candidate and never tries the absolute name -> apps
+# fail with ENOTFOUND for names that exist).
+lumpiasty.xyz:53 {
+    forward . 1.1.1.1 8.8.8.8 {
+        prefer_udp
+    }
+
+    cache 300
+    errors
+    log
+}
+
 .:53 {
     # Synthesize AAAA from A records for all destinations.
     # translate_all: override real AAAA records too, so all traffic exits

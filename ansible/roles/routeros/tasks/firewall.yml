@@ -72,6 +72,15 @@
         comment: Allow Tayga NAT64 pool to internet
         out-interface: pppoe-gpon
         src-address: 192.168.240.0/20
+      # IPv6-only clients reaching internal services published on the public IP
+      # (e.g. authentik.lumpiasty.xyz -> 139.28.40.212 -> dst-nat -> 10.44.0.0/16)
+      # arrive from the Tayga pool after NAT64 translation. Without this rule
+      # they fall through to the final reject (hairpin via NAT64).
+      - action: accept
+        chain: forward
+        comment: Allow Tayga NAT64 pool to LoadBalancer (hairpin port forwards)
+        dst-address: 10.44.0.0/16
+        src-address: 192.168.240.0/20
       - action: jump
         chain: forward
         comment: Allow port forwards
@@ -446,6 +455,11 @@
         comment: Allow from IOT to internet only
         in-interface: vlan5
         out-interface-list: wan
+      - action: accept
+        chain: forward
+        comment: Allow from SRV to internet via NAT64
+        in-interface: vlan4
+        out-interface: nat64
       - action: accept
         chain: forward
         comment: Allow from IOT to internet via NAT64

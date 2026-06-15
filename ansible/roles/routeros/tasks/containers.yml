@@ -43,13 +43,5 @@
         remote-image: gitea.lumpiasty.xyz/lumpiasty/coredns-mikrotik:latest
         root-dir: coredns/root
         start-on-boot: true
-      # Tayga auto-configures from the veth addresses and routes — no env vars needed.
-      - interface: veth-tayga
-        logging: true
-        name: tayga
-        remote-image: ghcr.io/apalrd/tayga-nat64
-        root-dir: tayga/root
-        start-on-boot: true
-        workdir: /app
     handle_absent_entries: remove
     handle_entries_content: remove_as_much_as_possible

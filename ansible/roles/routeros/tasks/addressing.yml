@@ -6,9 +6,6 @@
       - address: 172.20.0.1/24
         interface: containers
         network: 172.20.0.0
-      - address: 192.168.239.1/30
-        interface: nat64
-        network: 192.168.239.0
       - address: 192.168.4.1/24
         interface: lo
         network: 192.168.4.0
@@ -40,10 +37,6 @@
   community.routeros.api_modify:
     path: ipv6 address
     data:
-      - address: fc64::1/126
-        advertise: false
-        comment: nat64 loopback
-        interface: nat64
       - address: 2001:470:70:dd::2/64
         advertise: false
         interface: sit1

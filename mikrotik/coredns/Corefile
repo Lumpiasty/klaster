@@ -1,37 +1,46 @@
-# Our own zone bypasses DNS64: internal services have native IPv6 (LB pool
-# routed via HE prefix), so clients should get real AAAA records and connect
-# directly instead of hairpinning through NAT64.
+# CoreDNS as a plain forwarding resolver with selective AAAA suppression.
 #
-# This MUST live here, not as a RouterOS static FWD entry: RouterOS FWD
-# entries return NOERROR with an empty answer instead of relaying NXDOMAIN,
-# which breaks getaddrinfo search-domain processing (resolver stops at the
-# first NODATA search candidate and never tries the absolute name -> apps
-# fail with ENOTFOUND for names that exist).
-lumpiasty.xyz:53 {
+# Background: the ISP provides no native IPv6, only a Hurricane Electric tunnel.
+# HE addresses are flagged as datacenter ranges by some sites (endless CAPTCHAs,
+# bot detection). To avoid this, IPv6 (AAAA) resolution is suppressed by default
+# so clients use IPv4, while a whitelist keeps AAAA for domains where native
+# IPv6 is wanted (our own services reachable over the HE prefix, and any domain
+# explicitly trusted over IPv6).
+#
+# NAT64/DNS64 was tried and removed: it forced most traffic through a userspace
+# Tayga translator, capping throughput at ~250 Mbps on the RB-class CPU (line
+# rate is 1 Gbps) and adding two containers as a SPOF — all to avoid IPv6 egress
+# we don't want in the first place. Plain AAAA suppression achieves the same
+# IPv4-preferred outcome with zero datapath overhead.
+#
+# TODO: replace the global template suppression + whitelist with a plugin that
+# suppresses AAAA only when the domain has no A record (so IPv6-only
+# destinations still work). No such in-tree plugin exists yet.
+
+# Whitelist: domains that keep AAAA resolution (native IPv6 via HE tunnel).
+(aaaa_allowed) {
     forward . 1.1.1.1 8.8.8.8 {
         prefer_udp
     }
-
     cache 300
     errors
     log
 }
 
-.:53 {
-    # Synthesize AAAA from A records for all destinations.
-    # translate_all: override real AAAA records too, so all traffic exits
-    # via NAT64 (our IPv4 WAN) rather than the HE tunnel broker.
-    # This eliminates datacenter flagging and CAPTCHA loops from HE addresses.
-    dns64 {
-        prefix 64:ff9b::/96
-        translate_all
-        allow_ipv4
-    }
+# Our own zone: services have native IPv6 on the HE prefix, keep AAAA.
+lumpiasty.xyz:53 {
+    import aaaa_allowed
+}
 
+# Default: forward everything, but suppress AAAA so clients use IPv4 and
+# avoid the HE tunnel's datacenter-flagged egress.
+.:53 {
+    template IN AAAA {
+        rcode NOERROR
+    }
     forward . 1.1.1.1 8.8.8.8 {
         prefer_udp
     }
-
     cache 300
     errors
     log

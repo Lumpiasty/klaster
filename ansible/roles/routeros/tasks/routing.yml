@@ -21,15 +21,6 @@
         suppress-hw-offload: false
         target-scope: 10
         vrf-interface: pppoe-gpon
-      - comment: Tayga NAT64 dynamic pool
-        disabled: false
-        distance: 1
-        dst-address: 192.168.240.0/20
-        gateway: 192.168.239.2
-        routing-table: main
-        scope: 30
-        suppress-hw-offload: false
-        target-scope: 10
     handle_absent_entries: remove
     handle_entries_content: remove_as_much_as_possible
 
@@ -48,13 +39,6 @@
         dst-address: fd7a:115c:a1e0::/48
         gateway: 2001:470:61a3:500::1
         pref-src: ""
-        routing-table: main
-        suppress-hw-offload: false
-      - comment: NAT64 prefix via Tayga
-        disabled: false
-        distance: 1
-        dst-address: 64:ff9b::/96
-        gateway: fc64::2%nat64
         routing-table: main
         suppress-hw-offload: false
     handle_absent_entries: remove

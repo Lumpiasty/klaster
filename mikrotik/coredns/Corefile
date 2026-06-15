@@ -24,7 +24,9 @@
     }
     cache 300
     errors
-    log
+    log . {
+        class error
+    }
 }
 
 # Our own zone: services have native IPv6 on the HE prefix, keep AAAA.
@@ -43,7 +45,9 @@ lumpiasty.xyz:53 {
     }
     cache 300
     errors
-    log
+    log . {
+        class error
+    }
     reload
     health :8080
 }

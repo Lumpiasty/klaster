@@ -7,7 +7,7 @@ metadata:
   name: gitea-shared-storage-lvmhdd
   namespace: openebs
 spec:
-  capacity: 10Gi
+  capacity: "21474836480"
   ownerNodeID: anapistula-delrosalae
   shared: "yes"
   thinProvision: "no"
@@ -20,7 +20,7 @@ metadata:
   name: gitea-shared-storage-lvmhdd
 spec:
   capacity:
-    storage: 10Gi
+    storage: 20Gi
   accessModes:
     - ReadWriteOnce
   persistentVolumeReclaimPolicy: Retain
@@ -41,6 +41,6 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 10Gi
+      storage: 20Gi
   storageClassName: hdd-lvmpv
   volumeName: gitea-shared-storage-lvmhdd

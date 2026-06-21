@@ -243,6 +243,16 @@ QMI initialization within ~1 second.
 
 Full investigation: see [wwan-bm806c-qmi-workaround.md](./wwan-bm806c-qmi-workaround.md).
 
+## Multi-WAN Stale Connection Tracking
+
+When the routing table fails over from GPON to LTE (or vice versa), RouterOS does not automatically clear existing connection tracking entries. If an established TCP/UDP connection is routed out the new WAN interface, it retains the NAT translation state (source IP) of the old WAN interface. The packet is sent to the ISP with the wrong source IP and is silently dropped, causing clients (like Tailscale) to hang for minutes until their internal sockets time out.
+
+To solve this purely declaratively without scripts or blanket connection flushes, the `forward` chain is configured to "fast-fail" these shifted connections:
+
+1. Connections are marked with their egress WAN upon establishment (`wan-gpon` or `wan-lte`) via the `mangle` table.
+2. If an established connection with a `wan-gpon` mark attempts to route out `vlan6` (LTE), or a `wan-lte` mark routes out `pppoe-gpon`, it is explicitly rejected (`tcp-reset` for TCP, `icmp-network-unreachable` for UDP) before reaching the NAT table.
+3. This rejection immediately signals the client OS that the route is dead, forcing the application (Tailscale, SIP clients, etc.) to instantly close the socket and establish a new one, which successfully binds to the new WAN interface and NAT state.
+
 ## Implementation files
 
 | File | Role |

@@ -1,8 +1,56 @@
 ---
+- name: Configure WAN connection marking
+  community.routeros.api_modify:
+    path: ip firewall mangle
+    data:
+      - action: mark-connection
+        chain: forward
+        connection-state: new
+        new-connection-mark: wan-gpon
+        out-interface: pppoe-gpon
+        passthrough: true
+        comment: Mark connections going out GPON
+      - action: mark-connection
+        chain: forward
+        connection-state: new
+        new-connection-mark: wan-lte
+        out-interface: vlan6
+        passthrough: true
+        comment: Mark connections going out LTE
+    handle_absent_entries: remove
+    handle_entries_content: remove_as_much_as_possible
+    ensure_order: true
+
 - name: Configure IPv4 firewall filter rules
   community.routeros.api_modify:
     path: ip firewall filter
     data:
+      - action: reject
+        chain: forward
+        connection-mark: wan-gpon
+        out-interface: vlan6
+        protocol: tcp
+        reject-with: tcp-reset
+        comment: Fast-fail TCP connections that shifted from GPON to LTE
+      - action: reject
+        chain: forward
+        connection-mark: wan-gpon
+        out-interface: vlan6
+        reject-with: icmp-network-unreachable
+        comment: Fast-fail non-TCP connections that shifted from GPON to LTE
+      - action: reject
+        chain: forward
+        connection-mark: wan-lte
+        out-interface: pppoe-gpon
+        protocol: tcp
+        reject-with: tcp-reset
+        comment: Fast-fail TCP connections that shifted from LTE to GPON
+      - action: reject
+        chain: forward
+        connection-mark: wan-lte
+        out-interface: pppoe-gpon
+        reject-with: icmp-network-unreachable
+        comment: Fast-fail non-TCP connections that shifted from LTE to GPON
       - action: fasttrack-connection
         chain: forward
         connection-state: established,related

@@ -84,9 +84,10 @@ subnets would fail routing lookup with "net unreachable" without it.
 
 | Destination | Source | Distance | Active when |
 |---|---|---|---|
-| `0.0.0.0/0` | static via `pppoe-gpon` | 1 | GPON up |
+| `1.0.0.1/32`, `8.8.4.4/32` | static via `pppoe-gpon` | 1 | always |
+| `0.0.0.0/0` | static via `1.0.0.1`, `8.8.4.4` (recursive) | 1, 2 | GPON ping check succeeds |
 | `0.0.0.0/0` | BGP from D-Link via `192.168.6.2` | 200 | wwan up on D-Link |
-| `2000::/3` | static via `sit1` (HE tunnel) | 1 | sit1 active (HE tunnel works) |
+| `2000::/3` | static via `2001:470:70:dd::1` (HE tunnel) | 1 | HE tunnel ping check succeeds |
 | `2000::/3` | BGP from D-Link via `2001:470:61a3:600::2` | 200 | wwan up on D-Link |
 
 RouterOS distance comparison is straightforward: distance 1 always wins
@@ -136,11 +137,12 @@ preferred route for D-Link's own traffic.
 - **wwan modem goes down** → BIRD2 device protocol detects wwan0 down →
   static `lte_default` / `lte_default6` become unreachable → BGP withdraws
   announcements → CRS removes BGP-learned default
-- **GPON drops** → `pppoe-gpon` interface down → CRS distance-1 default
-  route inactive → distance-200 BGP route activates → CRS withdraws its
-  default-originate announcement to D-Link (since no default is installed
-  any more) → D-Link's kernel default-via-CRS is removed → D-Link uses
-  wwan kernel default → traffic flows from CRS via vlan6 → D-Link → wwan
+- **GPON drops or blackholes** → recursive ping checks (1.0.0.1, 8.8.4.4) over `pppoe-gpon`
+  fail (takes ~20s: 10s ping interval + 10s timeout) → CRS distance-1/2 default routes inactive → distance-200 BGP route
+  activates → CRS withdraws its default-originate announcement to D-Link (loop
+  prevention prevents reflecting D-Link's own route) → D-Link's kernel
+  default-via-CRS is removed → D-Link uses wwan kernel default → traffic flows
+  from CRS via vlan6 → D-Link → wwan
 
 All transitions are automatic and driven by interface state. No active
 probing (Netwatch / mwan3), no scripts toggling routes.

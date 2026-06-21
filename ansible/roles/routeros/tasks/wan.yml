@@ -10,6 +10,7 @@
         password: "{{ routeros_pppoe_password }}"
         # Using CoreDNS container with DNS64
         use-peer-dns: false
+        add-default-route: false
         user: "{{ routeros_pppoe_username }}"
     handle_absent_entries: remove
     handle_entries_content: remove_as_much_as_possible

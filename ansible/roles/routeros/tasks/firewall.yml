@@ -258,6 +258,11 @@
         protocol: tcp
       - action: accept
         chain: allow-ports
+        dst-port: 10011
+        out-interface: vlan4
+        protocol: tcp
+      - action: accept
+        chain: allow-ports
         comment: Allow HTTP
         dst-port: 80
         out-interface: vlan4
@@ -313,6 +318,12 @@
         chain: dstnat
         dst-address: 139.28.40.212
         dst-port: 30033
+        protocol: tcp
+        to-addresses: 10.44.0.0
+      - action: dst-nat
+        chain: dstnat
+        dst-address: 139.28.40.212
+        dst-port: 10011
         protocol: tcp
         to-addresses: 10.44.0.0
       - action: src-nat

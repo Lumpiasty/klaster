@@ -15,6 +15,10 @@ spec:
     protocol: TCP
     port: 30033
     targetPort: 30033
+  - name: rawquery
+    protocol: TCP
+    port: 10011
+    targetPort: 10011
   type: LoadBalancer
   externalTrafficPolicy: Local
   ipFamilyPolicy: PreferDualStack

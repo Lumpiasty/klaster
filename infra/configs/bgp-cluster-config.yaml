@@ -56,6 +56,7 @@ spec:
         addresses:
           # Not advertising ClusterIP - kubeproxyreplacement should? translate them directly to pod ips
           # Not advertising ExternalIP - they should be reachable via static config
+          - ClusterIP
           - LoadBalancerIP
       selector:
         matchExpressions:

@@ -50,7 +50,7 @@ Network is divided to multiple VLANs to enforce strict access control rules usin
   Internet access only<br>
   IP: 192.168.5.0/24 / 2001:470:61a3:a::/64<br>
   Gateway: 192.168.5.1 / 2001:470:61a3:a:ffff:ffff:ffff:ffff<br>
-  DHCP / SLAAC, accessible via separate WiFi network "szafa" from D-Link for absolutely untrusted Tuya and like devices
+  DHCP / SLAAC, accessible via separate, hidden WiFi network "szafa" from D-Link with strict MAC filtering for absolutely untrusted Tuya and like devices
 - 6: Internet access for OpenWRT<br>
   Internet access only<br>
   IP: 192.168.6.0/24 / 2001:470:61a3:600::/64<br>

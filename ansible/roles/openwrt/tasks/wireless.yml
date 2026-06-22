@@ -25,6 +25,12 @@
       network: iot
       mode: ap
       ssid: szafa
+      hidden: '1' # Stop broadcasting SSID
+      macfilter: allow # Apply MAC filter allowing only specific addresses
+      maclist:
+        - 80:64:7c:99:21:20 # Thermomether
+        - C0:F8:53:89:E5:EF # Smart plug
+        - C0:F8:53:89:E3:42 # smart plug
       encryption: psk2
       key: "{{ openwrt_iot_wifi_password }}"
       disabled: '0'

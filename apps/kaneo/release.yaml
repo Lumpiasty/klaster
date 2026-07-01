@@ -8,7 +8,7 @@ spec:
   interval: 24h
   url: https://github.com/usekaneo/kaneo.git
   ref:
-    tag: v2.7.8
+    tag: v2.9.0
   ignore: |
     # exclude all
     /*

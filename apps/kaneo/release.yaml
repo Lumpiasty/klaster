@@ -58,6 +58,10 @@ spec:
       env:
         clientUrl: "https://kaneo.lumpiasty.xyz"
         disablePasswordRegistration: true
+        existingSecret:
+          enabled: true
+          name: kaneo-app-secret
+          key: auth_secret
         database:
           external:
             enabled: true

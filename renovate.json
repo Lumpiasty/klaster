@@ -11,6 +11,18 @@
     ]
   },
   "prHourlyLimit": 9,
+  "customManagers": [
+    {
+      "customType": "regex",
+      "fileMatch": [
+        "apps/.+\\.yaml$"
+      ],
+      "matchStrings": [
+        "tag:\\s*[\"']?(?<currentValue>[^\"' \\n]+)[\"']?\\s*#\\s*renovate:\\s*(?:datasource=(?<datasource>[^\\s]+)\\s+)?depName=(?<depName>[^\\s]+)(?:\\s+registryUrl=(?<registryUrl>[^\\s]+))?"
+      ],
+      "datasourceTemplate": "{{#if datasource}}{{{datasource}}}{{else}}docker{{/if}}"
+    }
+  ],
   "packageRules": [
     {
       "matchPackageNames": ["usekaneo/kaneo", "ghcr.io/usekaneo/kaneo"],

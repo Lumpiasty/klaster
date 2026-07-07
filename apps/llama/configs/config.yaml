@@ -63,13 +63,14 @@ matrix:
     haunt: "HauhauCS/Qwen3.6-35B-A3B-Uncensored-HauhauCS-Aggressive-nothink:Q4_K_M"
     mtpt: "unsloth/Qwen3.6-35B-A3B-MTP-GGUF:Q4_K_M"
     mtpnt: "unsloth/Qwen3.6-35B-A3B-MTP-GGUF-nothink:Q4_K_M"
+    qwy9: "empero-ai/Qwythos-9B-Claude-Mythos-5-1M-GGUF:Q4_K_M"
 
   evict_costs:
     flux: 10  # large files, slow to reload
 
   sets:
     # any LLM can run alongside the small always-on model + STT + TTS (all CPU, no VRAM cost)
-    with_q8: "(coder | q35t | q35nt | q35ht | q35hnt | q4t | q4nt | q4ht | q4hnt | g26xl | g26xlnt | g26mtp | g26mtpnt | g26ht | g26hnt | g26hmtp | g26hmnt | ge4qat | ge4qatnt | ge2qat | ge2qatnt | ge4mtp | ge4mtpnt | ge4ht | ge4hnt | ge4hmtp | ge4hmnt | q36t | q36nt | haut | haunt | mtpt | mtpnt) & q8 & stt"
+    with_q8: "(coder | q35t | q35nt | q35ht | q35hnt | q4t | q4nt | q4ht | q4hnt | g26xl | g26xlnt | g26mtp | g26mtpnt | g26ht | g26hnt | g26hmtp | g26hmnt | ge4qat | ge4qatnt | ge2qat | ge2qatnt | ge4mtp | ge4mtpnt | ge4ht | ge4hnt | ge4hmtp | ge4hmnt | q36t | q36nt | haut | haunt | mtpt | mtpnt | qwy9) & q8 & stt"
     # FLUX runs alone — evicts everything including q8, but keeps STT for voice during image gen
     image_gen: "flux & stt"
 
@@ -411,6 +412,14 @@ models:
       ${qwen35_nothink_args}
       --spec-type draft-mtp --spec-draft-n-max 1
       --parallel 1
+      ${common_args}
+
+  "empero-ai/Qwythos-9B-Claude-Mythos-5-1M-GGUF:Q4_K_M":
+    cmd: |
+      llama-server
+      -hf empero-ai/Qwythos-9B-Claude-Mythos-5-1M-GGUF:Q4_K_M
+      ${ctx_128k}
+      --temp 0.6 --top-p 0.95 --top-k 20 -ctk q4_0 -ctv q4_0
       ${common_args}
 
   # STT via parakeet-server (parakeet.cpp OpenAI-compatible server, CPU, always loaded)

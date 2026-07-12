@@ -3,6 +3,7 @@ when:
     path:
       include:
         - mikrotik/coredns/**
+        - docker/**
 
 steps:
   - name: Get registry creds from OpenBao
@@ -21,7 +22,7 @@ steps:
       - 'printf "PLUGIN_USERNAME=%s\n" "$(bao kv get -mount secret -field REGISTRY_USERNAME container-registry)" > /woodpecker/registry.env'
       - 'printf "PLUGIN_PASSWORD=%s\n" "$(bao kv get -mount secret -field REGISTRY_PASSWORD container-registry)" >> /woodpecker/registry.env'
 
-  - name: Build and push
+  - name: Build and push mikrotik coredns
     image: woodpeckerci/plugin-docker-buildx:6.1.1
     privileged: true
     settings:
@@ -34,6 +35,24 @@ steps:
       dockerfile: mikrotik/coredns/Dockerfile
       context: mikrotik/coredns/
       env_file: /woodpecker/registry.env
+      cache_images:
+        - gitea.lumpiasty.xyz/lumpiasty/coredns-mikrotik:buildcache
+
+  - name: Build and push llama-swap-supervisord
+    image: woodpeckerci/plugin-docker-buildx:6.1.1
+    privileged: true
+    settings:
+      registry: gitea.lumpiasty.xyz
+      repo: gitea.lumpiasty.xyz/lumpiasty/supervisord
+      platforms: linux/arm64
+      tags:
+        - latest
+        - ${CI_COMMIT_SHA:0:8}
+      dockerfile: docker/supervisord/Dockerfile
+      context: docker/supervisord/
+      env_file: /woodpecker/registry.env
+      cache_images:
+        - gitea.lumpiasty.xyz/lumpiasty/supervisord:buildcache
 
   - name: Invalidate OpenBao token
     image: quay.io/openbao/openbao:2.5.5

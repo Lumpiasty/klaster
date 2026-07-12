@@ -18,15 +18,18 @@ spec:
     spec:
       containers:
         - name: supervisord
-          image: gitea.lumpiasty.xyz/lumpiasty/supervisord:latest@sha256:3c45770c48087fed3af848dc7f4b9ef890e348d4f6b9af235e4d8b5f29d466ac
+          image: gitea.lumpiasty.xyz/lumpiasty/supervisord:latest@sha256:cf4e5b98a7cdb07e8d9965192ab8f4c3038c5d2e05f865c1e6f3ae4de0974415
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
               name: http
               protocol: TCP
+          env:
+            - name: WORKSPACE
+              value: /root
           volumeMounts:
             - name: models
-              mountPath: /workspace
+              mountPath: /root
             - name: models
               mountPath: /usr/local/bin/ffmpeg
               subPath: ffmpeg/ffmpeg

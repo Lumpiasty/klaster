@@ -2,7 +2,6 @@ when:
   - event: push
     path:
       include:
-        - mikrotik/coredns/**
         - docker/**
 
 steps:
@@ -32,8 +31,8 @@ steps:
       tags:
         - latest
         - ${CI_COMMIT_SHA:0:8}
-      dockerfile: mikrotik/coredns/Dockerfile
-      context: mikrotik/coredns/
+      dockerfile: docker/coredns/Dockerfile
+      context: docker/coredns/
       env_file: /woodpecker/registry.env
       cache_images:
         - gitea.lumpiasty.xyz/lumpiasty/coredns-mikrotik:buildcache

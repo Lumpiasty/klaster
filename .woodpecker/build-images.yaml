@@ -38,13 +38,13 @@ steps:
         - gitea.lumpiasty.xyz/lumpiasty/coredns-mikrotik:buildcache
     depends_on: ["Get registry creds from OpenBao"]
 
-  - name: Build and push llama-swap-supervisord
+  - name: Build and push supervisord
     image: woodpeckerci/plugin-docker-buildx:6.1.1
     privileged: true
     settings:
       registry: gitea.lumpiasty.xyz
       repo: gitea.lumpiasty.xyz/lumpiasty/supervisord
-      platforms: linux/arm64
+      platforms: linux/amd64
       tags:
         - latest
         - ${CI_COMMIT_SHA:0:8}
@@ -66,4 +66,4 @@ steps:
       - status: [success, failure]
     depends_on:
       - Build and push mikrotik coredns
-      - Build and push llama-swap-supervisord
+      - Build and push supervisord

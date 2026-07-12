@@ -30,9 +30,6 @@ spec:
           volumeMounts:
             - name: models
               mountPath: /root
-            - name: models
-              mountPath: /usr/local/bin/ffmpeg
-              subPath: ffmpeg/ffmpeg
             - mountPath: /dev/kfd
               name: kfd
             - mountPath: /dev/dri

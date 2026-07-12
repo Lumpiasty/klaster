@@ -2,7 +2,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: llama-swap
+  name: supervisord
   namespace: llama
 spec:
   replicas: 1
@@ -16,55 +16,17 @@ spec:
       labels:
         app: llama-swap
     spec:
-      initContainers:
-        - name: download-whisper
-          image: gitea.lumpiasty.xyz/lumpiasty/llama-swap:unified-vulkan-parakeet-2026-07-06
-          command:
-            - sh
-            - -c
-            - |
-              mkdir -p /root/.cache/whisper
-              if [ ! -f /root/.cache/whisper/ggml-small.bin ]; then
-                echo "Downloading whisper-small model..."
-                curl -L -o /root/.cache/whisper/ggml-small.bin \
-                  https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.bin
-              else
-                echo "whisper-small model already present, skipping download"
-              fi
-              if [ ! -f /root/.cache/ffmpeg/ffmpeg ]; then
-                echo "Downloading static ffmpeg..."
-                mkdir -p /root/.cache/ffmpeg
-                apt-get update -qq && apt-get install -y --no-install-recommends xz-utils
-                curl -L -o /root/.cache/ffmpeg/ffmpeg.tar.xz \
-                  https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-linux64-gpl.tar.xz
-                tar -xJf /root/.cache/ffmpeg/ffmpeg.tar.xz -C /root/.cache/ffmpeg --wildcards '*/ffmpeg' --strip-components=2
-                rm /root/.cache/ffmpeg/ffmpeg.tar.xz
-                chmod +x /root/.cache/ffmpeg/ffmpeg
-              else
-                echo "ffmpeg already present, skipping download"
-              fi
-          volumeMounts:
-            - name: models
-              mountPath: /root/.cache
       containers:
-        - name: llama-swap
-          image: gitea.lumpiasty.xyz/lumpiasty/llama-swap:unified-vulkan-parakeet-2026-07-06
+        - name: supervisord
+          image: gitea.lumpiasty.xyz/lumpiasty/supervisord:latest@sha256:e9c5d44065722a9811a45f0fd2ff0f72647225d6761e5950b9df5c21dec211eb
           imagePullPolicy: IfNotPresent
-          command:
-            - llama-swap
-          args:
-            - --config=/config/config.yaml
-            - --watch-config
-          env:
-            - name: RADV_EXPERIMENTAL
-              value: transfer_queue
           ports:
             - containerPort: 8080
               name: http
               protocol: TCP
           volumeMounts:
             - name: models
-              mountPath: /root/.cache
+              mountPath: /workspace
             - name: models
               mountPath: /usr/local/bin/ffmpeg
               subPath: ffmpeg/ffmpeg
@@ -72,8 +34,6 @@ spec:
               name: kfd
             - mountPath: /dev/dri
               name: dri
-            - mountPath: /config
-              name: config
           securityContext:
             privileged: true
       volumes:
@@ -88,9 +48,6 @@ spec:
           hostPath:
             path: /dev/dri
             type: Directory
-        - name: config
-          configMap:
-            name: llama-swap
 ---
 apiVersion: v1
 kind: Service

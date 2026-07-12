@@ -8,9 +8,3 @@ resources:
   - pvc-ssd.yaml
   - deployment.yaml
   - kokoro.yaml
-configMapGenerator:
-  - name: llama-swap
-    namespace: llama
-    files:
-      - config.yaml=configs/config.yaml
-      - parakeet-proxy.py=configs/parakeet-proxy.py

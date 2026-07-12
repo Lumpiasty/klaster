@@ -3,6 +3,8 @@ FROM debian:13.5
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt update && apt install -y --no-install-recommends\
+    curl wget vim \
+    build-essential cmake libvulkan-dev glslc spirv-headers \
     supervisor \
     && rm -rf /var/lib/apt/lists/*
 

@@ -3,6 +3,7 @@ when:
     path:
       include:
         - docker/**
+        - .woodpecker/build-images.yaml
 
 steps:
   - name: Get registry creds from OpenBao

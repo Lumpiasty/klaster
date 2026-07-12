@@ -37,6 +37,7 @@ steps:
       env_file: /woodpecker/registry.env
       cache_images:
         - gitea.lumpiasty.xyz/lumpiasty/coredns-mikrotik:buildcache
+    depends_on: ["Get registry creds from OpenBao"]
 
   - name: Build and push llama-swap-supervisord
     image: woodpeckerci/plugin-docker-buildx:6.1.1
@@ -53,6 +54,7 @@ steps:
       env_file: /woodpecker/registry.env
       cache_images:
         - gitea.lumpiasty.xyz/lumpiasty/supervisord:buildcache
+    depends_on: ["Get registry creds from OpenBao"]
 
   - name: Invalidate OpenBao token
     image: quay.io/openbao/openbao:2.5.5
@@ -63,3 +65,6 @@ steps:
       - bao write -f auth/token/revoke-self
     when:
       - status: [success, failure]
+    depends_on:
+      - Build and push mikrotik coredns
+      - Build and push llama-swap-supervisord

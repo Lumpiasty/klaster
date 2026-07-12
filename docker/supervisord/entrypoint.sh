@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-WORKSPACE=/workspace
+WORKSPACE="${WORKSPACE:-/workspace}"
 CONF=$WORKSPACE/supervisord.conf
 
 [[ -f "$CONF" ]] || (echo_supervisord_conf > $CONF )

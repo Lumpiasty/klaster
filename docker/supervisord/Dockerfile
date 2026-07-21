@@ -4,6 +4,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt update && apt install -y --no-install-recommends\
     curl wget vim \
+    ca-certificates \
     build-essential cmake libvulkan-dev glslc spirv-headers libssl-dev git \
     mesa-utils mesa-vulkan-drivers \
     supervisor \

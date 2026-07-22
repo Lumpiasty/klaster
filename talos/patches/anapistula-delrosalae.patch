@@ -28,3 +28,4 @@ machine:
     # arrives too late. Work around using kernel args:
     extraKernelArgs:
       - amdgpu.runpm=1
+      - amdgpu.lockup_timeout=0,120000,0,0

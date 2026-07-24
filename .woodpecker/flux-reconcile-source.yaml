@@ -6,7 +6,7 @@ skip_clone: true
 
 steps:
   - name: Get kubernetes access from OpenBao
-    image: quay.io/openbao/openbao:2.5.5
+    image: quay.io/openbao/openbao:2.6.1
     environment:
       VAULT_ADDR: https://openbao.lumpiasty.xyz:8200
       ROLE_ID:
@@ -41,7 +41,7 @@ steps:
     commands:
       - flux reconcile source git flux-system
   - name: Invalidate OpenBao token
-    image: quay.io/openbao/openbao:2.5.5
+    image: quay.io/openbao/openbao:2.6.1
     environment:
       VAULT_ADDR: https://openbao.lumpiasty.xyz:8200
     commands:

@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: supervisord
-          image: gitea.lumpiasty.xyz/lumpiasty/supervisord:latest@sha256:c7adeeac86ee39b1ce9cd68ff2487c586c4f469569d1aa08cdddae693248751c
+          image: gitea.lumpiasty.xyz/lumpiasty/supervisord:latest@sha256:86e4837462324c47fa49d4f766908e133d84ba5373caf1f8fa5c55f44397b312
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080

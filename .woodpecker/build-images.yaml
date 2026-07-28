@@ -7,7 +7,7 @@ when:
 
 steps:
   - name: Get registry creds from OpenBao
-    image: quay.io/openbao/openbao:2.5.5
+    image: quay.io/openbao/openbao:2.6.1
     environment:
       VAULT_ADDR: https://openbao.lumpiasty.xyz:8200
       ROLE_ID:
@@ -57,7 +57,7 @@ steps:
     depends_on: ["Get registry creds from OpenBao"]
 
   - name: Invalidate OpenBao token
-    image: quay.io/openbao/openbao:2.5.5
+    image: quay.io/openbao/openbao:2.6.1
     environment:
       VAULT_ADDR: https://openbao.lumpiasty.xyz:8200
     commands:

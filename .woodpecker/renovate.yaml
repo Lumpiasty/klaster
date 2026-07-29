@@ -21,7 +21,7 @@ steps:
       - bao kv get -mount secret -field RENOVATE_TOKEN renovate > /woodpecker/renovate_token
       - bao kv get -mount secret -field GITHUB_COM_TOKEN renovate > /woodpecker/github_com_token
   - name: Run Renovate
-    image: renovate/renovate:43
+    image: renovate/renovate:44
     pull: true
     environment:
       RENOVATE_AUTODISCOVER: "true"

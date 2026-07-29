@@ -37,7 +37,7 @@
       "platformAutomerge": true
     },
     {
-      "matchUpdateTypes": ["patch"],
+      "matchUpdateTypes": ["patch", "digest"],
       "automerge": true,
       "automergeType": "pr",
       "platformAutomerge": true

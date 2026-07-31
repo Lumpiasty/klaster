@@ -8,7 +8,7 @@ spec:
   interval: 24h
   url: https://github.com/usekaneo/kaneo.git
   ref:
-    tag: v2.9.10
+    tag: v2.12.1
   ignore: |
     # exclude all
     /*
@@ -53,8 +53,6 @@ spec:
       enabled: false
     
     kaneo:
-      image:
-        tag: "2.9.10"  # renovate: depName=ghcr.io/usekaneo/kaneo registryUrl=https://ghcr.io
       env:
         clientUrl: "https://kaneo.lumpiasty.xyz"
         disablePasswordRegistration: true

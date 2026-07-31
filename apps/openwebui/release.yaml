@@ -131,6 +131,3 @@ spec:
         value: "flux2-klein-4b:Q4_K_M"
       - name: IMAGE_EDIT_SIZE
         value: "512x512"
-
-    image:
-      tag: v0.11.0

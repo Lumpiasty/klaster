@@ -53,8 +53,6 @@ spec:
       enabled: false
     
     kaneo:
-      image:
-        tag: "2.12.1"  # renovate: depName=ghcr.io/usekaneo/kaneo registryUrl=https://ghcr.io
       env:
         clientUrl: "https://kaneo.lumpiasty.xyz"
         disablePasswordRegistration: true

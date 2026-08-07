@@ -35,7 +35,7 @@ steps:
           --namespace flux-system
       - kubectl config use-context cluster
   - name: Reconcile git source
-    image: ghcr.io/fluxcd/flux-cli:v2.9.3
+    image: ghcr.io/fluxcd/flux-cli:v2.9.4
     environment:
       KUBECONFIG: /woodpecker/kubeconfig
     commands:

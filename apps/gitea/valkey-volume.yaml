@@ -7,7 +7,7 @@ metadata:
   name: gitea-valkey-primary-lvmhdd-0
   namespace: openebs
 spec:
-  capacity: "2147483648"
+  capacity: "4294967296"
   ownerNodeID: anapistula-delrosalae
   shared: "yes"
   thinProvision: "no"
@@ -20,7 +20,7 @@ metadata:
   name: gitea-valkey-primary-lvmhdd-0
 spec:
   capacity:
-    storage: 2Gi
+    storage: 4Gi
   accessModes:
     - ReadWriteOnce
   persistentVolumeReclaimPolicy: Retain
@@ -41,6 +41,6 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 2Gi
+      storage: 4Gi
   storageClassName: hdd-lvmpv
   volumeName: gitea-valkey-primary-lvmhdd-0

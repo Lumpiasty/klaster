@@ -24,6 +24,8 @@ spec:
         namespace: gitea
       interval: 12h
   values:
+    image:
+      tag: 1.27.2 # REMOVE ME after new helm chart version includes this update
     postgresql-ha:
       enabled: false
 

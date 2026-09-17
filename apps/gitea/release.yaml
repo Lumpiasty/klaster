@@ -26,7 +26,7 @@ spec:
   values:
     image:
       # REMOVE ME after new helm chart version includes updates
-      tag: 1.27.2 # renovate: depName=docker.gitea.com/gitea registryUrl=https://docker.gitea.com
+      tag: 1.27.3 # renovate: depName=docker.gitea.com/gitea registryUrl=https://docker.gitea.com
     postgresql-ha:
       enabled: false
 

@@ -23,7 +23,7 @@ steps:
       - 'printf "PLUGIN_PASSWORD=%s\n" "$(bao kv get -mount secret -field REGISTRY_PASSWORD container-registry)" >> /woodpecker/registry.env'
 
   - name: Build and push mikrotik coredns
-    image: woodpeckerci/plugin-docker-buildx:6.1.1
+    image: woodpeckerci/plugin-docker-buildx:6.1.2
     privileged: true
     settings:
       registry: gitea.lumpiasty.xyz
@@ -40,7 +40,7 @@ steps:
     depends_on: ["Get registry creds from OpenBao"]
 
   - name: Build and push supervisord
-    image: woodpeckerci/plugin-docker-buildx:6.1.1
+    image: woodpeckerci/plugin-docker-buildx:6.1.2
     privileged: true
     settings:
       registry: gitea.lumpiasty.xyz

@@ -76,7 +76,10 @@ spec:
           ISSUE_INDEXER_TYPE: bleve
           REPO_INDEXER_ENABLED: true
         security:
+          # Allow webhooks to only call this host
           ALLOWED_HOST_LIST: woodpecker.lumpiasty.xyz
+          # Allow only 80 and 443 ports
+          EGRESS_MODE: strict
       admin:
         username: GiteaAdmin
         email: gi@tea.com

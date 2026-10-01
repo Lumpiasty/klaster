@@ -75,7 +75,7 @@ spec:
         indexer:
           ISSUE_INDEXER_TYPE: bleve
           REPO_INDEXER_ENABLED: true
-        webhook:
+        security:
           ALLOWED_HOST_LIST: woodpecker.lumpiasty.xyz
       admin:
         username: GiteaAdmin

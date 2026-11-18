@@ -23,9 +23,9 @@ spec:
         kind: HelmRepository
         name: valkey
   values:
-    dataStorage:
+    persistence:
       enabled: true
-      persistentVolumeClaimName: immich-valkey
+      existingClaim: immich-valkey
 
     auth:
       enabled: true

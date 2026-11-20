@@ -52,6 +52,11 @@ spec:
         resources:
           requests:
             cpu: 0
+      commonConfiguration: |-
+        appendonly yes
+        save ""
+        maxmemory 512mb
+        maxmemory-policy volatile-lru
 
     persistence:
       enabled: true
@@ -80,6 +85,8 @@ spec:
           ALLOWED_HOST_LIST: woodpecker.lumpiasty.xyz
           # Allow only 80 and 443 ports
           EGRESS_MODE: strict
+        cache:
+          ITEM_TTL: 4h
       admin:
         username: GiteaAdmin
         email: gi@tea.com

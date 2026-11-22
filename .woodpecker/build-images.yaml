@@ -38,6 +38,12 @@ steps:
       cache_images:
         - gitea.lumpiasty.xyz/lumpiasty/coredns-mikrotik:buildcache
     depends_on: ["Get registry creds from OpenBao"]
+    when:
+      - event: push
+        path:
+          include:
+            - docker/coredns/**
+            - .woodpecker/build-images.yaml
 
   - name: Build and push supervisord
     image: woodpeckerci/plugin-docker-buildx:6.1.2
@@ -55,6 +61,12 @@ steps:
       cache_images:
         - gitea.lumpiasty.xyz/lumpiasty/supervisord:buildcache
     depends_on: ["Get registry creds from OpenBao"]
+    when:
+      - event: push
+        path:
+          include:
+            - docker/supervisord/**
+            - .woodpecker/build-images.yaml
 
   - name: Invalidate OpenBao token
     image: quay.io/openbao/openbao:2.7.3

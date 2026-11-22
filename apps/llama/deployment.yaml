@@ -19,7 +19,7 @@ spec:
       terminationGracePeriodSeconds: 60
       containers:
         - name: supervisord
-          image: gitea.lumpiasty.xyz/lumpiasty/supervisord:latest@sha256:662973a207c2ba6a25ea9baeb618129e1c7adfed3e9364cb967a08a33a040a8a
+          image: gitea.lumpiasty.xyz/lumpiasty/supervisord:latest@sha256:d6f363fb6652e89f2e0c6a89ce48f3ebecbf37b8cf0c7f8c75daf095f5ff3cdb
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080

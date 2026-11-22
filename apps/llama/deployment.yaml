@@ -16,6 +16,7 @@ spec:
       labels:
         app: llama-swap
     spec:
+      terminationGracePeriodSeconds: 60
       containers:
         - name: supervisord
           image: gitea.lumpiasty.xyz/lumpiasty/supervisord:latest@sha256:662973a207c2ba6a25ea9baeb618129e1c7adfed3e9364cb967a08a33a040a8a
@@ -30,6 +31,8 @@ spec:
           volumeMounts:
             - name: models
               mountPath: /root
+            - name: rootfs
+              mountPath: /rootfs
             - mountPath: /dev/kfd
               name: kfd
             - mountPath: /dev/dri
@@ -40,6 +43,9 @@ spec:
         - name: models
           persistentVolumeClaim:
             claimName: llama-models-lvmssd
+        - name: rootfs
+          persistentVolumeClaim:
+            claimName: llama-rootfs-lvmssd
         - name: kfd
           hostPath:
             path: /dev/kfd

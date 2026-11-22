@@ -6,7 +6,6 @@
 #
 # Inputs:
 #   /rootfs                    PVC mount point (holds $NEWROOT and seed temp dir)
-#   SUPERVISORD_NO_CHROOT=1    env var: skip the chroot, boot plain image
 #   /root/.no-chroot           file on the models PVC: same, no redeploy needed
 #   /root/.rootfs-reset        file on the models PVC: wipe rootfs and reseed
 #                              on this boot (file is removed afterwards)
@@ -85,17 +84,12 @@ if [[ "${1:-}" == "--prepare" ]]; then
     exit
 fi
 
-if [[ -n "${SUPERVISORD_NO_CHROOT:-}" || -e /root/.no-chroot ]]; then
-    log "chroot disabled, booting plain image"
-    exec "$INNER" "$@"
-fi
-
 # Re-run ourselves for the risky part so set -e works and failure is catchable.
 if "$0" --prepare; then
     log "entering $NEWROOT"
+    exit
     # exec chain keeps PID 1 = supervisord and the pod env untouched.
-    exec chroot "$NEWROOT" "$INNER" "$@"
 fi
 
-log "rootfs preparation failed, booting plain image"
-exec "$INNER" "$@"
+log "rootfs preparation failed"
+exit 1

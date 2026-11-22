@@ -22,8 +22,11 @@ spec:
       automountServiceAccountToken: false
       containers:
         - name: supervisord
-          image: gitea.lumpiasty.xyz/lumpiasty/supervisord:latest@sha256:30915d5b3898908056fa1bee83406873bf09a3e1bc1063870a4bb7feb32a7d78
+          image: gitea.lumpiasty.xyz/lumpiasty/supervisord:latest@sha256:3b4f2c5bbedaf18a213d63d437bf92faf7de68e1e032c15d20e355d021bad5b8
           imagePullPolicy: IfNotPresent
+          # systemd (booted by /boot.sh) writes status and service output to
+          # /dev/console, which only exists with a tty; it feeds kubectl logs.
+          tty: true
           ports:
             - containerPort: 8080
               name: http

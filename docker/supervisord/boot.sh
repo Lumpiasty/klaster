@@ -26,7 +26,7 @@ prepare() {
 
     if [[ -e /root/.rootfs-reset ]]; then
         log "factory reset requested via /root/.rootfs-reset"
-        rm -rf "$NEWROOT" "$SEEDTMP"
+        rm -rf --one-file-system "$NEWROOT" "$SEEDTMP"
         rm -f /root/.rootfs-reset
     fi
 
@@ -34,7 +34,7 @@ prepare() {
     # half way leaves only $SEEDTMP, which is discarded on the next boot.
     if [[ ! -e "$NEWROOT/$SEEDINFO/seeded" ]]; then
         log "seeding $NEWROOT from the image"
-        rm -rf "$NEWROOT" "$SEEDTMP"
+        rm -rf --one-file-system "$NEWROOT" "$SEEDTMP"
         mkdir -p "$SEEDTMP"
         # --one-file-system: other mounts (/proc /sys /dev /root /rootfs and
         # kubelet bind-mounts of directories) are stored as empty directories,

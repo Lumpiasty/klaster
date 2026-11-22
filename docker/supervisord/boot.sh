@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Container entrypoint: pivot_root into a persistent root filesystem kept on a
-# PVC, then run the image's normal entrypoint (/entrypoint.sh -> supervisord).
+# PVC, then boot systemd in it (or, without systemd, run /entrypoint.sh ->
+# supervisord directly).
 # Because the whole mount namespace is pivoted (not chrooted), `kubectl exec`
 # lands in the persistent rootfs too.
 # See README.md in this directory. Any failure while preparing the rootfs falls
@@ -10,6 +11,8 @@
 #   /rootfs                    PVC mount point (holds $NEWROOT and seed temp dir)
 #   SUPERVISORD_NO_PIVOT=1     env var: skip the rootfs, boot plain image
 #   /root/.no-pivot            file on the models PVC: same, no redeploy needed
+#   SUPERVISORD_NO_SYSTEMD=1   env var: pivot, but run supervisord as PID 1
+#   /root/.no-systemd          file on the models PVC: same, no redeploy needed
 #   /root/.rootfs-reset        file on the models PVC: wipe rootfs and reseed
 #                              on this boot (file is removed afterwards)
 
@@ -18,8 +21,85 @@ NEWROOT="$RFS_PVC/os"
 SEEDTMP="$RFS_PVC/os.seeding"
 SEEDINFO=var/lib/rootfs-seed
 INNER=/entrypoint.sh
+SYSTEMD=/usr/lib/systemd/systemd
+UNIT=rootfs-supervisord.service
+
+# Units that would act on the host: the pod is privileged and shares the
+# host's devices, /sys and writable /proc/sys. Also things that make no sense
+# in a pod. Masked in /run on every boot, so packages installed later cannot
+# re-enable them; a unit file of the same name in /etc still wins.
+MASK=(
+    systemd-udevd.service systemd-udevd-control.socket
+    systemd-udevd-kernel.socket systemd-udev-trigger.service
+    systemd-udev-settle.service systemd-hwdb-update.service
+    systemd-sysctl.service systemd-modules-load.service kmod-static-nodes.service
+    systemd-binfmt.service proc-sys-fs-binfmt_misc.automount
+    proc-sys-fs-binfmt_misc.mount
+    systemd-remount-fs.service systemd-pstore.service systemd-random-seed.service
+    systemd-timesyncd.service systemd-networkd.service systemd-resolved.service
+    systemd-firstboot.service systemd-machine-id-commit.service
+    systemd-journald-audit.socket systemd-tpm2-setup.service
+    systemd-tpm2-setup-early.service systemd-pcrmachine.service
+    systemd-hibernate-resume.service systemd-boot-update.service
+    sys-kernel-config.mount sys-kernel-debug.mount sys-kernel-tracing.mount
+    sys-fs-fuse-connections.mount dev-hugepages.mount dev-mqueue.mount
+    getty.target console-getty.service getty@tty1.service
+    swap.target cryptsetup.target tmp.mount
+    # the Debian package's own supervisord (/etc/supervisor); ours is $UNIT
+    supervisor.service
+)
 
 log() { echo "[boot] $*" >&2; }
+
+# Pod env (WORKSPACE, ...) for systemd services, which get a clean env.
+write_env() {
+    local kv k v
+    while IFS= read -r -d '' kv; do
+        k=${kv%%=*} v=${kv#*=}
+        [[ $k =~ ^[A-Za-z_][A-Za-z0-9_]*$ ]] || continue
+        case $k in HOME|PWD|OLDPWD|SHLVL|_|container) continue ;; esac
+        v=${v//\\/\\\\} v=${v//\"/\\\"}
+        printf '%s="%s"\n' "$k" "$v"
+    done < <(env -0)
+}
+
+# Runtime glue in /run (a fresh tmpfs each boot): masks, the supervisord
+# unit, pod env. Lives outside /etc so the rootfs itself stays untouched.
+prepare_systemd() {
+    local rs="$NEWROOT/run/systemd/system" u
+    mkdir -p "$rs/multi-user.target.wants"
+    for u in "${MASK[@]}"; do ln -sfn /dev/null "$rs/$u"; done
+
+    write_env > "$NEWROOT/run/pod.env"
+    cat > "$rs/$UNIT" <<EOF
+[Unit]
+Description=supervisord from \$WORKSPACE (llama-swap etc.)
+After=network.target
+
+[Service]
+EnvironmentFile=/run/pod.env
+ExecStart=$INNER
+KillMode=mixed
+TimeoutStopSec=45
+Restart=always
+RestartSec=2
+StandardOutput=journal+console
+StandardError=journal+console
+
+[Install]
+WantedBy=multi-user.target
+EOF
+    ln -sfn "../$UNIT" "$rs/multi-user.target.wants/$UNIT"
+
+    # journald would otherwise ingest the host's kernel log (privileged pod).
+    mkdir -p "$NEWROOT/run/systemd/journald.conf.d"
+    printf '[Journal]\nReadKMsg=no\n' \
+        > "$NEWROOT/run/systemd/journald.conf.d/50-pod.conf"
+
+    # systemd's status lines and $UNIT's output go to /dev/console, which
+    # only exists with `tty: true` in the pod spec; that is `kubectl logs`.
+    [[ -e /dev/console ]] || log "no /dev/console (set tty: true); logs only in journal"
+}
 
 prepare() {
     set -euo pipefail
@@ -59,10 +139,6 @@ prepare() {
         log "seed done"
     fi
 
-    # Fresh state for volatile dirs (they live on disk now, so stale sockets
-    # and pidfiles from the previous boot would otherwise survive).
-    find "$NEWROOT/tmp" "$NEWROOT/run" -mindepth 1 -delete 2>/dev/null || true
-
     # pivot_root refuses shared mounts; keep our mounts out of the host too.
     mount --make-rprivate /
     # pivot_root needs new_root to be a mount point. Bind it before the
@@ -71,12 +147,19 @@ prepare() {
 
     # /dev carries /dev/kfd, /dev/dri, /dev/shm and /dev/termination-log;
     # /root is the models PVC.
-    mkdir -p "$NEWROOT"/{dev,proc,sys,root}
+    mkdir -p "$NEWROOT"/{dev,proc,sys,root,run,tmp}
     for d in dev proc sys root; do
         if ! mountpoint -q "$NEWROOT/$d"; then
             mount --rbind "/$d" "$NEWROOT/$d"
         fi
     done
+
+    # /run is a fresh tmpfs (systemd expects that). /tmp stays on disk (builds
+    # can be large) and is emptied instead.
+    mountpoint -q "$NEWROOT/run" \
+        || mount -t tmpfs -o mode=755,nosuid,nodev,size=256m tmpfs "$NEWROOT/run"
+    find "$NEWROOT/tmp" -mindepth 1 -delete 2>/dev/null || true
+    chmod 1777 "$NEWROOT/tmp"
 
     # kubelet-managed files; a symlink here (e.g. from a resolver package)
     # would make the bind land somewhere else, so replace it with a file.
@@ -87,6 +170,25 @@ prepare() {
     done
 
     [[ -x "$NEWROOT$INNER" ]] || { log "$INNER missing in $NEWROOT"; return 1; }
+
+    # Boot systemd if the rootfs has it (decided after seeding). The glue in
+    # /run/systemd/system doubles as the marker the parent checks.
+    if [[ -z "${SUPERVISORD_NO_SYSTEMD:-}" && ! -e /root/.no-systemd \
+          && -x "$NEWROOT$SYSTEMD" ]]; then
+        prepare_systemd
+    fi
+}
+
+# Run $INNER without systemd. The image's STOPSIGNAL is SIGRTMIN+3 (what
+# systemd wants); supervisord ignores that, so keep bash as PID 1 and
+# translate it to SIGTERM.
+run_inner() {
+    "$INNER" "$@" &
+    local child=$!
+    trap 'kill -TERM $child 2>/dev/null' TERM INT RTMIN+3
+    while kill -0 "$child" 2>/dev/null; do wait "$child"; done
+    wait "$child"
+    exit
 }
 
 if [[ "${1:-}" == "--prepare" ]]; then
@@ -96,7 +198,7 @@ fi
 
 if [[ -n "${SUPERVISORD_NO_PIVOT:-}" || -e /root/.no-pivot ]]; then
     log "rootfs disabled, booting plain image"
-    exec "$INNER" "$@"
+    run_inner "$@"
 fi
 
 # Re-run ourselves for the risky part so set -e works and failure is catchable.
@@ -110,12 +212,16 @@ if "$0" --prepare; then
     if cd "$NEWROOT" && pivot_root . .; then
         umount -l . || log "could not detach old root (continuing)"
         cd /
-        # exec chain keeps PID 1 = supervisord and the pod env untouched.
-        exec "$INNER" "$@"
+        if [[ -d /run/systemd/system ]]; then
+            log "booting systemd"
+            exec env container=docker "$SYSTEMD"
+        fi
+        log "no systemd, running $INNER"
+        run_inner "$@"
     fi
     log "pivot_root failed"
     cd /
 fi
 
 log "rootfs preparation failed, booting plain image"
-exec "$INNER" "$@"
+run_inner "$@"

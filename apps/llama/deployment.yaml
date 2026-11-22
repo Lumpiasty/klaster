@@ -76,3 +76,21 @@ spec:
       protocol: TCP
   selector:
     app: llama-swap
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: llama-sshd
+  namespace: llama
+spec:
+  type: LoadBalancer
+  ipFamilyPolicy: SingleStack
+  ipFamilies:
+    - IPv6
+  ports:
+    - name: sshd
+      port: 22
+      targetPort: 22
+      protocol: TCP
+  selector:
+    app: llama-swap

@@ -1,12 +1,15 @@
 #!/usr/bin/env bash
-# Container entrypoint: run the image's normal entrypoint (/entrypoint.sh ->
-# supervisord) inside a persistent root filesystem kept on a PVC.
+# Container entrypoint: pivot_root into a persistent root filesystem kept on a
+# PVC, then run the image's normal entrypoint (/entrypoint.sh -> supervisord).
+# Because the whole mount namespace is pivoted (not chrooted), `kubectl exec`
+# lands in the persistent rootfs too.
 # See README.md in this directory. Any failure while preparing the rootfs falls
 # back to booting the plain image so inference keeps working.
 #
 # Inputs:
 #   /rootfs                    PVC mount point (holds $NEWROOT and seed temp dir)
-#   /root/.no-chroot           file on the models PVC: same, no redeploy needed
+#   SUPERVISORD_NO_PIVOT=1     env var: skip the rootfs, boot plain image
+#   /root/.no-pivot            file on the models PVC: same, no redeploy needed
 #   /root/.rootfs-reset        file on the models PVC: wipe rootfs and reseed
 #                              on this boot (file is removed afterwards)
 
@@ -60,11 +63,18 @@ prepare() {
     # and pidfiles from the previous boot would otherwise survive).
     find "$NEWROOT/tmp" "$NEWROOT/run" -mindepth 1 -delete 2>/dev/null || true
 
+    # pivot_root refuses shared mounts; keep our mounts out of the host too.
+    mount --make-rprivate /
+    # pivot_root needs new_root to be a mount point. Bind it before the
+    # submounts below so they sit on top of this bind.
+    mountpoint -q "$NEWROOT" || mount --bind "$NEWROOT" "$NEWROOT"
+
+    # /dev carries /dev/kfd, /dev/dri, /dev/shm and /dev/termination-log;
+    # /root is the models PVC.
     mkdir -p "$NEWROOT"/{dev,proc,sys,root}
     for d in dev proc sys root; do
         if ! mountpoint -q "$NEWROOT/$d"; then
             mount --rbind "/$d" "$NEWROOT/$d"
-            mount --make-rslave "$NEWROOT/$d"
         fi
     done
 
@@ -84,12 +94,28 @@ if [[ "${1:-}" == "--prepare" ]]; then
     exit
 fi
 
-# Re-run ourselves for the risky part so set -e works and failure is catchable.
-if "$0" --prepare; then
-    log "entering $NEWROOT"
-    exit
-    # exec chain keeps PID 1 = supervisord and the pod env untouched.
+if [[ -n "${SUPERVISORD_NO_PIVOT:-}" || -e /root/.no-pivot ]]; then
+    log "rootfs disabled, booting plain image"
+    exec "$INNER" "$@"
 fi
 
-log "rootfs preparation failed"
-exit 1
+# Re-run ourselves for the risky part so set -e works and failure is catchable.
+# Mounts are per mount namespace, so the child's work is visible here.
+if "$0" --prepare; then
+    log "pivoting into $NEWROOT"
+    # `pivot_root . .` stacks the old root on top of the new one; the lazy
+    # umount then drops it (same trick runc uses). pivot_root also moves the
+    # root/cwd of every process in the namespace, and runc exec joins the
+    # namespace at its root, so kubectl exec sees the new root.
+    if cd "$NEWROOT" && pivot_root . .; then
+        umount -l . || log "could not detach old root (continuing)"
+        cd /
+        # exec chain keeps PID 1 = supervisord and the pod env untouched.
+        exec "$INNER" "$@"
+    fi
+    log "pivot_root failed"
+    cd /
+fi
+
+log "rootfs preparation failed, booting plain image"
+exec "$INNER" "$@"

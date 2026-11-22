@@ -7,28 +7,35 @@ a custom Mesa in `/usr`, sshd, etc. survive pod restarts. Models, builds and
 
 ## How it works
 
-`ENTRYPOINT` is `/boot.sh` (outside the chroot):
+`ENTRYPOINT` is `/boot.sh` (runs from the image, before the pivot):
 
-1. PVC is mounted at `/rootfs`; the chroot is `/rootfs/os`.
+1. PVC is mounted at `/rootfs`; the new root is `/rootfs/os`.
 2. If `/rootfs/os/var/lib/rootfs-seed/seeded` is missing, copy the image's root
    (`tar --one-file-system`, so `/proc /sys /dev /root /rootfs` are not copied) into
    `/rootfs/os.seeding`, then `mv` it to `/rootfs/os`. The rename is the commit
    point; a killed seed leaves only `os.seeding`, which is deleted on next boot.
    The seed records `packages.seed` (dpkg list at seed time) and `seeded` (date, hash).
-3. Every boot: clean `/tmp` and `/run` in the rootfs, `rbind` `/dev` (includes
-   `/dev/kfd`, `/dev/dri`, `/dev/shm`), `/proc`, `/sys`, `/root`, and bind the
-   kubelet files `/etc/resolv.conf`, `/etc/hosts`, `/etc/hostname`.
-4. `exec chroot /rootfs/os /entrypoint.sh` -> `exec supervisord -n -c $WORKSPACE/supervisord.conf`.
+3. Every boot: clean `/tmp` and `/run` in the rootfs, `make-rprivate /`, bind
+   `/rootfs/os` onto itself (pivot_root needs a mount point), `rbind` `/dev`
+   (includes `/dev/kfd`, `/dev/dri`, `/dev/shm`, `/dev/termination-log`), `/proc`,
+   `/sys`, `/root`, and bind the kubelet files `/etc/resolv.conf`, `/etc/hosts`,
+   `/etc/hostname`.
+4. `cd /rootfs/os; pivot_root . .; umount -l .` (the same trick runc uses), then
+   `exec /entrypoint.sh` -> `exec supervisord -n -c $WORKSPACE/supervisord.conf`.
    Everything is `exec`, so PID 1 is still supervisord (as before) and SIGTERM from
    kubelet reaches it. Pod env (`WORKSPACE`, ...) is inherited unchanged.
+   Because the whole mount namespace is pivoted (not chrooted), `kubectl exec`
+   lands in the persistent rootfs directly. Anything kubelet mounts outside the
+   paths above (e.g. a service account token) is left behind, which is why the
+   deployment sets `automountServiceAccountToken: false`.
 
 If anything in the prepare step fails (PVC missing, disk full, ...), the script
 logs `[boot] ...` and boots the plain image so inference still works.
 
 ## Escape hatches
 
-- Skip the chroot without redeploying: `touch /root/.no-chroot` (models PVC)
-  then restart the pod. Or set env `SUPERVISORD_NO_CHROOT=1` on the container.
+- Skip the rootfs without redeploying: `touch /root/.no-pivot` (models PVC)
+  then restart the pod. Or set env `SUPERVISORD_NO_PIVOT=1` on the container.
   Remove the file/env to return.
 - Factory reset: `touch /root/.rootfs-reset` and restart; the rootfs is wiped
   and reseeded from the current image on that boot (file is deleted).
@@ -42,7 +49,7 @@ After the first seed, `/rootfs/os` is the machine; new image builds change
 nothing in it (including `/entrypoint.sh` and the Debian packages). To adopt a
 new image either factory-reset (loses hand-made changes) or apply changes by hand
 (`apt full-upgrade`, copy a new `/entrypoint.sh` from the plain image:
-`touch /root/.no-chroot`, restart, then `cp /entrypoint.sh /rootfs/os/entrypoint.sh`).
+`touch /root/.no-pivot`, restart, then `cp /entrypoint.sh /rootfs/os/entrypoint.sh`).
 Keep the Dockerfile's package list in sync with what you want after a reset.
 
 Record hand-installed things so they can be folded back into the Dockerfile:
@@ -90,7 +97,7 @@ Flux applies `apps/` on push to `fresh-start` (Woodpecker triggers
    (~1.1G image root: expect roughly 30-90 s extra), then supervisord starts.
    Total downtime about 1-2 min (pod is `Recreate`, GPU is exclusive).
 3. Verify: `kubectl -n llama logs deploy/supervisord | grep '\[boot\]'` (expect
-   "seeding", "seed done", "entering /rootfs/os"); in `kubectl exec`: `findmnt /`
+   "seeding", "seed done", "pivoting into /rootfs/os"); in `kubectl exec`: `findmnt /`
    shows the rootfs PVC device (not overlay), `ls -l /dev/kfd /dev/dri`,
    `supervisorctl status`, then a request through llama-swap.
 
@@ -98,7 +105,7 @@ Flux applies `apps/` on push to `fresh-start` (Woodpecker triggers
 
 Revert the deployment to the previous image digest (and optionally drop the
 rootfs mount); the old image's entrypoint ignores the PVC. Keep the PVC: the
-installed system is still there. Quicker without a deploy: `touch /root/.no-chroot`.
+installed system is still there. Quicker without a deploy: `touch /root/.no-pivot`.
 
 ## Known limits
 

@@ -17,25 +17,13 @@ spec:
         app: llama-swap
     spec:
       terminationGracePeriodSeconds: 60
-      initContainers:
-        # Seeds the rootfs PVC (subdir "os") from the image on first boot
-        - name: rootfs-seed
-          image: gitea.lumpiasty.xyz/lumpiasty/supervisord:latest@sha256:07fa24ffc22c143da3ecfea120b3e7e0a360fe50d8ca1f02102c79263f569287
-          imagePullPolicy: IfNotPresent
-          volumeMounts:
-            - name: models
-              mountPath: /root
-            - name: rootfs
-              mountPath: /rootfs
-          securityContext:
-            privileged: true
+      # boot.sh pivot_roots away from the container root, so a mounted
+      # service account token would be left behind; nothing here needs it.
+      automountServiceAccountToken: false
       containers:
         - name: supervisord
-          image: gitea.lumpiasty.xyz/lumpiasty/supervisord:latest@sha256:07fa24ffc22c143da3ecfea120b3e7e0a360fe50d8ca1f02102c79263f569287
+          image: gitea.lumpiasty.xyz/lumpiasty/supervisord:latest@sha256:30915d5b3898908056fa1bee83406873bf09a3e1bc1063870a4bb7feb32a7d78
           imagePullPolicy: IfNotPresent
-          # Image entrypoint is /boot.sh (the seeder); run supervisord directly
-          # from the persistent rootfs instead.
-          command: ["/entrypoint.sh"]
           ports:
             - containerPort: 8080
               name: http
@@ -44,11 +32,11 @@ spec:
             - name: WORKSPACE
               value: /root
           volumeMounts:
-            - name: rootfs
-              mountPath: /
-              subPath: os
             - name: models
               mountPath: /root
+            # persistent rootfs; /boot.sh seeds /rootfs/os and pivots into it
+            - name: rootfs
+              mountPath: /rootfs
             - mountPath: /dev/kfd
               name: kfd
             - mountPath: /dev/dri

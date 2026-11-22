@@ -86,13 +86,13 @@ Flux applies `apps/` on push to `fresh-start` (Woodpecker triggers
    `gitea.lumpiasty.xyz/lumpiasty/supervisord:latest` and `:<sha8>`; Flux creates the
    rootfs PVC. Pod is untouched.
 2. Get the new digest, put it in `apps/llama/deployment.yaml` (commit 2 carries the
-   volume/mount and needs the digest filled in), push. One restart: seed runs
+   volume/mount; its image digest is a placeholder until step 1 finishes), push. One restart: seed runs
    (~1.1G image root: expect roughly 30-90 s extra), then supervisord starts.
    Total downtime about 1-2 min (pod is `Recreate`, GPU is exclusive).
-3. Verify: `kubectl -n llama logs deploy/supervisord | grep '\[boot\]'`,
-   `exec` -> `ls /rootfs/os` is NOT visible inside the chroot (the PVC is not
-   mounted there; check `cat /proc/1/root` or `findmnt /` instead: `/` is on the rootfs PVC),
-   `ls -l /dev/kfd /dev/dri`, `supervisorctl status`, hit llama-swap.
+3. Verify: `kubectl -n llama logs deploy/supervisord | grep '\[boot\]'` (expect
+   "seeding", "seed done", "entering /rootfs/os"); in `kubectl exec`: `findmnt /`
+   shows the rootfs PVC device (not overlay), `ls -l /dev/kfd /dev/dri`,
+   `supervisorctl status`, then a request through llama-swap.
 
 ## Rollback
 

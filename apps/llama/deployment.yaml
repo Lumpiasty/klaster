@@ -17,10 +17,25 @@ spec:
         app: llama-swap
     spec:
       terminationGracePeriodSeconds: 60
+      initContainers:
+        # Seeds the rootfs PVC (subdir "os") from the image on first boot
+        - name: rootfs-seed
+          image: gitea.lumpiasty.xyz/lumpiasty/supervisord:latest@sha256:07fa24ffc22c143da3ecfea120b3e7e0a360fe50d8ca1f02102c79263f569287
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - name: models
+              mountPath: /root
+            - name: rootfs
+              mountPath: /rootfs
+          securityContext:
+            privileged: true
       containers:
         - name: supervisord
-          image: gitea.lumpiasty.xyz/lumpiasty/supervisord:latest@sha256:d6f363fb6652e89f2e0c6a89ce48f3ebecbf37b8cf0c7f8c75daf095f5ff3cdb
+          image: gitea.lumpiasty.xyz/lumpiasty/supervisord:latest@sha256:07fa24ffc22c143da3ecfea120b3e7e0a360fe50d8ca1f02102c79263f569287
           imagePullPolicy: IfNotPresent
+          # Image entrypoint is /boot.sh (the seeder); run supervisord directly
+          # from the persistent rootfs instead.
+          command: ["/entrypoint.sh"]
           ports:
             - containerPort: 8080
               name: http
@@ -29,10 +44,11 @@ spec:
             - name: WORKSPACE
               value: /root
           volumeMounts:
+            - name: rootfs
+              mountPath: /
+              subPath: os
             - name: models
               mountPath: /root
-            - name: rootfs
-              mountPath: /rootfs
             - mountPath: /dev/kfd
               name: kfd
             - mountPath: /dev/dri

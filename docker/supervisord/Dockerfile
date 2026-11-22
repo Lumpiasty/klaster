@@ -10,6 +10,7 @@ RUN apt update && apt install -y --no-install-recommends\
     supervisor \
     && rm -rf /var/lib/apt/lists/*
 
-ADD --chmod=755 entrypoint.sh /
+ADD --chmod=755 entrypoint.sh boot.sh /
 
-ENTRYPOINT ["/entrypoint.sh"]
+# boot.sh seeds/enters the persistent rootfs PVC, then runs /entrypoint.sh in it
+ENTRYPOINT ["/boot.sh"]

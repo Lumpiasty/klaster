@@ -44,3 +44,50 @@ spec:
       storage: 400Gi
   storageClassName: ssd-lvmpv
   volumeName: llama-models-lvmssd
+---
+# Persistent root filesystem of the supervisord pod (see docker/supervisord/README.md)
+apiVersion: local.openebs.io/v1alpha1
+kind: LVMVolume
+metadata:
+  labels:
+    kubernetes.io/nodename: anapistula-delrosalae
+  name: llama-rootfs-lvmssd
+  namespace: openebs
+spec:
+  capacity: "32212254720"
+  ownerNodeID: anapistula-delrosalae
+  shared: "yes"
+  thinProvision: "no"
+  vgPattern: ^openebs-ssd$
+  volGroup: openebs-ssd
+---
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: llama-rootfs-lvmssd
+spec:
+  capacity:
+    storage: 30Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ssd-lvmpv
+  volumeMode: Filesystem
+  csi:
+    driver: local.csi.openebs.io
+    fsType: btrfs
+    volumeHandle: llama-rootfs-lvmssd
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: llama-rootfs-lvmssd
+  namespace: llama
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 30Gi
+  storageClassName: ssd-lvmpv
+  volumeName: llama-rootfs-lvmssd

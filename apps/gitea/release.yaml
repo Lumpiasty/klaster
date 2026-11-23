@@ -77,6 +77,8 @@ spec:
           HOST: gitea-postgresql-cluster-lvmhdd-rw:5432
           NAME: app
           USER: app
+        service:
+          REQUIRE_SIGNIN_VIEW: expensive
         indexer:
           ISSUE_INDEXER_TYPE: bleve
           REPO_INDEXER_ENABLED: true

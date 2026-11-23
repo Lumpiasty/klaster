@@ -252,6 +252,7 @@ flowchart TD
 | <img src="docs/assets/meridian.svg" alt="meridian" height="50" width="50"> | Meridian | Proxy that bridges Anthropic's official SDK to third-party tools |
 | | whisper.cpp | High-performance Whisper Automatic Speech Recognition inference server |
 | | Kokoro-FastAPI | Kokoro-82M text-to-speech inference server |
+| | generic-device-plugin | Exposes the GPU to pods as kubernetes resource |
 
 ### Applications/Services
 

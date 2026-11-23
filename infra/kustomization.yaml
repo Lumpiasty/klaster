@@ -14,6 +14,7 @@ resources:
   - controllers/vault-secrets-operator.yaml
   - controllers/mongodb-operator.yaml
   - controllers/cloudnative-pg.yaml
+  - controllers/generic-device-plugin.yaml
   - diskpools/anapistula-delrosalae-hdd.yaml
   - diskpools/anapistula-delrosalae-ssd.yaml
   - configs/bgp-cluster-config.yaml

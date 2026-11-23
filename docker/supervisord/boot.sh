@@ -24,10 +24,11 @@ INNER=/entrypoint.sh
 SYSTEMD=/usr/lib/systemd/systemd
 UNIT=rootfs-supervisord.service
 
-# Units that would act on the host: the pod is privileged and shares the
-# host's devices, /sys and writable /proc/sys. Also things that make no sense
-# in a pod. Masked in /run on every boot, so packages installed later cannot
-# re-enable them; a unit file of the same name in /etc still wins.
+# Units that would try to act on the host (devices, kernel modules, sysctls,
+# clock); the pod has CAP_SYS_ADMIN, and these were outright harmful back when
+# it was privileged. Also things that make no sense in a pod. Masked in /run
+# on every boot, so packages installed later cannot re-enable them; a unit
+# file of the same name in /etc still wins.
 MASK=(
     systemd-udevd.service systemd-udevd-control.socket
     systemd-udevd-kernel.socket systemd-udev-trigger.service
@@ -91,7 +92,7 @@ WantedBy=multi-user.target
 EOF
     ln -sfn "../$UNIT" "$rs/multi-user.target.wants/$UNIT"
 
-    # journald would otherwise ingest the host's kernel log (privileged pod).
+    # journald must not try to ingest the host's kernel log (/dev/kmsg).
     mkdir -p "$NEWROOT/run/systemd/journald.conf.d"
     printf '[Journal]\nReadKMsg=no\n' \
         > "$NEWROOT/run/systemd/journald.conf.d/50-pod.conf"
@@ -145,14 +146,25 @@ prepare() {
     # submounts below so they sit on top of this bind.
     mountpoint -q "$NEWROOT" || mount --bind "$NEWROOT" "$NEWROOT"
 
-    # /dev carries /dev/kfd, /dev/dri, /dev/shm and /dev/termination-log;
-    # /root is the models PVC.
+    # /dev carries /dev/dri/renderD* (from the device plugin), /dev/shm and
+    # /dev/termination-log; /root is the models PVC.
     mkdir -p "$NEWROOT"/{dev,proc,sys,root,run,tmp}
     for d in dev proc sys root; do
         if ! mountpoint -q "$NEWROOT/$d"; then
             mount --rbind "/$d" "$NEWROOT/$d"
         fi
     done
+
+    # An unprivileged pod gets /sys/fs/cgroup (its own cgroup namespace)
+    # read-only; systemd as PID 1 needs it writable to manage its units.
+    # Only this mount's flag changes (bind remount), /sys stays read-only.
+    # Not fatal: without it systemd fails to boot, but supervisord still runs
+    # via SUPERVISORD_NO_SYSTEMD / /root/.no-systemd.
+    local cg="$NEWROOT/sys/fs/cgroup"
+    if [[ ",$(findmnt -no VFS-OPTIONS "$cg" 2>/dev/null)," == *,ro,* ]]; then
+        mount -o remount,bind,rw "$cg" \
+            || log "could not make $cg writable; systemd will likely fail"
+    fi
 
     # /run is a fresh tmpfs (systemd expects that). /tmp stays on disk (builds
     # can be large) and is emptied instead.

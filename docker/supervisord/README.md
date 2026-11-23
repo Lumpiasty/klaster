@@ -17,7 +17,7 @@ a custom Mesa in `/usr`, sshd, etc. survive pod restarts. Models, builds and
    The seed records `packages.seed` (dpkg list at seed time) and `seeded` (date, hash).
 3. Every boot: `make-rprivate /`, bind
    `/rootfs/os` onto itself (pivot_root needs a mount point), `rbind` `/dev`
-   (includes `/dev/kfd`, `/dev/dri`, `/dev/shm`, `/dev/termination-log`), `/proc`,
+   (includes `/dev/dri/renderD*`, `/dev/shm`, `/dev/termination-log`), `/proc`,
    `/sys`, `/root`, and bind the kubelet files `/etc/resolv.conf`, `/etc/hosts`,
    `/etc/hostname`. `/run` is a new tmpfs; `/tmp` stays on disk and is emptied.
 4. `cd /rootfs/os; pivot_root . .; umount -l .` (the same trick runc uses), then
@@ -46,9 +46,9 @@ tmpfs) on every boot, so nothing in the persistent `/etc` depends on it:
 - `/run/systemd/system/rootfs-supervisord.service` (+ `multi-user.target.wants`)
 - `/run/pod.env`: the pod's env (`WORKSPACE`, ...) for the unit; services do
   not inherit PID 1's env.
-- Masks (`-> /dev/null`) for units that would act on the **host**: the pod is
-  privileged with the host's devices, `/sys` and a writable `/proc/sys`, so
-  udev (re-triggers host devices), `systemd-sysctl` (any package's
+- Masks (`-> /dev/null`) for units that would try to act on the **host**
+  (the pod has `CAP_SYS_ADMIN`; they were outright harmful when it was
+  privileged): udev (re-triggers host devices), `systemd-sysctl` (any package's
   `sysctl.d` would change node settings), modules-load, binfmt, remount-fs,
   pstore, timesyncd, networkd/resolved, gettys, kernel fs mounts, `tmp.mount`
   (keeps `/tmp` on disk), and Debian's own `supervisor.service`. See `MASK` in
@@ -118,7 +118,7 @@ redirect_stderr=true
 
 Start with `supervisorctl start sshd`. To reach it, prefer
 `kubectl -n llama port-forward deploy/supervisord 2222:22`. Exposing it via a
-Service/ingress is a deliberate separate change (the pod is privileged).
+Service/ingress is a deliberate separate change (the pod has `CAP_SYS_ADMIN`).
 Do not use `PermitRootLogin yes` with password auth.
 
 ## Rollout
@@ -136,7 +136,7 @@ Flux applies `apps/` on push to `fresh-start` (Woodpecker triggers
    Total downtime about 1-2 min (pod is `Recreate`, GPU is exclusive).
 3. Verify: `kubectl -n llama logs deploy/supervisord | grep '\[boot\]'` (expect
    "seeding", "seed done", "pivoting into /rootfs/os"); in `kubectl exec`: `findmnt /`
-   shows the rootfs PVC device (not overlay), `ls -l /dev/kfd /dev/dri`,
+   shows the rootfs PVC device (not overlay), `ls -l /dev/dri` (only `renderD*`),
    `supervisorctl status`, then a request through llama-swap.
 
 ## Rollback
@@ -147,7 +147,15 @@ installed system is still there. Quicker without a deploy: `touch /root/.no-pivo
 
 ## Known limits
 
-- The pod is privileged; it needs `mount`. Do not drop `privileged`.
+- The pod is **not** privileged. It gets `CAP_SYS_ADMIN` (for mount, pivot_root
+  and systemd's unit sandboxing) with seccomp/AppArmor unconfined. The GPU comes
+  in as `squat.ai/gpu` from `infra/controllers/generic-device-plugin.yaml`, which
+  injects only `/dev/dri/renderD*` (Vulkan/RADV; the GPU can't run ROCm, so no
+  `/dev/kfd`). `/sys` and `/proc/sys` are read-only. `boot.sh` remounts only
+  `/sys/fs/cgroup` (the pod's own cgroup namespace) read-write for systemd.
+- Root in the pod is still real root with `CAP_SYS_ADMIN`, so this is
+  hardening, not a sandbox. `hostUsers: false` would go further but needs the
+  render node world-accessible and breaks the cgroup remount (locked mounts).
 - `/dev/shm` stays the kubelet's 64M (same as before; `LLAMA_VRAM_ARENA` lives there).
 - Mounts made by the boot script exist only in the container's mount namespace
   (gone on restart; redone each boot).

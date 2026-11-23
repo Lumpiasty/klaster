@@ -40,12 +40,23 @@ spec:
             # persistent rootfs; /boot.sh seeds /rootfs/os and pivots into it
             - name: rootfs
               mountPath: /rootfs
-            - mountPath: /dev/kfd
-              name: kfd
-            - mountPath: /dev/dri
-              name: dri
+          resources:
+            limits:
+              # /dev/dri/renderD128 via generic-device-plugin (Vulkan only)
+              squat.ai/gpu: 1
+          # Not privileged: no host /dev, read-only /sys and /proc/sys.
+          # SYS_ADMIN is what /boot.sh (mount, pivot_root, cgroup remount) and
+          # systemd (unit sandboxing) need.
           securityContext:
-            privileged: true
+            privileged: false
+            capabilities:
+              add:
+                - SYS_ADMIN
+            # systemd uses syscalls (keyctl, ...) the default profile blocks
+            seccompProfile:
+              type: Unconfined
+            appArmorProfile:
+              type: Unconfined
       volumes:
         - name: models
           persistentVolumeClaim:
@@ -53,14 +64,6 @@ spec:
         - name: rootfs
           persistentVolumeClaim:
             claimName: llama-rootfs-lvmssd
-        - name: kfd
-          hostPath:
-            path: /dev/kfd
-            type: CharDevice
-        - name: dri
-          hostPath:
-            path: /dev/dri
-            type: Directory
 ---
 apiVersion: v1
 kind: Service

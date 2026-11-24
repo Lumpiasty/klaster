@@ -1,0 +1,47 @@
+---
+# Fan/power watchdog for the llama node's RX 580 (fan-control.sh).
+# Kept apart from the supervisord pod, which is unprivileged and sees a
+# read-only /sys; this needs to write amdgpu's hwmon files (pwm1*, power1_cap).
+# The llama namespace is exempt from PodSecurity (Talos admission config).
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: gpu-fan-control
+  namespace: llama
+spec:
+  selector:
+    matchLabels:
+      app: gpu-fan-control
+  updateStrategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: gpu-fan-control
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: anapistula-delrosalae
+      priorityClassName: system-node-critical
+      automountServiceAccountToken: false
+      terminationGracePeriodSeconds: 5
+      containers:
+        - name: fan-control
+          image: alpine:3.24.4@sha256:f59abe656b692d901e184be3445e084786602108599d2a51d229c0f5a48c71bf
+          command: ["/bin/sh", "/scripts/fan-control.sh"]
+          resources:
+            requests:
+              cpu: 10m
+              memory: 8Mi
+            limits:
+              memory: 32Mi
+          # privileged: /sys is mounted read-write
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - name: scripts
+              mountPath: /scripts
+              readOnly: true
+      volumes:
+        - name: scripts
+          configMap:
+            name: gpu-fan-control

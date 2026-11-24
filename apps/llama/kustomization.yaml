@@ -8,3 +8,9 @@ resources:
   - pvc-ssd.yaml
   - deployment.yaml
   - kokoro.yaml
+  - fan-control.yaml
+configMapGenerator:
+  - name: gpu-fan-control
+    namespace: llama
+    files:
+      - fan-control.sh

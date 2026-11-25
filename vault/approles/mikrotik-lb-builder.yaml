@@ -1,0 +1,4 @@
+token_ttl: 20m
+token_max_ttl: 20m
+policies:
+  - renovate
